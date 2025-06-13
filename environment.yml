@@ -1,0 +1,18 @@
+# environment.yml
+
+name: low-rank-dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core depencies from pyproject.toml
+  - python>=3.8
+  - numpy>=1.21
+  - scipy>=1.7
+
+  # Development tools
+  - pip
+  - build # for package building
+  - twine # for uploading to PyPi
+  - pytest # for testing the code
+  - ipykernel # for using Jupyter notebooks

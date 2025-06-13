@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Environment
+.venv/
+venv/
+env/
+.env
+
+# IDE Folders
+.vscode/
+.idea/
+
+# Mac files
+.DS_Store
+
+# Scratchpads folders
+notebooks/
+scripts/
