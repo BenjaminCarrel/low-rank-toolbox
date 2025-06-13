@@ -20,7 +20,9 @@ Since this is a private repository, you will need a **GitHub Personal Access Tok
 
 1. **Generate a PAT:** Follow the GitHub documentation to [create a Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic). Your token must have the repo scope to access private repositories. Copy the token immediately as you will not be able to see it again.  
 2. **Install with pip:** Run the following command in your terminal, replacing \<YOUR\_PAT\>, \<your-username\>, and \<branch-name\> accordingly. The branch can be main or a specific version tag (e.g., v0.1.0).  
-   `pip install git+https://<YOUR\_PAT\>@github.com/<your-username\>/low-rank-toolbox.git@\<branch-name\>`
+   ```
+   pip install git+https://<YOUR\_PAT\>@github.com/<your-username\>/low-rank-toolbox.git@\<branch-name\>
+   ```
 
 ### **2\. For Developers (Editable Installation)**
 
@@ -39,7 +41,9 @@ This method is for those who want to contribute to the development of low-rank-t
    ```
 
 3. **Install in Editable Mode:** This command uses pip to link the installed package directly to your source code. Any changes you make in the src/ directory will be immediately available in your environment without needing to reinstall.  
-   `pip install \-e .`
+   ```
+   pip install \-e .
+   ```
 
 ## **Verifying the Installation**
 
