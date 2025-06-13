@@ -20,22 +20,26 @@ Since this is a private repository, you will need a **GitHub Personal Access Tok
 
 1. **Generate a PAT:** Follow the GitHub documentation to [create a Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic). Your token must have the repo scope to access private repositories. Copy the token immediately as you will not be able to see it again.  
 2. **Install with pip:** Run the following command in your terminal, replacing \<YOUR\_PAT\>, \<your-username\>, and \<branch-name\> accordingly. The branch can be main or a specific version tag (e.g., v0.1.0).  
-   pip install git+https://\<YOUR\_PAT\>@github.com/\<your-username\>/low-rank-toolbox.git@main
+   `pip install git+https://<YOUR\_PAT\>@github.com/<your-username\>/low-rank-toolbox.git@\<branch-name\>`
 
 ### **2\. For Developers (Editable Installation)**
 
 This method is for those who want to contribute to the development of low-rank-toolbox, add new features, or fix bugs.
 
 1. **Clone the Repository:**  
-   git clone https://github.com/\<your-username\>/low-rank-toolbox.git  
+   ```
+   git clone https://github.com/BenjaminCarrel/low-rank-toolbox.git  
    cd low-rank-toolbox
+   ```
 
 2. **Create the Conda Environment:** This will install all the necessary dependencies, including development tools like pytest. The environment is defined in the environment.yml file.  
+   ```
    conda env create \-f environment.yml  
    conda activate low-rank-dev
+   ```
 
 3. **Install in Editable Mode:** This command uses pip to link the installed package directly to your source code. Any changes you make in the src/ directory will be immediately available in your environment without needing to reinstall.  
-   pip install \-e .
+   `pip install \-e .`
 
 ## **Verifying the Installation**
 
@@ -48,31 +52,9 @@ If all tests pass, your installation is successful and the development environme
 ## **Quick Start**
 
 Here is a simple example of how to use the lowrank package:  
-import numpy as np  
-\# Assuming you will have a LowRankMatrix class in your 'matrices' module  
-\# from lowrank.matrices import LowRankMatrix
-
-\# Create a full-rank matrix  
-A \= np.random.rand(100, 50\)
-
-\# Create a low-rank approximation (e.g., rank 5\)  
-U, s, Vt \= np.linalg.svd(A, full\_matrices=False)  
-rank \= 5  
-U\_r \= U\[:, :rank\]  
-s\_r \= s\[:rank\]  
-Vt\_r \= Vt\[:rank, :\]
-
-\# This is a placeholder for how your class might be instantiated  
-\# low\_rank\_A \= LowRankMatrix(U\_r, np.diag(s\_r), Vt\_r)
-
-\# print(f"Original matrix shape: {A.shape}")  
-\# print(f"Low-rank matrix stored shape: {low\_rank\_A.shape}")  
-\# print(f"Memory usage can be significantly lower.")
-
-\# Example of a utility function  
-from lowrank.utils import is\_symmetric  
-B \= np.array(\[\[1, 2\], \[2, 1\]\])  
-print(f"Is B symmetric? {is\_symmetric(B)}")
+```
+#TODO: add an example
+```
 
 ## **License**
 
