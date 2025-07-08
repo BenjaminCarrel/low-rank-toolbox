@@ -11,7 +11,7 @@ import lowrank
 
 * Memory-efficient storage for low-rank matrices and tensors.  
 * Implementations of fundamental low-rank operations and factorizations.  
-* Sub-packages for specialized algorithms like cssp (Column Subset Selection).  
+* Sub-packages for specialized algorithms like CSSP (Column Subset Selection Problem), Krylov approximations, etc.  
 * Built on top of numpy and scipy for a familiar and powerful foundation.
 
 ## **Installation**
@@ -54,8 +54,9 @@ This method is for those who want to contribute to the development of low-rank-t
 
 After installing the package using the developer instructions, you can verify that everything is set up correctly by running the test suite.  
 From the root directory of the project (low-rank-toolbox/), run:  
+```
 pytest
-
+```
 If all tests pass, your installation is successful and the development environment is ready.
 
 ## **Quick Start**
