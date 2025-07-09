@@ -5,7 +5,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "low-rank-toolbox" # The name used for `pip install`
+name = "lowrank" # The name used for `pip install`
 version = "0.1.0"
 authors = [
     { name="Benjamin Carrel", email="benjamin.carrel@psi.ch" },
@@ -31,3 +31,8 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/BenjaminCarrel/low-rank-toolbox"
 "Bug Tracker" = "https://github.com/BenjaminCarrel/low-rank-toolbox/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]
