@@ -6,11 +6,15 @@ Tests for the Sylvester solvers.
 
 # %% Imports
 import numpy as np
-import scipy.sparse as sps
 import scipy.linalg as la
-import pytest
-from krylov_toolbox.solvers.sylvester_solvers import *
-from low_rank_toolbox import SVD
+import scipy.sparse as sps
+
+from lowrank.krylov.solvers.sylvester_solvers import (
+    solve_small_sylvester,
+    solve_sparse_low_rank_sylvester,
+    solve_sylvester_large_A_small_B,
+)
+from lowrank.matrices.svd import SVD
 
 # %% Setup data
 n = 200
@@ -33,7 +37,6 @@ def test_sylvester_small():
     assert np.allclose(X, X_ref), "The small solver is not correct"
     print('test_sylvester_small passed')
 
-test_sylvester_small()
 
 # %% Test the "large and small" solver
 def test_sylvester_large_small():
@@ -41,7 +44,6 @@ def test_sylvester_large_small():
     assert np.allclose(X, X_ref), "The large and small solver is not correct"
     print('test_sylvester_large_small passed')
 
-test_sylvester_large_small()
 
 # %% Test the "large and low rank" solver
 def test_sylvester_large_low_rank(A, B, C):
@@ -52,5 +54,4 @@ def test_sylvester_large_low_rank(A, B, C):
     assert np.allclose(Xd, X_ref), "The large and low rank solver is not correct"
     print('test_sylvester_large_low_rank passed')
 
-test_sylvester_large_low_rank(A, B, C)
 # %%

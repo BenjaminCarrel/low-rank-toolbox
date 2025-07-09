@@ -8,7 +8,7 @@ Test file for Lanczos methods
 import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
-from krylov_toolbox import Lanczos, block_Lanczos
+from lowrank.krylov.utils.lanczos import Lanczos, block_Lanczos
 
 # %% Matrix to use: discretized laplacian
 n = 100
@@ -42,7 +42,6 @@ def test_Lanczos():
     assert la.norm(Q.dot(Q.T) - Q_ref.dot(Q_ref.T)) < 1e-10, "Basis is not the same -> error in Lanczos"
     print('Lanczos Projection OK.')
 
-test_Lanczos()
 
 
 # %% Matrix case
@@ -80,5 +79,3 @@ def test_block_Lanczos():
     print('Block Lanczos Projection OK.')
     # assert la.norm(S.dot(Q) - Q.dot(T)) < 1e-10, "Wrong projected A -> error in block Lanczos"
 
-test_block_Lanczos()
-# %%

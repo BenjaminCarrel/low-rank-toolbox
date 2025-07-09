@@ -9,7 +9,7 @@ import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
-from krylov_toolbox import RationalKrylovSpace
+from lowrank.krylov.spaces.rational_krylov_space import RationalKrylovSpace
 
 
 # %% Vector case
@@ -72,7 +72,6 @@ def test_vector_RationalKrylovSpace():
     print('(Symmetric) Rational Krylov Space Projection OK.')
 
 
-test_vector_RationalKrylovSpace()
 
 
 #%% Matrix case
@@ -144,6 +143,5 @@ def test_block_KrylovSpace():
     print('(Symmetric) Block Krylov Space Projection OK.')
 
 
-test_block_KrylovSpace()
 
 # %%

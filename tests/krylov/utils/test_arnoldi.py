@@ -9,7 +9,15 @@ import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
-from krylov_toolbox import Arnoldi, rational_Arnoldi, block_Arnoldi, block_rational_Arnoldi, shift_and_invert_Arnoldi, block_shift_and_invert_Arnoldi
+
+from lowrank.krylov.utils.arnoldi import (
+    Arnoldi,
+    block_Arnoldi,
+    block_rational_Arnoldi,
+    block_shift_and_invert_Arnoldi,
+    rational_Arnoldi,
+    shift_and_invert_Arnoldi,
+)
 
 #%% Matrix to use: non-symmetric laplacian (artificial)
 n = 100
@@ -44,7 +52,6 @@ def test_Arnoldi():
     print('Arnoldi Projection OK.')
 
 
-test_Arnoldi()
 
 #%% Shift and invert Arnoldi
 def test_shift_invert_Arnoldi():
@@ -71,7 +78,6 @@ def test_shift_invert_Arnoldi():
     assert la.norm(Q.dot(Q.T) - Q_ref.dot(Q_ref.T)) < 1e-8, "Wrong projection -> error in Arnoldi"
     print('Shift and invert Arnoldi Projection OK.')
 
-test_shift_invert_Arnoldi()
 
 
 # %% Rational Arnoldi
@@ -101,7 +107,6 @@ def test_rational_Arnoldi():
     assert la.norm(Q.dot(Q.T) - Q_ref.dot(Q_ref.T)) < 1e-8, "Wrong projection -> error in Arnoldi"
     print('Rational Arnoldi Projection OK.')
 
-test_rational_Arnoldi()
 
 
 # %% Matrix case
@@ -140,7 +145,6 @@ def test_block_Arnoldi():
     # assert np.allclose(A.dot(Q), Q.dot(H), rtol=1e-6), "Wrong projected A -> error in block Arnoldi"
     
 
-test_block_Arnoldi()
 
 
 # %% Block shift and invert Arnoldi
@@ -174,7 +178,6 @@ def test_block_shift_invert_Arnoldi():
     assert la.norm(Q.dot(Q.T) - Q_ref.dot(Q_ref.T)) < 1e-6, "Wrong projection -> error in block Arnoldi"
     print('Block shift and invert Arnoldi Projection OK.')
 
-test_block_shift_invert_Arnoldi()
 
 
 # %% Block rational variant
@@ -211,7 +214,6 @@ def test_block_rational_Arnoldi_shift_only():
     print('Block rational Arnoldi Projection OK.')
 
 
-test_block_rational_Arnoldi_shift_only()
 
 def test_block_rational_Arnoldi_full():
     poles = [1/2, 1, 2]
@@ -244,7 +246,5 @@ def test_block_rational_Arnoldi_full():
     print('Block rational Arnoldi (full) - Error in the projection:', la.norm(Q.dot(Q.T) - Q_ref.dot(Q_ref.T)))
     assert la.norm(Q.dot(Q.T) - Q_ref.dot(Q_ref.T)) < 1e-5, "Wrong projection -> error in block Arnoldi"
     print('Block rational Arnoldi Projection OK.')
-
-test_block_rational_Arnoldi_full()
 
 # %%
