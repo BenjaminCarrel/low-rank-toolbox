@@ -5,7 +5,11 @@
 
 # Imports
 from __future__ import annotations
-from .low_rank_matrix import *
+from .low_rank_matrix import LowRankMatrix
+import numpy as np
+from numpy import ndarray
+from typing import Union
+from scipy import linalg as la
 
 #%% Define class QR
 class QR(LowRankMatrix):
