@@ -37,7 +37,6 @@ def test_LowRankMatrix_basic():
     assert X.is_symmetric() == False, "Incorrect is_symmetric"
     print('Basic operations passed')
 
-test_LowRankMatrix_basic()
 
 #%% Test addition
 def test_LowRankMatrix_addition():
@@ -49,7 +48,6 @@ def test_LowRankMatrix_addition():
     assert np.allclose((10 * X).full(), 10 * X_full), "Incorrect scalar multiplication"
     print('Addition passed')
 
-test_LowRankMatrix_addition()
 
 #%% Test multiplication
 def test_LowRankMatrix_multiplication():
@@ -69,6 +67,5 @@ def test_LowRankMatrix_multiplication():
     assert (X.dot(Y)).deepshape == (10, 5, 6, 4, 8, 5, 6, 4, 7), "Incorrect deepshape of matrix-matrix product"
     print('Matrix-matrix multiplication passed')
 
-test_LowRankMatrix_multiplication()
 
 # %%

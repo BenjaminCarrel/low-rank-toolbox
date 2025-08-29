@@ -8,7 +8,7 @@ Test file for the KrylovSpace class and methods
 import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
-from krylov_toolbox import KrylovSpace
+from lowrank.krylov.spaces.krylov_space import KrylovSpace
 
 
 # %% Vector case
@@ -81,7 +81,6 @@ def test_vector_KrylovSpace():
     print('(Symmetric) Krylov Space Projection (m=3) OK.')
 
 
-test_vector_KrylovSpace()
 
 
 #%% Matrix case
@@ -153,6 +152,5 @@ def test_block_KrylovSpace():
     print('Block Krylov Space Projection OK.')
 
 
-test_block_KrylovSpace()
 
 # %%

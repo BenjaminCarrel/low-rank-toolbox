@@ -170,7 +170,7 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
     assert isinstance(x, np.ndarray), "x must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
     # infty poles are not supported yet.
-    assert np.infty not in poles, "infty poles are not supported yet"
+    assert np.inf not in poles, "infty poles are not supported yet"
     if not invert_only: # check that 0 in not in the list of poles
         assert 0 not in poles, "rational krylov does not work with 0 in the list of poles (the basis is not orthogonal)"
 
@@ -373,7 +373,7 @@ def block_rational_Arnoldi(A: ndarray | spmatrix, X: ndarray, poles: list, inver
     assert isinstance(X, np.ndarray), "X must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
     # infty poles are not supported yet.
-    assert np.infty not in poles, "infty poles are not supported yet"
+    assert np.inf not in poles, "infty poles are not supported yet"
     if not inverse_only: # check that 0 in not in the list of poles
         assert 0 not in poles, "rational krylov does not work with 0 in the list of poles (the basis is not orthogonal)"
 

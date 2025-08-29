@@ -9,7 +9,7 @@ import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
-from krylov_toolbox import InvertedKrylovSpace
+from lowrank.krylov.spaces.inverted_krylov_space import InvertedKrylovSpace
 
 
 # %% Vector case
@@ -92,8 +92,6 @@ def test_vector_InvertedKrylovSpace():
     print('(Symmetric) Inverted Krylov Space Projection (m=3) OK.')
 
 
-test_vector_InvertedKrylovSpace()
-
 
 #%% Matrix case
 np.random.seed(1234)
@@ -165,6 +163,6 @@ def test_block_InvertedKrylovSpace():
     print('Symmetric Block Inverted Krylov Space Projection OK.')
 
 
-test_block_InvertedKrylovSpace()
+
 
 # %%

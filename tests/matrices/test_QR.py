@@ -25,7 +25,6 @@ def test_QR_basic():
     assert X.gather([1,3]) - A[1,3] < 1e-12, "Incorrect gather"
     print('Basic operations passed')
 
-test_QR_basic()
 
 #%% Test class method
 def test_QR_classmethod():
@@ -37,7 +36,6 @@ def test_QR_classmethod():
     assert np.allclose(QR.from_low_rank(Y).full(), A), "Incorrect from_low_rank"
     print('Class methods passed')
 
-test_QR_classmethod()
 
 #%% Test addition
 def test_QR_addition():
@@ -53,7 +51,6 @@ def test_QR_addition():
     assert np.allclose((X - Y).full(), A - Y.full()), "Incorrect subtraction with QR"
     print('Addition of QRs passed')
 
-test_QR_addition()
 
 #%% Test multiplication
 def test_QR_multiplication():
@@ -64,5 +61,4 @@ def test_QR_multiplication():
     assert np.allclose(X.dot(Y).full(), A @ Y.full()), "Incorrect multiplication with QR"
     print('Multiplication of QRs passed')
 
-test_QR_multiplication()
 # %%

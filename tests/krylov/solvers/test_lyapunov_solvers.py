@@ -8,9 +8,8 @@ Tests for the Lyapunov solvers.
 import numpy as np
 import scipy.sparse as sps
 import scipy.linalg as la
-import pytest
-from krylov_toolbox.solvers.lyapunov_solvers import *
-from low_rank_toolbox import SVD
+from lowrank.krylov.solvers.lyapunov_solvers import solve_sparse_low_rank_lyapunov, solve_small_lyapunov
+from lowrank.matrices.svd import SVD
 
 # %% Setup data
 n = 200
@@ -30,7 +29,6 @@ def test_lyapunov_small():
     assert np.allclose(X, X_ref), "The small solver is not correct"
     print('test_sylvester_small passed')
 
-test_lyapunov_small()
 
 # %% Test the "large and low rank" solver
 def test_lyapunov_large_low_rank():
@@ -41,5 +39,4 @@ def test_lyapunov_large_low_rank():
     assert np.allclose(Xd, X_ref), "The large and low rank solver is not correct"
     print('test_sylvester_large_low_rank passed')
 
-test_lyapunov_large_low_rank()
 # %%

@@ -39,7 +39,6 @@ def test_QuasiSVD_basic():
     assert X.check_orthogonality, "Incorrect check_orthogonality"
     print('Basic QuasiSVD operations passed')
 
-test_QuasiSVD_basic()
 
 #%% Test addition
 def test_QuasiSVD_addition():
@@ -59,7 +58,6 @@ def test_QuasiSVD_addition():
     assert isinstance(Y+X, SVD), "Addition of QuasiSVD and SVD is not SVD"
     print('QuasiSVD Addition passed')
 
-test_QuasiSVD_addition()
 
 #%% Test multiplication
 def test_QuasiSVD_multiplication():
@@ -97,7 +95,6 @@ def test_QuasiSVD_multiplication():
     assert isinstance(X.dot(Y), LowRankMatrix), "Incorrect type of SVD-LowRankMatrix product"
     print('QuasiSVD-LowRankMatrix multiplication passed')
 
-test_QuasiSVD_multiplication()
 
 #%% Test projection
 def test_QuasiSVD_projection():
@@ -107,7 +104,6 @@ def test_QuasiSVD_projection():
 
     print('QuasiSVD Projection routines passed')
 
-test_QuasiSVD_projection()
 
 #%% Test Hadamard product
 def test_QuasiSVD_hadamard():
@@ -127,7 +123,6 @@ def test_QuasiSVD_hadamard():
     assert np.allclose(X.hadamard(Y), X_full * Y.full()), "Incorrect Hadamard product"
     print('QuasiSVD-LowRankMatrix Hadamard product passed')
 
-test_QuasiSVD_hadamard()
 
 #%% SVD class
 #%% Setup SVD
@@ -155,7 +150,6 @@ def test_SVD_basic():
     assert X.is_symmetric() == False, "Incorrect is_symmetric"
     print('SVD Basic operations passed')
 
-test_SVD_basic()
 
 # %% Test class methods
 def test_SVD_class_methods():
@@ -176,7 +170,6 @@ def test_SVD_class_methods():
     assert np.allclose(SVD.randomized_svd(Y_bis, 10, 10).full(), Y.truncate(10).full()), "Incorrect randomized_svd and LowRankMatrix"
     print('SVD class methods passed')
 
-test_SVD_class_methods()
 
 #%% Test addition
 def test_SVD_addition():
@@ -193,7 +186,6 @@ def test_SVD_addition():
     assert (X + Y).rank == 8, "Incorrect rank of addition with SVD"
     print('Addition of SVDs passed')
 
-test_SVD_addition()
 
 #%% Test multiplication
 def test_SVD_multiplication():
@@ -206,7 +198,6 @@ def test_SVD_multiplication():
     assert np.allclose(X.dot(Y).full(), X_full @ Y.full()), "Incorrect multiplication with SVD"
     print('Multiplication of SVDs passed')
 
-test_SVD_multiplication()
 
 #%% Test truncated SVD
 def test_truncated_SVD():
@@ -224,7 +215,6 @@ def test_truncated_SVD():
     assert np.allclose((X1_bis + X2_bis).full(), X.full()), "Incorrect addition of truncated SVDs"
     print('Truncation of SVDs passed')
 
-test_truncated_SVD()
 
 # %% Test SVD Hadamard product
 def test_SVD_hadamard():
@@ -257,7 +247,6 @@ def test_SVD_hadamard():
     assert np.allclose(X.hadamard(Y).full(), X.full() * Y_full), "Incorrect Hadamard product with QuasiSVD"
     print('QuasiSVD-SVD Hadamard product passed')
 
-test_SVD_hadamard()
 
 #%% Test SVD with complex values
 def test_SVD_complex():
@@ -292,7 +281,6 @@ def test_SVD_complex():
     assert np.allclose(YB.hadamard(YB).full(), B * B), "Incorrect Hadamard product of complex SVD"
     print('Complex SVD passed')
 
-test_SVD_complex()
 
 
 # %% Test randomized SVD
@@ -332,7 +320,6 @@ def test_randomized_SVD():
     print('Relative error of randomized SVD with subspace iteration:', error)
     print('Randomized SVD with subspace iteration passed')
 
-test_randomized_SVD()
 
 #%% Test generalized Nystroem
 def test_generalized_nystroem():
@@ -382,6 +369,5 @@ def test_generalized_nystroem():
 
 
 
-test_generalized_nystroem()
 
 # %%

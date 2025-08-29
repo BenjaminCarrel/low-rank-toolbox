@@ -5,14 +5,14 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "low-rank-toolbox" # The name used for `pip install`
+name = "lowrank" # The name used for `pip install`
 version = "0.1.0"
 authors = [
     { name="Benjamin Carrel", email="benjamin.carrel@psi.ch" },
 ]
 description = "A Python library for efficient low-rank matrix and tensor operations."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { file="LICENSE" }
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -31,3 +31,8 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/BenjaminCarrel/low-rank-toolbox"
 "Bug Tracker" = "https://github.com/BenjaminCarrel/low-rank-toolbox/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]
