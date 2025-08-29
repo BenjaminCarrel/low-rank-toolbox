@@ -64,7 +64,7 @@ def test_block_Lanczos():
     print('Reference OK.')
 
     # Block Lanczos
-    Q, T, Q2, T2 = block_Lanczos(A, X0, m)
+    Q, T = block_Lanczos(A, X0, m)
 
     # Check the basis
     assert (Q.shape == (n, m*r)), "Wrong shape of Q -> error in block Lanczos"
@@ -79,3 +79,5 @@ def test_block_Lanczos():
     print('Block Lanczos Projection OK.')
     # assert la.norm(S.dot(Q) - Q.dot(T)) < 1e-10, "Wrong projected A -> error in block Lanczos"
 
+
+# %%
