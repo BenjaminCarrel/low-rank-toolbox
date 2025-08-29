@@ -6,13 +6,11 @@
 # Import packages
 from __future__ import annotations
 from copy import deepcopy
-from warnings import warn
 import numpy as np
-from typing import List, Optional, Sequence, Tuple, Type, Union
+from typing import Sequence, Type, Union
 from numpy import ndarray
 import scipy.sparse.linalg as spala
 from scipy.sparse import spmatrix
-from scipy.linalg import block_diag
 
 
 

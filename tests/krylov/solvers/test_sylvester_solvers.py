@@ -46,11 +46,11 @@ def test_sylvester_large_small():
 
 
 # %% Test the "large and low rank" solver
-def test_sylvester_large_low_rank(A, B, C):
+def test_sylvester_large_low_rank():
     X = solve_sparse_low_rank_sylvester(A, B, C, tol=1e-10, extended=True)
-    print(X)
+    # print(X)
     Xd = X.todense()
-    print(la.norm(Xd - X_ref)/la.norm(X_ref))
+    # print(la.norm(Xd - X_ref)/la.norm(X_ref))
     assert np.allclose(Xd, X_ref), "The large and low rank solver is not correct"
     print('test_sylvester_large_low_rank passed')
 
