@@ -206,8 +206,7 @@ class LowRankMatrix:
     def __add__(self, other: LowRankMatrix | ndarray) -> ndarray:
         """Addition of two low-rank matrices (returns dense array)."""
         warnings.warn(
-            "Addition of low-rank matrices returns a dense matrix, which may be inefficient. "
-            "Consider using multi_add() for multiple additions.",
+            "Addition of generic low-rank matrices returns a dense matrix, which may be inefficient.",
             InefficiencyWarning
         )
         if isinstance(other, LowRankMatrix):
