@@ -4,6 +4,7 @@
 import numpy as np
 import scipy.linalg as la
 from lowrank import LowRankMatrix, QR
+import pytest
 
 #%% Setup
 A = np.random.randn(10, 8)
@@ -38,10 +39,12 @@ def test_QR_classmethod():
 
 
 #%% Test addition
+# Y = QR.generate_random((10, 8))
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.svd.InefficiencyWarning")
 def test_QR_addition():
     # Test addition of QRs
     assert isinstance(X + X, QR), "Incorrect addition with QR"
-    assert (X+X).rank == X.rank, "Incorrect rank of addition with QR"
+    assert (X+X).rank == 8, "Incorrect rank of addition with QR"
     assert np.allclose((X + X).full(), 2 * A), "Incorrect addition with QR"
     assert np.allclose((X + A), 2 * A), "Incorrect addition with ndarray"
     assert np.allclose((X - X).full(), 0 * A), "Incorrect subtraction with QR"

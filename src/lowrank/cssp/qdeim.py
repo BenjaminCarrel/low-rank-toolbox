@@ -34,7 +34,7 @@ def QDEIM(U: ndarray, compute_M: bool = False, **extra_args) -> list:
     p = P[0:k]
     if compute_M:
         L = la.solve(R[:, :k], R[:, k:]).T.conj()
-        M = np.row_stack((np.eye(k), L))
+        M = np.vstack((np.eye(k), L))
         Q = np.argsort(P)
         M = M[Q, :]
         return p, M

@@ -40,7 +40,7 @@ def sQDEIM(U: ndarray, tol: float = None, compute_M: bool = False) -> list:
         p = P[:k]
     if compute_M:
         L = la.solve(R[:, :k], R[:, k:]).T.conj()
-        M = np.row_stack((np.eye(k), L))
+        M = np.vstack((np.eye(k), L))
         Q = np.argsort(P)
         M = M[Q, :]
         return p, M

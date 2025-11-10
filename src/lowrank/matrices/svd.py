@@ -6,14 +6,14 @@
 # Imports
 from __future__ import annotations
 
-from .low_rank_matrix import LowRankMatrix
+from .low_rank_matrix import LowRankMatrix, InefficiencyWarning
 from numpy import ndarray
 import numpy as np
 import scipy.linalg as la
 from typing import List
 import warnings
 
-Matrix = ndarray | LowRankMatrix
+warnings.simplefilter('once', InefficiencyWarning)
 
 # Parameters
 automatic_truncation = True
@@ -114,6 +114,11 @@ class QuasiSVD(LowRankMatrix):
             Matrices to add
         truncate : bool, optional
             Truncate the output to ensure non-singularity of S, by default automatic_truncation.
+            
+        Returns
+        -------
+        QuasiSVD
+            Sum of the matrices
         """
         # Check inputs
         assert all(isinstance(matrix, QuasiSVD) for matrix in matrices), "All matrices must be QuasiSVD"
@@ -139,7 +144,7 @@ class QuasiSVD(LowRankMatrix):
             return SVD(new_U, new_s, new_V)
 
     @classmethod
-    def multi_dot(cls, matrices: List[QuasiSVD], truncate: bool = automatic_truncation) -> SVD:
+    def multi_dot(cls, matrices: List[QuasiSVD], truncate: bool = automatic_truncation) -> QuasiSVD:
         """
         Matrix multiplication of several QuasiSVD matrices.
 
@@ -153,9 +158,20 @@ class QuasiSVD(LowRankMatrix):
         ----------
         matrices : List[QuasiSVD]
             Matrices to multiply
+        truncate : bool, optional
+            Truncate the output to ensure non-singularity of S, by default automatic_truncation.
+            
+        Returns
+        -------
+        QuasiSVD
+            Product of the matrices
         """
         # Check inputs
         assert all(isinstance(matrix, QuasiSVD) for matrix in matrices), "All matrices must be QuasiSVD"
+        # Check alignment for matrix multiplication
+        for i in range(len(matrices) - 1):
+            if matrices[i].shape[1] != matrices[i+1].shape[0]:
+                raise ValueError(f"Shapes {matrices[i].shape} and {matrices[i+1].shape} not aligned for multiplication at position {i}")
         # Multiply the matrices
         U = matrices[0].U
         V = matrices[-1].V
@@ -180,7 +196,7 @@ class QuasiSVD(LowRankMatrix):
         """Calculate norm. Default is Frobenius norm"""
         return la.norm(self.S, ord=ord)
 
-    def project_onto_tangent_space(self, Y: Matrix, truncate: bool = automatic_truncation) -> SVD:
+    def project_onto_tangent_space(self, other: LowRankMatrix | ndarray, truncate: bool = automatic_truncation) -> QuasiSVD:
         """
         Projection of other onto the tangent space at self.
 
@@ -191,23 +207,30 @@ class QuasiSVD(LowRankMatrix):
         
         The formula is given by:
             P_X Y = UUh Y - UUh Y VVh + Y VVh
-        where X = U S Vh is the SVD of matrix self and Y is the input matrix to project.
+        where X = U S Vh is the SVD of matrix self and Y is the input (other) matrix to project.
 
         Parameters 
         ----------
         other : ndarray or LowRankMatrix
             Matrix to project
+        truncate : bool, optional
+            Truncate the output to ensure non-singularity of S, by default automatic_truncation.
+            
+        Returns
+        -------
+        QuasiSVD
+            Projection of other onto the tangent space at self
         """
         # STEP 1 : FACTORIZATION
-        if isinstance(Y, LowRankMatrix):
-            YV = Y.dot(self.V, dense_output=True)
-            UhY = Y.dot(self.Uh, side='opposite', dense_output=True)
+        if isinstance(other, LowRankMatrix):
+            YV = other.dot(self.V, dense_output=True)
+            UhY = other.dot(self.Uh, side='opposite', dense_output=True)
         else:
-            YV = Y.dot(self.V)
-            UhY = self.Uh.dot(Y)
+            YV = other.dot(self.V)
+            UhY = self.Uh.dot(other)
         UhYVVh = np.linalg.multi_dot([self.Uh, YV, self.Vh])
         M1 = np.column_stack([self.U, YV])
-        M2 = np.row_stack([UhY - UhYVVh, self.Vh])
+        M2 = np.vstack([UhY - UhYVVh, self.Vh])
         # STEP 2 : DOUBLE QR  (n times 2k)
         Q1, R1 = la.qr(M1, mode='economic')
         Q2, R2 = la.qr(M2.T.conj(), mode='economic')
@@ -216,7 +239,7 @@ class QuasiSVD(LowRankMatrix):
         else:
             return QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2)
         
-    def project_onto_DEIM_tangent_space(self, Y_u: ndarray, Y_v: ndarray, Y_uv: ndarray, M_u: ndarray, M_v: ndarray, truncate: bool = automatic_truncation) -> SVD:
+    def project_onto_DEIM_tangent_space(self, Y_u: ndarray, Y_v: ndarray, Y_uv: ndarray, M_u: ndarray, M_v: ndarray, truncate: bool = automatic_truncation) -> QuasiSVD:
         """
         Oblique projection onto the tangent space at self using DEIM.
 
@@ -229,54 +252,57 @@ class QuasiSVD(LowRankMatrix):
         
         Parameters
         ----------
-        Y_u : ndarray
+        Y_u : ndarray (r_u, n)
             Matrix to project interpolated along the rows
-        Y_v : ndarray
+        Y_v : ndarray (m, r_v)
             Matrix to project interpolated along the columns
-        Y_uv : ndarray
+        Y_uv : ndarray (r_u, r_v)
             Matrix to project interpolated along the rows and columns
-        M_u : ndarray
+        M_u : ndarray (m, r_u)
             Matrix U @ inv(U[S, :])
-        M_v : ndarray
+        M_v : ndarray (n, r_v)
             Matrix V @ inv(V[S, :])
+        truncate : bool, optional
+            Truncate the output to ensure non-singularity of S, by default automatic_truncation.
+            
+        Returns
+        -------
+        QuasiSVD
+            Oblique projection of Y onto the tangent space at self using the DEIM.
         """
-        # Check inputs
-        assert isinstance(Y_u, (ndarray)), "Y_u must be a numpy array"
-        assert isinstance(Y_v, (ndarray)), "Y_v must be a numpy array"
+        # Basic type checks
+        assert isinstance(Y_u, ndarray), "Y_u must be a numpy array"
+        assert isinstance(Y_v, ndarray), "Y_v must be a numpy array"
+        assert isinstance(Y_uv, ndarray), "Y_uv must be a numpy array"
+        assert isinstance(M_u, ndarray), "M_u must be a numpy array"
+        assert isinstance(M_v, ndarray), "M_v must be a numpy array"
 
-        # The classic way by augmenting the matrices and performing two QR
-        # try:
+        # Dimension compatibility checks
+        m, n = self.shape
+        # Y_u: (r_u, n)
+        assert Y_u.ndim == 2, "Y_u must be 2D"
+        r_u = Y_u.shape[0]
+        assert Y_u.shape[1] == n, f"Y_u must have {n} columns (got {Y_u.shape[1]})"
+        # Y_v: (m, r_v)
+        assert Y_v.ndim == 2, "Y_v must be 2D"
+        r_v = Y_v.shape[1]
+        assert Y_v.shape[0] == m, f"Y_v must have {m} rows (got {Y_v.shape[0]})"
+        # Y_uv: (r_u, r_v)
+        assert Y_uv.ndim == 2 and Y_uv.shape == (r_u, r_v), f"Y_uv must have shape ({r_u}, {r_v})"
+        # M_u: (m, r_u)
+        assert M_u.ndim == 2 and M_u.shape == (m, r_u), f"M_u must have shape ({m}, {r_u})"
+        # M_v: (n, r_v)
+        assert M_v.ndim == 2 and M_v.shape == (n, r_v), f"M_v must have shape ({n}, {r_v})"
+
         # Double QR
         M1 = np.column_stack([M_u, Y_v])
-        M2 = np.row_stack([Y_u - Y_uv.dot(M_v.T.conj()), M_v.T.conj()])
+        M2 = np.vstack([Y_u - Y_uv.dot(M_v.T.conj()), M_v.T.conj()])
         Q1, R1 = la.qr(M1, mode='economic')
         Q2, R2 = la.qr(M2.T.conj(), mode='economic')
         if truncate:
             return QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2).truncate(atol=default_atol)
         else:
             return QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2)
-        # There was an error in the QR decomposition due to inf or NaN in M_u or M_v -> we could use the pseudoinverse as below (implementation not yet done)
-            # # First term
-            # PUtU = self.U[self.U_indexes, :]
-            # PUtU_inv_Y_u = np.linalg.lstsq(PUtU, Y_u, rcond=None)[0]
-            # # F1 = self.U.dot(PUtU_inv_Y_u)
-            # # Second term
-            # PVtV = self.V[self.V_indexes, :]
-            # PVtV_inv_Yvt = np.linalg.lstsq(PVtV, Y_v.T.conj(), rcond=None)[0]
-            # # F2 = (self.V.dot(PVtV_inv_Yvt)).T.conj()
-            # # Third term
-            # Y_uv_PVtV_inv = PVtV_inv_Yvt.T.conj()[self.U_indexes, :]
-            # PUtU_inv_Y_uv_VtPV_inv = np.linalg.lstsq(PUtU, Y_uv_PVtV_inv, rcond=None)[0]
-            # # F3 = self.U.dot(PUtU_inv_Y_uv_VtPV_inv.dot(self.V.T.conj()))
-            # # Now do the column and row stacks
-            # M1 = np.column_stack([self.U, PVtV_inv_Yvt])
-            # M2 = np.row_stack([PUtU_inv_Y_u - PUtU_inv_Y_uv_VtPV_inv.dot(self.V.T.conj()), self.V.T.conj()])
-            # Q1, R1 = la.qr(M1, mode='economic')
-            # Q2, R2 = la.qr(M2.T.conj(), mode='economic')
-            # if truncate:
-            #     return QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2).truncate(atol=default_atol)
-            # else:
-            #     return QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2)
         
         
 
@@ -295,10 +321,9 @@ class QuasiSVD(LowRankMatrix):
         else:
             return super().__sub__(other)
 
-
-    def __imul__(self, other: float | Matrix) -> Matrix:
+    def __imul__(self, other: float | LowRankMatrix | ndarray) -> LowRankMatrix | ndarray:
         """In-place scalar multiplication, or hadamard product if other is a matrix"""
-        if isinstance(other, Matrix):
+        if isinstance(other, LowRankMatrix | ndarray):
             self = self.hadamard(other)
         else:
             if type(other) == np.complex128 or type(other) == complex:
@@ -306,24 +331,24 @@ class QuasiSVD(LowRankMatrix):
             np.multiply(self.S, other, out=self.S)
         return self
 
-    def __mul__(self, other: float | Matrix) -> Matrix:
+    def __mul__(self, other: float | LowRankMatrix | ndarray) -> LowRankMatrix | ndarray:
         """Scalar multiplication, or hadamard product if other is a matrix"""
         new_mat = self.copy()
         new_mat *= other
         return new_mat
         
 
-    def dot(self,
-            other: QuasiSVD | Matrix,
-            side: str = 'right',
-            dense_output: bool = False) -> SVD | Matrix:
+    def dot(self, other: QuasiSVD | ndarray, side: str = 'right', dense_output: bool = False) -> QuasiSVD | ndarray:
         """Matrix multiplication between SVD and other.
         The output is an SVD or a Matrix, depending on the type of other.
         If two QuasiSVD are multiplied, the new rank is the minimum of the two ranks.
+        
+        If side is 'right' or 'usual', compute self @ other.
+        If side is 'left' or 'opposite', compute other @ self.
 
         Parameters
         ----------
-        other : QuasiSVD or Matrix
+        other : QuasiSVD or ndarray
             Matrix to multiply
         side : str, optional
             'left' or 'right', by default 'right'
@@ -332,20 +357,29 @@ class QuasiSVD(LowRankMatrix):
 
         Returns
         -------
-        SVD or Matrix
+        QuasiSVD or ndarray
             Result of the matrix multiplication
         """
+        # Check inputs
+        if not (side.lower() in ['right', 'usual', 'left', 'opposite']):
+            raise ValueError('Incorrect side. Choose "right" or "left".')
+        if side.lower() in ['right', 'usual']:
+            if self.shape[1] != other.shape[0]:
+                raise ValueError(f"Shapes {self.shape} and {other.shape} not aligned for multiplication")
+        elif side.lower() in ['left', 'opposite']:
+            if self.shape[0] != other.shape[1]:
+                raise ValueError(f"Shapes {other.shape} and {self.shape} not aligned for multiplication")
         if isinstance(other, QuasiSVD) and dense_output == False:
-            if side == 'right' or side == 'usual':
+            if side.lower() in ['right', 'usual']:
                 return QuasiSVD.multi_dot([self, other])
-            elif side == 'opposite' or side == 'left':
+            elif side.lower() in ['opposite', 'left']:
                 return QuasiSVD.multi_dot([other, self])
             else:
                 raise ValueError('Incorrect side. Choose "right" or "left".')
         else:
             return super().dot(other, side, dense_output)
         
-    def hadamard(self, other: QuasiSVD | Matrix, truncate: bool = automatic_truncation) -> QuasiSVD | Matrix:   
+    def hadamard(self, other: QuasiSVD | LowRankMatrix | ndarray, truncate: bool = automatic_truncation) -> QuasiSVD | ndarray:   
         """Hadamard product between two QuasiSVD matrices
         
         The new rank is the multiplication of the two ranks, at maximum.
@@ -356,14 +390,25 @@ class QuasiSVD(LowRankMatrix):
 
         Parameters
         ----------
-        other : QuasiSVD or Matrix
+        other : QuasiSVD, LowRankMatrix or ndarray
             Matrix to multiply
+        truncate : bool, optional
+            Truncate the output to ensure non-singularity of S, by default automatic_truncation.
+            
+        Returns
+        -------
+        QuasiSVD or Matrix
+            Result of the Hadamard product
         """
+        # Check inputs
+        if self.shape != other.shape:
+            raise ValueError("Hadamard product requires matrices of the same shape")
+        if isinstance(other, LowRankMatrix) and not isinstance(other, QuasiSVD):
+            warnings.warn("Low-rank efficiency warning: converting LowRankMatrix to QuasiSVD for Hadamard product.", category=InefficiencyWarning)
+            other = SVD.from_low_rank(other)
         if isinstance(other, QuasiSVD):
             # If the new rank is too large, it is more efficient to use the full matrix
             if self.rank * other.rank >= min(self.shape):
-                # print(f"Large rank ({self.rank * other.rank}) due to Hadamard product. Using full matrix ({self.shape}).")
-                warnings.warn(f"Low-rank computations warning: expected rank after Hadamard product is greater than one of the dimensions. Full matrices are used instead.")
                 output = np.multiply(self.full(), other.full())
                 output = SVD.from_dense(output) # convert to SVD, otherwise it is inconsistent
             else:    
@@ -375,12 +420,11 @@ class QuasiSVD(LowRankMatrix):
                 output = QuasiSVD(new_U, new_S, new_V)
                 if truncate:
                     output = output.truncate(atol=default_atol)
-        elif isinstance(other, LowRankMatrix):
-            warnings.warn("Hadamard product between QuasiSVD and LowRankMatrix is not efficient.")
-            output = np.multiply(self.full(), other.full())
-        else:
-            warnings.warn("Hadamard product between QuasiSVD and ndarray is not efficient.")
+        elif isinstance(other, ndarray):
+            warnings.warn("Low-rank efficiency warning: Hadamard product with dense matrix, using full matrices.", category=InefficiencyWarning)
             output = np.multiply(self.full(), other)
+        else:
+            raise TypeError("Hadamard product is only defined between LowRankMatrix and numpy's ndarray matrices.")
         return output
     
 
@@ -417,7 +461,19 @@ class SVD(QuasiSVD):
         """
         # Sanity check
         assert s.ndim == 1, "s is not a vector"
-        super().__init__(U, np.diag(s), V, **extra_data)
+        # Check dimensions
+        if len(s) != min(U.shape[1], V.shape[1]):
+            raise ValueError(f"Length of s ({len(s)}) does not match the number of columns of U ({U.shape[1]}) and V ({V.shape[1]})")
+        # If reduced SVD, call the parent constructor with diagonal S
+        if len(s) == U.shape[1] and len(s) == V.shape[1]:
+            super().__init__(U, np.diag(s), V, **extra_data)
+        # If full SVD, call the parent constructor with non-diagonal S
+        else:
+            r = U.shape[1]
+            k = V.shape[1]
+            S_full = np.zeros((r, k), dtype=s.dtype)
+            np.fill_diagonal(S_full, s)
+            super().__init__(U, S_full, V, **extra_data)
 
     ## SPECIFIC PROPERTIES
     @property
@@ -452,6 +508,7 @@ class SVD(QuasiSVD):
     @classmethod
     def from_low_rank(cls, mat: LowRankMatrix, **extra_data) -> SVD:
         """Create a SVD from a LowRankMatrix"""
+        mat = mat.compress()
         # QR decomposition of the first matrix
         Q1, R1 = la.qr(mat._matrices[0], mode='economic')
         # QR decomposition of the last matrix

@@ -46,6 +46,18 @@ class QR(LowRankMatrix):
             return QR(new_Q, R)
         else:
             return super().__add__(other)
+        
+    def __sub__(self, other: QR | LowRankMatrix | ndarray) -> Union[QR, ndarray]:
+        if isinstance(other, QR):
+            new_Q = np.hstack((self.Q, other.Q))
+            new_R = np.vstack((self.R, -other.R))
+            # compute QR of the new R
+            Q, R = la.qr(new_R, mode='economic')
+            # update Q
+            new_Q = new_Q @ Q
+            return QR(new_Q, R)
+        else:
+            return super().__sub__(other)
 
     def dot(self, other: Union[QR, LowRankMatrix, ndarray], side='right') -> Union[QR, ndarray]:
         # Multiply self @ other
