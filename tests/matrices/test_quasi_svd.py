@@ -9,6 +9,8 @@ import numpy as np
 import scipy.linalg as la
 from lowrank import LowRankMatrix, QuasiSVD, SVD
 from numpy import ndarray
+import pytest
+
 
 #%% Setup Quasi-SVD
 np.random.seed(1234)
@@ -38,6 +40,7 @@ def test_QuasiSVD_basic():
 
 
 #%% Test addition
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_QuasiSVD_addition():
     # Test addition
     assert isinstance(X + X, SVD), "Incorrect addition with QuasiSVD"
@@ -103,6 +106,7 @@ def test_QuasiSVD_projection():
 
 
 #%% Test Hadamard product
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.svd.InefficiencyWarning")
 def test_QuasiSVD_hadamard():
     # Test Hadamard product
     X_hadamard_ref = X_full * X_full
@@ -116,6 +120,7 @@ def test_QuasiSVD_hadamard():
     print('QuasiSVD-dense Hadamard product passed')
     # QuasiSVD-LowRankMatrix Hadamard product
     Y = LowRankMatrix(np.random.randn(20, 5), np.random.randn(5, 6), np.random.randn(6, 4), np.random.randn(4, 18))
-    assert isinstance(X.hadamard(Y), ndarray), "Incorrect type of Hadamard product"
-    assert np.allclose(X.hadamard(Y), X_full * Y.full()), "Incorrect Hadamard product"
+    assert isinstance(X.hadamard(Y), QuasiSVD), "Incorrect type of Hadamard product"
+    assert np.allclose(X.hadamard(Y).todense(), X_full * Y.full()), "Incorrect Hadamard product"
     print('QuasiSVD-LowRankMatrix Hadamard product passed')
+# %%

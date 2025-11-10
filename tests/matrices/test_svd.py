@@ -10,6 +10,8 @@ import numpy as np
 import scipy.linalg as la
 from lowrank import LowRankMatrix, QuasiSVD, SVD
 from numpy import ndarray
+import pytest
+
 
 #%% Setup SVD
 np.random.seed(1234)
@@ -58,6 +60,7 @@ def test_SVD_class_methods():
 
 
 #%% Test addition
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_SVD_addition():
     # Test addition of SVDs
     assert isinstance(X + X, SVD), "Incorrect addition with SVD"
@@ -103,6 +106,7 @@ def test_truncated_SVD():
 
 
 # %% Test SVD Hadamard product
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.svd.InefficiencyWarning")
 def test_SVD_hadamard():
     np.random.seed(0)
     rank = 3
@@ -135,6 +139,7 @@ def test_SVD_hadamard():
 
 
 #%% Test SVD with complex values
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.svd.InefficiencyWarning")
 def test_SVD_complex():
     np.random.seed(0)
     rank = 3
@@ -170,6 +175,7 @@ def test_SVD_complex():
 
 
 # %% Test randomized SVD
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.svd.InefficiencyWarning")
 def test_randomized_SVD():
     np.random.seed(0)
 
@@ -208,6 +214,7 @@ def test_randomized_SVD():
 
 
 #%% Test generalized Nystroem
+@pytest.mark.filterwarnings("ignore::lowrank.matrices.svd.InefficiencyWarning")
 def test_generalized_nystroem():
     # Test with a small random matrix
     rank = 4
