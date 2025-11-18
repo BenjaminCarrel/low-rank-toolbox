@@ -4,12 +4,13 @@
 import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sp
+from scipy.sparse.linalg import LinearOperator
 import pytest
 import warnings
 import tempfile
 import os
 from lowrank import LowRankMatrix
-from lowrank.matrices.low_rank_matrix import InefficiencyWarning
+from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
 
 
 #%% Setup
@@ -22,7 +23,6 @@ X = LowRankMatrix(A, B, C, D)
 X_full = np.linalg.multi_dot([A, B, C, D])
 
 #%% Test Basic operations
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_LowRankMatrix_basic():
     # Test shapes and rank
     assert X.deepshape == (10, 5, 6, 4, 8), "Incorrect deepshape"
@@ -47,7 +47,6 @@ def test_LowRankMatrix_basic():
 
 
 #%% Test addition
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_LowRankMatrix_addition():
     # Test addition
     assert np.allclose((X + X), 2 * X_full), "Incorrect addition with LowRankMatrix"
@@ -279,7 +278,6 @@ def test_constructor_edge_cases():
 
 
 #%% Test complex numbers
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_complex_matrices():
     """Test operations with complex-valued matrices."""
     # Create complex matrices
@@ -460,11 +458,10 @@ def test_matmul_left_right():
     print("Left and right matmul test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_multiplication_operators():
     """Test *, *=, and __rmul__ for both scalar and Hadamard multiplication."""
     import pytest
-    from lowrank.matrices.low_rank_matrix import InefficiencyWarning
+    from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
     
     # Test scalar multiplication
     X_copy = X.copy()
@@ -605,7 +602,6 @@ def test_dot_side_left():
     print("dot() with side='left' test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_is_symmetric():
     """Test is_symmetric() for actually symmetric matrix."""
     # Create a symmetric matrix
@@ -753,7 +749,6 @@ def test_multi_dot():
     print("multi_dot tests passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_multi_add():
     """Test multi_add method for sequential addition."""
     # Create several low-rank matrices
@@ -1090,9 +1085,9 @@ def test_mul_type_error():
 
 
 def test_inefficiency_warning():
-    """Test that InefficiencyWarning is raised for inefficient operations."""
+    """Test that LowRankEfficiencyWarning is raised for inefficient operations."""
     import warnings
-    from lowrank.matrices.low_rank_matrix import InefficiencyWarning
+    from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
     
     X_test = X.copy()
     Y = np.random.randn(10, 8)
@@ -1102,9 +1097,9 @@ def test_inefficiency_warning():
         warnings.simplefilter("always")
         X_test *= Y
         # Check that warnings were issued (both "In-place" and "Hadamard product")
-        assert len(w) >= 1, "InefficiencyWarning not raised for in-place Hadamard"
-        # Check that at least one warning is InefficiencyWarning
-        assert any(issubclass(warning.category, InefficiencyWarning) for warning in w), "Wrong warning type"
+        assert len(w) >= 1, "LowRankEfficiencyWarning not raised for in-place Hadamard"
+        # Check that at least one warning is LowRankEfficiencyWarning
+        assert any(issubclass(warning.category, LowRankEfficiencyWarning) for warning in w), "Wrong warning type"
         # Should contain either "In-place" or "Hadamard product" in messages
         messages = [str(warning.message) for warning in w]
         assert any("In-place" in msg or "Hadamard product" in msg for msg in messages), "Expected Hadamard-related warning"
@@ -1113,24 +1108,24 @@ def test_inefficiency_warning():
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         result = X * Y
-        assert len(w) > 0, "InefficiencyWarning not raised for Hadamard"
-        assert issubclass(w[-1].category, InefficiencyWarning), "Wrong warning type"
+        assert len(w) > 0, "LowRankEfficiencyWarning not raised for Hadamard"
+        assert issubclass(w[-1].category, LowRankEfficiencyWarning), "Wrong warning type"
         assert "Hadamard product" in str(w[-1].message), "Wrong warning message for Hadamard"
     
     # Test addition
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         result = X + X
-        assert len(w) > 0, "InefficiencyWarning not raised for addition"
-        assert issubclass(w[-1].category, InefficiencyWarning), "Wrong warning type"
+        assert len(w) > 0, "LowRankEfficiencyWarning not raised for addition"
+        assert issubclass(w[-1].category, LowRankEfficiencyWarning), "Wrong warning type"
         assert "Addition" in str(w[-1].message), "Wrong warning message for addition"
     
     # Test subtraction
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         result = X - X
-        assert len(w) > 0, "InefficiencyWarning not raised for subtraction"
-        assert issubclass(w[-1].category, InefficiencyWarning), "Wrong warning type"
+        assert len(w) > 0, "LowRankEfficiencyWarning not raised for subtraction"
+        assert issubclass(w[-1].category, LowRankEfficiencyWarning), "Wrong warning type"
         assert "Subtraction" in str(w[-1].message), "Wrong warning message for subtraction"
     
     # Test is_symmetric
@@ -1138,22 +1133,23 @@ def test_inefficiency_warning():
         warnings.simplefilter("always")
         X_square = LowRankMatrix(np.random.randn(5, 3), np.random.randn(3, 5))
         result = X_square.is_symmetric()
-        assert len(w) > 0, "InefficiencyWarning not raised for is_symmetric"
-        assert issubclass(w[-1].category, InefficiencyWarning), "Wrong warning type"
+        assert len(w) > 0, "LowRankEfficiencyWarning not raised for is_symmetric"
+        assert issubclass(w[-1].category, LowRankEfficiencyWarning), "Wrong warning type"
         assert "symmetry" in str(w[-1].message), "Wrong warning message for is_symmetric"
     
     # Test multi_add
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         result = X.multi_add([X, X])
-        assert len(w) > 0, "InefficiencyWarning not raised for multi_add"
-        assert issubclass(w[-1].category, InefficiencyWarning), "Wrong warning type"
+        assert len(w) > 0, "LowRankEfficiencyWarning not raised for multi_add"
+        assert issubclass(w[-1].category, LowRankEfficiencyWarning), "Wrong warning type"
         assert "multi_add" in str(w[-1].message), "Wrong warning message for multi_add"
     
-    print("InefficiencyWarning test passed")
+    print("LowRankEfficiencyWarning test passed")
 
 
 #%% Test numerical edge cases
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_nan_inf_matrices():
     """Test behavior with NaN and Inf values."""
     # Matrix with NaN
@@ -1202,7 +1198,6 @@ def test_very_small_large_values():
 
 
 #%% Additional edge case tests
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_addition_incompatible_shapes():
     """Test that addition with incompatible shapes raises appropriate errors."""
     import pytest
@@ -1215,7 +1210,6 @@ def test_addition_incompatible_shapes():
     print("Addition incompatible shapes test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_addition_right_side():
     """Test right-side addition (ndarray + LowRankMatrix).
     
@@ -1246,7 +1240,6 @@ def test_addition_right_side():
     print("Right-side addition test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_subtraction_left_right():
     """Test both left and right subtraction with numpy arrays.
     
@@ -1288,7 +1281,6 @@ def test_subtraction_left_right():
     print("Left and right subtraction test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_subtraction_incompatible_shapes():
     """Test that subtraction with incompatible shapes raises appropriate errors."""
     import pytest
@@ -1301,7 +1293,6 @@ def test_subtraction_incompatible_shapes():
     print("Subtraction incompatible shapes test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_hadamard_incompatible_shapes():
     """Test that Hadamard product with incompatible shapes raises errors."""
     import pytest
@@ -1346,7 +1337,6 @@ def test_norm_edge_cases():
     print("Norm edge cases test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_is_symmetric_edge_cases():
     """Test is_symmetric on edge cases."""
     # 1x1 matrix (always symmetric)
@@ -1575,7 +1565,6 @@ def test_compress_inplace():
     print("compress_() test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_compress_inplace_edge_case():
     """Test compress_() when it would return dense."""
     # Create a case where compress returns dense (bottleneck at last position)
@@ -1592,7 +1581,7 @@ def test_compress_inplace_edge_case():
         
         # Should issue warning
         assert len(w) > 0, "Should warn when compression would return dense"
-        assert issubclass(w[0].category, InefficiencyWarning)
+        assert issubclass(w[0].category, LowRankEfficiencyWarning)
     
     # Should not modify matrix
     assert X_edge.length == original_length, "Should not modify when would return dense"
@@ -1783,7 +1772,6 @@ def test_slicing_single_element():
     print("Slicing single element test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_slicing_submatrix():
     """Test submatrix slicing."""
     with warnings.catch_warnings(record=True) as w:
@@ -1807,7 +1795,6 @@ def test_slicing_submatrix():
     print("Slicing submatrix test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_slicing_fancy_indexing():
     """Test fancy indexing."""
     with warnings.catch_warnings(record=True):
@@ -1825,7 +1812,6 @@ def test_slicing_fancy_indexing():
     print("Fancy indexing test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_get_block():
     """Test get_block method."""
     with warnings.catch_warnings(record=True) as w:
@@ -1879,34 +1865,35 @@ def test_rmatvec():
 
 
 def test_as_linear_operator():
-    """Test as_linear_operator method."""
-    linop = X.as_linear_operator()
+    """Test that LowRankMatrix IS a LinearOperator (no conversion needed)."""
+    from scipy.sparse.linalg import LinearOperator
+    
+    # LowRankMatrix now inherits from LinearOperator
+    assert isinstance(X, LinearOperator), "LowRankMatrix should be a LinearOperator"
     
     # Check properties
-    assert linop.shape == X.shape, "LinearOperator shape incorrect"
-    assert linop.dtype == X.dtype, "LinearOperator dtype incorrect"
+    assert X.shape == (10, 8), "LinearOperator shape incorrect"
+    assert X.dtype == X_full.dtype, "LinearOperator dtype incorrect"
     
-    # Test matvec
+    # Test matvec (can use the object directly)
     v = np.random.randn(8)
-    result = linop.matvec(v)
+    result = X.matvec(v)
     expected = X_full @ v
     assert np.allclose(result, expected), "LinearOperator matvec incorrect"
     
     # Test rmatvec
     v2 = np.random.randn(10)
-    result2 = linop.rmatvec(v2)
+    result2 = X.rmatvec(v2)
     expected2 = v2.conj() @ X_full
     assert np.allclose(result2, expected2), "LinearOperator rmatvec incorrect"
     
     # Test with scipy solver (just check it doesn't crash)
     from scipy.sparse.linalg import gmres
     b = np.random.randn(8)
-    linop_sq = X_sq.as_linear_operator()
-    x, info = gmres(linop_sq, b, rtol=1e-5, maxiter=100)
+    # X_sq is already a LinearOperator, no conversion needed
+    x, info = gmres(X_sq, b, rtol=1e-5, maxiter=100)
     # Just check it ran (might not converge depending on matrix condition)
     assert x.shape == (8,), "GMRES with LinearOperator failed"
-    
-    print("as_linear_operator() test passed")
 
 
 #%% Test condition number estimation
@@ -1933,7 +1920,6 @@ def test_cond_estimate_power_iteration():
     print("cond_estimate(power_iteration) test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_cond_estimate_edge_cases():
     """Test condition number edge cases."""
     # Non-square matrix (should warn)
@@ -2003,6 +1989,35 @@ def test_compression_ratio():
     print("compression_ratio() test passed")
 
 
+def test_is_memory_efficient():
+    """Test is_memory_efficient property."""
+    # Good low-rank matrix (efficient)
+    A_good = np.random.randn(1000, 10)
+    B_good = np.random.randn(10, 1000)
+    X_good = LowRankMatrix(A_good, B_good)
+    assert X_good.is_memory_efficient, "Low-rank matrix with rank 10 for 1000x1000 should be memory efficient"
+    
+    # Bad low-rank matrix (inefficient)
+    A_bad = np.random.randn(100, 90)
+    B_bad = np.random.randn(90, 100)
+    X_bad = LowRankMatrix(A_bad, B_bad)
+    assert not X_bad.is_memory_efficient, "High-rank matrix (90 for 100x100) should not be memory efficient"
+    
+    # Edge case: empty matrix
+    A_empty = np.random.randn(0, 5)
+    B_empty = np.random.randn(5, 10)
+    X_empty = LowRankMatrix(A_empty, B_empty)
+    assert X_empty.is_memory_efficient, "Empty matrix should be considered memory efficient"
+    
+    # Edge case: single column/row
+    A_single = np.random.randn(1000, 1)
+    B_single = np.random.randn(1, 1000)
+    X_single = LowRankMatrix(A_single, B_single)
+    assert X_single.is_memory_efficient, "Rank-1 matrix should be memory efficient"
+    
+    print("is_memory_efficient property test passed")
+
+
 #%% Test serialization
 def test_save_load():
     """Test saving and loading."""
@@ -2066,7 +2081,6 @@ def test_save_load_extension():
 
 
 #%% Test approximation error
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_approximation_error():
     """Test approximation error computation."""
     # Perfect reconstruction
@@ -2092,7 +2106,6 @@ def test_approximation_error():
 
 
 #%% Test stability analysis
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_is_well_conditioned():
     """Test well-conditioning check."""
     # Well-conditioned matrix (identity-like)
@@ -2117,7 +2130,6 @@ def test_is_well_conditioned():
 
 
 #%% Test sparse conversion
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_to_sparse():
     """Test conversion to sparse format."""
     import scipy.sparse as sp
@@ -2143,7 +2155,6 @@ def test_to_sparse():
     print("to_sparse() test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_to_sparse_threshold():
     """Test sparse conversion with threshold."""
     import scipy.sparse as sp
@@ -2162,7 +2173,6 @@ def test_to_sparse_threshold():
     print("to_sparse() threshold test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_to_sparse_invalid_format():
     """Test to_sparse with invalid format."""
     with pytest.raises(ValueError, match="Unknown format"):
@@ -2172,7 +2182,6 @@ def test_to_sparse_invalid_format():
 
 
 #%% Test equality and comparison
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_equality_exact():
     """Test exact equality."""
     with warnings.catch_warnings(record=True) as w:
@@ -2224,7 +2233,6 @@ def test_allclose():
     print("allclose() test passed")
 
 
-@pytest.mark.filterwarnings("ignore::lowrank.matrices.low_rank_matrix.InefficiencyWarning")
 def test_equality_types():
     """Test equality with different types."""
     # With non-matrix type
@@ -2332,6 +2340,35 @@ def test_edge_case_large_chain():
     assert mem_after < mem_before, "Compression should reduce memory"
     
     print("Edge case large chain passed")
+
+
+#%% Test LinearOperator addition compatibility
+def test_linearoperator_addition():
+    """Test addition with generic LinearOperator objects."""
+    from scipy.sparse.linalg import aslinearoperator
+    
+    # Create a generic LinearOperator (not LowRankMatrix)
+    A_dense = np.random.randn(10, 8)
+    A_linop = aslinearoperator(A_dense)
+    
+    # Add LowRankMatrix + LinearOperator should return _SumLinearOperator
+    result = X + A_linop
+    assert isinstance(result, LinearOperator), "Should return LinearOperator"
+    assert not isinstance(result, LowRankMatrix), "Should return lazy sum, not LowRankMatrix"
+    
+    # Test that the result works correctly
+    v = np.random.randn(8)
+    result_matvec = result @ v
+    expected = X_full @ v + A_dense @ v
+    assert np.allclose(result_matvec, expected), "LinearOperator addition matvec incorrect"
+    
+    # Reverse addition should also work
+    result_rev = A_linop + X
+    result_rev_matvec = result_rev @ v
+    assert np.allclose(result_rev_matvec, expected), "Reverse LinearOperator addition incorrect"
+    
+    print("LinearOperator addition compatibility test passed")
+
 
 # %%
 

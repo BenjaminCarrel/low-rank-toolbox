@@ -8,6 +8,9 @@ Currently supported low-rank matrix formats:
 - SVD
 - QR
 """
-from .low_rank_matrix import LowRankMatrix
-from .svd import QuasiSVD, SVD
+from .quasi_svd import QuasiSVD
+from .svd import SVD
 from .qr import QR
+from .low_rank_matrix import LowRankMatrix
+
+__all__ = ['QuasiSVD', 'SVD', 'QR', 'LowRankMatrix']
