@@ -112,14 +112,9 @@ def test_initialization_errors():
     Q1, _ = la.qr(np.random.randn(10, 3), mode='economic')
     Q2, _ = la.qr(np.random.randn(8, 3), mode='economic')
     
-    # Test diagonal S warning (not error anymore)
-    S_diag = np.diag([1.0, 2.0, 3.0])
-    with pytest.warns(UserWarning, match="diagonal"):
-        QuasiSVD(Q1, S_diag, Q2)
-    
-    # Test 1D array warning (converts to diagonal)
+    # Test 1D array warning (error because we want 2D S)
     s_1d = np.array([1.0, 2.0, 3.0])
-    with pytest.warns(UserWarning, match="1D array"):
+    with pytest.raises(TypeError, match="2D array"):
         QuasiSVD(Q1, s_1d, Q2)
     
     # Test dimension mismatch
@@ -222,8 +217,8 @@ def test_norms(simple_quasisvd):
     # Test caching
     X.norm('fro')
     X.norm(2)
-    assert 'fro' in X._norms, "Norms should be cached"
-    assert 2 in X._norms, "Norms should be cached"
+    assert 'fro' in X._cache, "Norms should be cached in _cache"
+    assert 2 in X._cache, "Norms should be cached in _cache"
 
 
 #%% ===========================
@@ -1320,6 +1315,162 @@ def test_solve_with_lstsq_method():
 
 
 #%% ===========================
+#%% MATRIX SQUARE ROOT (sqrtm)
+#%% ===========================
+
+def test_sqrtm_basic():
+    """Test basic matrix square root computation."""
+    np.random.seed(500)
+    
+    # Create a symmetric positive definite QuasiSVD matrix
+    Q, _ = la.qr(np.random.randn(20, 5), mode='economic')
+    S = np.diag([4.0, 9.0, 16.0, 25.0, 36.0])  # Perfect squares for easy verification
+    X = QuasiSVD(Q, S, Q)  # Symmetric by construction
+    
+    # Compute square root
+    X_sqrt = X.sqrtm()
+    
+    # Verify it's a QuasiSVD
+    assert isinstance(X_sqrt, QuasiSVD), "sqrtm should return QuasiSVD"
+    
+    # Verify X_sqrt @ X_sqrt = X
+    X_reconstructed = X_sqrt.dot(X_sqrt)
+    assert np.allclose(X_reconstructed.full(), X.full()), "X_sqrt @ X_sqrt should equal X"
+    
+    # Verify the S matrix is the square root
+    S_sqrt_expected = np.diag([2.0, 3.0, 4.0, 5.0, 6.0])
+    assert np.allclose(X_sqrt.S, S_sqrt_expected), "S should be square root of original S"
+
+
+def test_sqrtm_non_diagonal():
+    """Test sqrtm with non-diagonal S matrix."""
+    np.random.seed(501)
+    
+    Q1, _ = la.qr(np.random.randn(15, 4), mode='economic')
+    Q2, _ = la.qr(np.random.randn(12, 4), mode='economic')
+    
+    # Create a non-diagonal S matrix
+    A = np.random.randn(4, 4)
+    S = A + A.T  # Symmetric but non-diagonal
+    S += np.eye(4) * 5  # Make it strictly positive definite
+    
+    X = QuasiSVD(Q1, S, Q2)
+    
+    # Compute square root
+    X_sqrt = X.sqrtm()
+    
+    # Verify it's a QuasiSVD
+    assert isinstance(X_sqrt, QuasiSVD), "sqrtm should return QuasiSVD"
+    
+    # Verify U and V are unchanged (only S changes)
+    assert np.allclose(X_sqrt.U, X.U), "U should be unchanged"
+    assert np.allclose(X_sqrt.V, X.V), "V should be unchanged"
+    
+    # Verify S_sqrt @ S_sqrt ≈ S
+    S_sqrt_squared = X_sqrt.S @ X_sqrt.S
+    assert np.allclose(S_sqrt_squared, S, atol=1e-10), "S_sqrt @ S_sqrt should equal S"
+
+
+def test_sqrtm_inplace():
+    """Test in-place matrix square root computation."""
+    np.random.seed(502)
+    
+    Q, _ = la.qr(np.random.randn(10, 3), mode='economic')
+    S = np.diag([1.0, 4.0, 9.0])
+    X = QuasiSVD(Q, S, Q)
+    X_full_original = X.full()
+    
+    # Store original S
+    S_original = X.S.copy()
+    
+    # Compute square root in-place
+    result = X.sqrtm(inplace=True)
+    
+    # Verify it returns self
+    assert result is X, "inplace=True should return self"
+    
+    # Verify S has been modified
+    assert not np.allclose(X.S, S_original), "S should be modified in-place"
+    
+    # Verify X_sqrt @ X_sqrt = X_original
+    X_reconstructed = X.dot(X)
+    assert np.allclose(X_reconstructed.full(), X_full_original), "X_sqrt @ X_sqrt should equal original X"
+
+
+def test_sqrtm_complex():
+    """Test sqrtm with complex matrices."""
+    np.random.seed(503)
+    
+    # Create complex matrices
+    Q1, _ = la.qr(np.random.randn(10, 3) + 1j * np.random.randn(10, 3), mode='economic')
+    Q2, _ = la.qr(np.random.randn(8, 3) + 1j * np.random.randn(8, 3), mode='economic')
+    
+    # Create a Hermitian S matrix
+    A = np.random.randn(3, 3) + 1j * np.random.randn(3, 3)
+    S = A + A.conj().T  # Hermitian
+    S += np.eye(3) * 5  # Make it strictly positive definite
+    
+    X = QuasiSVD(Q1, S, Q2)
+    
+    # Compute square root
+    X_sqrt = X.sqrtm()
+    
+    # Verify result is complex
+    assert X_sqrt.S.dtype == np.complex128, "Result should be complex"
+    
+    # Verify U and V are unchanged
+    assert np.allclose(X_sqrt.U, X.U), "U should be unchanged"
+    assert np.allclose(X_sqrt.V, X.V), "V should be unchanged"
+    
+    # Verify S_sqrt @ S_sqrt ≈ S
+    S_sqrt_squared = X_sqrt.S @ X_sqrt.S
+    assert np.allclose(S_sqrt_squared, S, atol=1e-10), "S_sqrt @ S_sqrt should equal S"
+
+
+def test_sqrtm_preserves_orthogonality():
+    """Test that sqrtm preserves orthogonality of U and V."""
+    np.random.seed(505)
+    
+    Q1, _ = la.qr(np.random.randn(20, 5), mode='economic')
+    Q2, _ = la.qr(np.random.randn(18, 5), mode='economic')
+    S = np.diag([1.0, 4.0, 9.0, 16.0, 25.0])
+    
+    X = QuasiSVD(Q1, S, Q2)
+    assert X.is_orthogonal(), "Original should be orthogonal"
+    
+    # Compute square root
+    X_sqrt = X.sqrtm()
+    
+    # Verify U and V are unchanged (only S changes)
+    assert np.allclose(X_sqrt.U, X.U), "U should be unchanged"
+    assert np.allclose(X_sqrt.V, X.V), "V should be unchanged"
+    
+    # Verify orthogonality is preserved
+    assert X_sqrt.is_orthogonal(), "sqrtm result should be orthogonal"
+
+
+def test_sqrtm_extra_data():
+    """Test that extra_data is preserved in sqrtm."""
+    np.random.seed(506)
+    
+    Q, _ = la.qr(np.random.randn(10, 3), mode='economic')
+    S = np.diag([1.0, 4.0, 9.0])
+    
+    extra_data = {'poles': [1, 2, 3], 'test_key': 'test_value'}
+    X = QuasiSVD(Q, S, Q, **extra_data)
+    
+    # Compute square root
+    X_sqrt = X.sqrtm(**extra_data)
+    
+    # Verify extra_data is preserved
+    assert 'poles' in X_sqrt._extra_data, "Extra data should be preserved"
+    assert 'test_key' in X_sqrt._extra_data, "Extra data should be preserved"
+    assert X_sqrt._extra_data['poles'] == [1, 2, 3], "Extra data values should match"
+    assert X_sqrt._extra_data['test_key'] == 'test_value', "Extra data values should match"
+
+
+
+#%% ===========================
 #%% INHERITED METHODS TESTS
 #%% ===========================
 
@@ -1350,5 +1501,408 @@ def test_flatten():
     
     assert X_flat.shape == (300,), "Flattened shape should be 1D"
     assert np.allclose(X_flat, expected), "Flattened values should match"
+
+
+#%% ===========================
+#%% COMPLEX MATRIX TESTS
+#%% ===========================
+
+def test_complex_transpose():
+    """Test transpose for complex matrices."""
+    np.random.seed(42)
+    m, n, r = 10, 8, 4
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Test transpose (without conjugate)
+    X_T = X.T
+    assert isinstance(X_T, QuasiSVD), "Transpose should return QuasiSVD"
+    assert X_T.shape == (n, m), "Transpose shape should be swapped"
+    assert np.allclose(X_T.full(), A.T), "Transpose should match A.T"
+    assert not np.allclose(X_T.full(), A.T.conj()), "Transpose should NOT conjugate"
+
+
+def test_complex_hermitian():
+    """Test Hermitian conjugate for complex matrices."""
+    np.random.seed(43)
+    m, n, r = 10, 8, 4
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Test Hermitian conjugate
+    X_H = X.H
+    assert isinstance(X_H, QuasiSVD), "Hermitian should return QuasiSVD"
+    assert X_H.shape == (n, m), "Hermitian shape should be swapped"
+    assert np.allclose(X_H.full(), A.T.conj()), "Hermitian should match A.T.conj()"
+    assert np.allclose(X_H.full(), A.conj().T), "Hermitian should match A.conj().T"
+
+
+def test_complex_transpose_hermitian_relationship():
+    """Test relationship between transpose and Hermitian for complex matrices."""
+    np.random.seed(44)
+    m, n, r = 12, 10, 5
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Test relationships
+    assert np.allclose(X.H.full(), X.T.conj().full()), "X.H should equal X.T.conj()"
+    assert np.allclose(X.H.full(), X.conj().T.full()), "X.H should equal X.conj().T"
+    assert np.allclose(X.T.T.full(), X.full()), "X.T.T should equal X"
+    assert np.allclose(X.H.H.full(), X.full()), "X.H.H should equal X"
+
+
+def test_complex_addition():
+    """Test addition with complex matrices."""
+    np.random.seed(45)
+    m, n, r = 8, 6, 3
+    U1, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V1, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S1 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    U2, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V2, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S2 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X1 = QuasiSVD(U1, S1, V1)
+    X2 = QuasiSVD(U2, S2, V2)
+    A1 = X1.full()
+    A2 = X2.full()
+    
+    # Test addition
+    Y = X1 + X2
+    assert isinstance(Y, QuasiSVD), "Addition should return QuasiSVD"
+    assert np.allclose(Y.full(), A1 + A2), "Complex addition incorrect"
+
+
+def test_complex_subtraction():
+    """Test subtraction with complex matrices."""
+    np.random.seed(46)
+    m, n, r = 8, 6, 3
+    U1, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V1, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S1 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    U2, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V2, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S2 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X1 = QuasiSVD(U1, S1, V1)
+    X2 = QuasiSVD(U2, S2, V2)
+    A1 = X1.full()
+    A2 = X2.full()
+    
+    # Test subtraction
+    Y = X1 - X2
+    assert isinstance(Y, QuasiSVD), "Subtraction should return QuasiSVD"
+    assert np.allclose(Y.full(), A1 - A2), "Complex subtraction incorrect"
+
+
+def test_complex_multiplication():
+    """Test matrix multiplication with complex matrices."""
+    np.random.seed(47)
+    m, n, k, r = 10, 8, 6, 4
+    U1, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V1, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S1 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    U2, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    V2, _ = la.qr(np.random.randn(k, r) + 1j * np.random.randn(k, r), mode='economic')
+    S2 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X1 = QuasiSVD(U1, S1, V1)
+    X2 = QuasiSVD(U2, S2, V2)
+    A1 = X1.full()
+    A2 = X2.full()
+    
+    # Test multiplication
+    Y = X1.dot(X2)
+    assert isinstance(Y, QuasiSVD), "Multiplication should return QuasiSVD"
+    assert np.allclose(Y.full(), A1 @ A2), "Complex multiplication incorrect"
+
+
+def test_complex_hadamard():
+    """Test Hadamard product with complex matrices."""
+    np.random.seed(48)
+    m, n, r = 8, 6, 3
+    U1, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V1, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S1 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    U2, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V2, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S2 = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X1 = QuasiSVD(U1, S1, V1)
+    X2 = QuasiSVD(U2, S2, V2)
+    A1 = X1.full()
+    A2 = X2.full()
+    
+    # Test Hadamard product
+    Y = X1.hadamard(X2)
+    assert isinstance(Y, QuasiSVD), "Hadamard should return QuasiSVD"
+    assert np.allclose(Y.full(), A1 * A2), "Complex Hadamard product incorrect"
+
+
+def test_complex_scalar_multiplication():
+    """Test scalar multiplication with complex scalars."""
+    np.random.seed(49)
+    m, n, r = 8, 6, 3
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Test complex scalar
+    c = 2.0 + 3.0j
+    Y = X * c
+    assert isinstance(Y, QuasiSVD), "Scalar multiplication should return QuasiSVD"
+    assert Y.S.dtype == np.complex128, "S should be complex"
+    assert np.allclose(Y.full(), c * A), "Complex scalar multiplication incorrect"
+
+
+def test_complex_pseudoinverse():
+    """Test pseudoinverse with complex matrices."""
+    np.random.seed(50)
+    m, n, r = 10, 8, 4
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.diag(np.logspace(0, -2, r)) + 1j * np.diag(np.logspace(-1, -3, r))
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Compute pseudoinverse
+    X_pinv = X.pseudoinverse()
+    assert isinstance(X_pinv, QuasiSVD), "Pseudoinverse should return QuasiSVD"
+    
+    # Test property: X @ X⁺ @ X ≈ X
+    reconstruction = X.dot(X_pinv.dot(X.full(), dense_output=True), dense_output=True)
+    assert np.allclose(A, reconstruction), "Complex pseudoinverse reconstruction failed"
+
+
+def test_complex_solve():
+    """Test solve with complex matrices."""
+    np.random.seed(51)
+    n, r = 10, 8
+    U, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Create complex RHS
+    b = np.random.randn(n) + 1j * np.random.randn(n)
+    
+    # Solve using lstsq method
+    x = X.solve(b, method='lstsq')
+    
+    # Check that solution minimizes residual
+    residual = np.linalg.norm(A @ x - b)
+    expected_x = np.linalg.lstsq(A, b, rcond=None)[0]
+    expected_residual = np.linalg.norm(A @ expected_x - b)
+    
+    assert np.abs(residual - expected_residual) < 1e-10, "Complex solve residual incorrect"
+
+
+def test_complex_lstsq():
+    """Test least squares with complex matrices."""
+    np.random.seed(52)
+    m, n, r = 12, 8, 6
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Create complex RHS
+    b = np.random.randn(m) + 1j * np.random.randn(m)
+    
+    # Solve least squares
+    x = X.lstsq(b)
+    
+    # Compare with numpy
+    x_expected = np.linalg.lstsq(A, b, rcond=None)[0]
+    assert np.allclose(x, x_expected, atol=1e-10), "Complex lstsq solution incorrect"
+
+
+def test_complex_sqrtm():
+    """Test matrix square root with complex matrices."""
+    np.random.seed(53)
+    n, r = 8, 4
+    U, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    # Create symmetric complex matrix (U = V)
+    X = QuasiSVD(U, S, U)
+    A = X.full()
+    
+    # Compute square root
+    X_sqrt = X.sqrtm()
+    assert isinstance(X_sqrt, QuasiSVD), "sqrtm should return QuasiSVD"
+    
+    # Test property: X_sqrt @ X_sqrt ≈ X
+    reconstruction = X_sqrt.dot(X_sqrt.full(), dense_output=True)
+    assert np.allclose(reconstruction, A, atol=1e-10), "Complex sqrtm verification failed"
+
+
+def test_complex_expm_raises():
+    """Test that matrix exponential raises NotImplementedError for complex matrices."""
+    np.random.seed(54)
+    n, r = 6, 3
+    U, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    
+    # Create Hermitian S for Hermitian matrix
+    S_temp = (np.random.randn(r, r) + 1j * np.random.randn(r, r)) * 0.1
+    S = (S_temp + S_temp.T.conj()) / 2  # Make S Hermitian
+    
+    # Create Hermitian complex matrix (X = U @ S @ U.H)
+    X = QuasiSVD(U, S, U)
+    
+    # Should raise NotImplementedError for complex matrices
+    with pytest.raises(NotImplementedError, match="not implemented for complex matrices"):
+        X.expm()
+
+
+def test_complex_rectangular_s():
+    """Test complex matrices with rectangular S."""
+    np.random.seed(55)
+    m, n, r1, r2 = 10, 8, 5, 3
+    U, _ = la.qr(np.random.randn(m, r1) + 1j * np.random.randn(m, r1), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r2) + 1j * np.random.randn(n, r2), mode='economic')
+    S = np.random.randn(r1, r2) + 1j * np.random.randn(r1, r2)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Test reconstruction
+    assert np.allclose(X.full(), A), "Complex rectangular S reconstruction failed"
+    
+    # Test transpose
+    assert np.allclose(X.T.full(), A.T), "Complex rectangular S transpose failed"
+    
+    # Test Hermitian
+    assert np.allclose(X.H.full(), A.T.conj()), "Complex rectangular S Hermitian failed"
+
+
+def test_complex_norms():
+    """Test norms with complex matrices."""
+    np.random.seed(56)
+    m, n, r = 10, 8, 5
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Test Frobenius norm
+    norm_fro = X.norm('fro')
+    expected_fro = np.linalg.norm(A, 'fro')
+    assert np.abs(norm_fro - expected_fro) < 1e-10, "Complex Frobenius norm incorrect"
+    
+    # Test 2-norm
+    norm_2 = X.norm(2)
+    expected_2 = np.linalg.norm(A, 2)
+    assert np.abs(norm_2 - expected_2) < 1e-10, "Complex 2-norm incorrect"
+    
+    # Test nuclear norm
+    norm_nuc = X.norm('nuc')
+    expected_nuc = np.linalg.norm(A, 'nuc')
+    assert np.abs(norm_nuc - expected_nuc) < 1e-10, "Complex nuclear norm incorrect"
+
+
+def test_complex_trace():
+    """Test trace with complex square matrices."""
+    np.random.seed(57)
+    n, r = 10, 5
+    U, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Test trace
+    tr = X.trace()
+    expected_tr = np.trace(A)
+    assert np.abs(tr - expected_tr) < 1e-10, "Complex trace incorrect"
+
+
+def test_complex_to_svd_conversion():
+    """Test conversion to SVD for complex matrices."""
+    from lowrank.matrices.svd import SVD
+    
+    np.random.seed(58)
+    m, n, r = 10, 8, 5
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    A = X.full()
+    
+    # Convert to SVD
+    X_svd = X.to_svd()
+    assert isinstance(X_svd, SVD), "Should return SVD"
+    assert np.allclose(X_svd.full(), A), "Complex to_svd conversion failed"
+    assert X_svd.U.dtype == np.complex128, "SVD U should be complex"
+    assert X_svd.V.dtype == np.complex128, "SVD V should be complex"
+
+
+def test_complex_projection_column_space():
+    """Test projection onto column space with complex matrices."""
+    np.random.seed(59)
+    m, n, r = 12, 10, 5
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Complex matrix to project
+    Y = np.random.randn(m, 8) + 1j * np.random.randn(m, 8)
+    
+    # Project
+    result = X.project_onto_column_space(Y, dense_output=True)
+    
+    # Expected: U @ U.H @ Y
+    expected = U @ (U.T.conj() @ Y)
+    assert np.allclose(result, expected), "Complex column space projection failed"
+
+
+def test_complex_projection_row_space():
+    """Test projection onto row space with complex matrices."""
+    np.random.seed(60)
+    m, n, r = 12, 10, 5
+    U, _ = la.qr(np.random.randn(m, r) + 1j * np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r) + 1j * np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r) + 1j * np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Complex matrix to project
+    Y = np.random.randn(m, n) + 1j * np.random.randn(m, n)
+    
+    # Project
+    result = X.project_onto_row_space(Y, dense_output=True)
+    
+    # Expected: Y @ V @ V.H
+    expected = Y @ V @ V.T.conj()
+    assert np.allclose(result, expected), "Complex row space projection failed"
 
 
