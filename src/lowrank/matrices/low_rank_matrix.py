@@ -159,6 +159,12 @@ class LowRankMatrix(LinearOperator):
         dtype = self._matrices[0].dtype
         super().__init__(dtype=dtype, shape=shape)
         
+        # Initialize cache dictionary BEFORE computing storage size (if not provided in extra_data)
+        if '_cache' in extra_data:
+            self._cache = extra_data['_cache']
+        else:
+            self._cache = {}
+        
         # Check memory efficiency after initialization (unless disabled)
         if not extra_data.get('_skip_memory_check', False):
             m, n = self.shape
@@ -345,9 +351,19 @@ class LowRankMatrix(LinearOperator):
     def norm(self, ord: str | int = 'fro') -> float:
         """Default implementation, overload this for some subclasses"""
         if ord == 'fro':
-            return np.sqrt(np.trace(self.T.dot(self, dense_output=True)))
+            if 'fro' in self._cache:
+                return self._cache['fro']
+            else:
+                norm = np.sqrt(self.norm_squared())
+                self._cache['fro'] = norm
+                return norm
         else:
-            return np.linalg.norm(self.full(), ord=ord)
+            if ord in self._cache:
+                return self._cache[ord]
+            else:
+                norm = np.linalg.norm(self.full(), ord=ord)
+                self._cache[ord] = norm
+                return norm
 
     def __repr__(self) -> str:
         """String representation of the low-rank matrix."""
@@ -782,6 +798,9 @@ class LowRankMatrix(LinearOperator):
         if self.shape[0] != self.shape[1]:
             raise ValueError("Matrix must be square to extract diagonal.")
         
+        if 'diag' in self._cache:
+            return self._cache['diag']
+        
         n = self.shape[0]
         diag_elements = np.zeros(n, dtype=self.dtype)
         
@@ -806,6 +825,8 @@ class LowRankMatrix(LinearOperator):
         """
         if self.shape[0] != self.shape[1]:
             raise ValueError("Matrix must be square to compute trace.")
+        if 'trace' in self._cache:
+            return self._cache['trace']
         
         # Use cyclic property: tr(A1 @ A2 @ ... @ An) = tr(A2 @ ... @ An @ A1)
         # Try to minimize computation by finding best cyclic permutation
@@ -815,9 +836,13 @@ class LowRankMatrix(LinearOperator):
             # tr(AB) = tr(BA) - choose smaller intermediate
             A, B = self._matrices
             if A.shape[1] * B.shape[0] <= A.shape[0] * B.shape[1]:
-                return np.trace(A @ B)
+                tr = np.trace(A @ B)
+                self._cache['trace'] = tr
+                return tr
             else:
-                return np.trace(B @ A)
+                tr = np.trace(B @ A)
+                self._cache['trace'] = tr
+                return tr
         
         # For more matrices, compute trace by cyclically permuting
         # to minimize the first multiplication
@@ -838,7 +863,9 @@ class LowRankMatrix(LinearOperator):
         
         # Compute the product and take trace
         product = np.linalg.multi_dot(shifted_matrices)
-        return np.trace(product)
+        tr = np.trace(product)
+        self._cache['trace'] = tr
+        return tr
     
     def norm_squared(self) -> float:
         """Compute squared Frobenius norm efficiently: ||X||²_F = tr(X^H X).
@@ -854,6 +881,9 @@ class LowRankMatrix(LinearOperator):
         as it avoids the square root operation. For complex matrices,
         uses Hermitian transpose (X^H X) to ensure real result.
         """
+        if 'norm_squared' in self._cache:
+            return self._cache['norm_squared']
+        
         # ||X||²_F = tr(X^H @ X)
         # For X = A₁A₂...Aₙ, we have X^H X = Aₙ^H...A₁^H A₁...Aₙ
         hermitian_matrices = [M.T.conj() for M in reversed(self._matrices)]
@@ -866,6 +896,8 @@ class LowRankMatrix(LinearOperator):
         # For X^H X, trace should be real (up to numerical errors)
         if np.iscomplexobj(trace_val):
             return np.real(trace_val)
+        
+        self._cache['norm_squared'] = trace_val
         return trace_val
     
     ## MATRIX POWER
@@ -1152,12 +1184,19 @@ class LowRankMatrix(LinearOperator):
                 UserWarning
             )
         
+        # Create cache key that includes method
+        cache_key = f'cond_estimate_{method}'
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+        
         if method == 'norm_ratio':
             # Use Frobenius norm approximation
             norm_fro = self.norm('fro')
             norm_2 = self.norm(2)
             # This is a rough estimate
-            return (norm_fro / norm_2) * np.sqrt(min(self.shape))
+            cond = (norm_fro / norm_2) * np.sqrt(min(self.shape))
+            self._cache[cache_key] = cond
+            return cond
         
         elif method == 'power_iteration':
             # Estimate largest singular value via power iteration on X^T X
@@ -1177,10 +1216,13 @@ class LowRankMatrix(LinearOperator):
             # This is more complex and would require solving systems
             # For now, use a simpler bound
             sigma_min_estimate = 1.0 / self.norm(2)
+            cond = sigma_max / sigma_min_estimate
+            self._cache[cache_key] = cond
             
-            return sigma_max / sigma_min_estimate
+            return cond
+        
         else:
-            raise ValueError(f"Unknown method: {method}. Use 'power_iteration' or 'norm_ratio'.")
+            raise ValueError(f"Unknown method: {method}. Use 'norm_ratio' or 'power_iteration'.")
     
     ## MEMORY FOOTPRINT REPORTING
     def _compute_storage_size(self) -> int:
@@ -1194,7 +1236,9 @@ class LowRankMatrix(LinearOperator):
         int
             Total number of elements stored.
         """
-        return sum(M.size for M in self._matrices)
+        size = sum(M.size for M in self._matrices)
+        self._cache['storage_size'] = size
+        return size
     
     def memory_usage(self, unit: str = 'MB') -> float:
         """Report actual memory used by the factorization.
@@ -1371,14 +1415,18 @@ class LowRankMatrix(LinearOperator):
         This uses an approximate condition number estimate and may not be
         accurate for all cases. Consider this a heuristic check.
         """
+        if 'is_well_conditioned' in self._cache:
+            return self._cache['is_well_conditioned']
         if self.shape[0] != self.shape[1]:
             warnings.warn(
                 "Well-conditioning check is designed for square matrices.",
                 UserWarning
             )
-            return True  # Non-square matrices don't have a standard condition number
+            self._cache['is_well_conditioned'] = True
+            return True
         
         cond = self.cond_estimate(method='norm_ratio')
+        self._cache['is_well_conditioned'] = bool(cond < threshold)
         return bool(cond < threshold)
     
     ## SPARSE CONVERSION
