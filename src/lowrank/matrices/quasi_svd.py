@@ -59,7 +59,7 @@ class QuasiSVD(LowRankMatrix):
     ---------------
     - U and V are ASSUMED to have orthonormal columns (not verified at initialization)
     - Use .is_orthogonal() to verify orthonormality if needed
-    - After matrix operations, orthogonality of U and V is generally preserved
+    - After matrix operations, orthogonality of U and V is preserved when possible, otherwise returns LowRankMatrix
     - After addition/subtraction, S may become singular or ill-conditioned
     - Use .truncate() to convert to SVD and remove small/zero singular values
     - Use .to_svd() to convert to diagonal form without truncation
@@ -224,13 +224,8 @@ class QuasiSVD(LowRankMatrix):
         
         if S.ndim == 1:
             # S is a 1D array of singular values - convert to diagonal and warn
-            warnings.warn(
-                "S is provided as a 1D array (singular values). "
-                "Consider using the SVD class for more efficient storage: SVD(U, s, V)",
-                UserWarning,
-                stacklevel=2
-            )
-            S = np.diag(S)
+            raise TypeError("For QuasiSVD, S must be a 2D array. "
+                            "Use the SVD class for diagonal singular value storage.")
         
         if S.ndim != 2:
             raise ValueError("S must be a 2D array")
@@ -245,24 +240,8 @@ class QuasiSVD(LowRankMatrix):
                 f"Dimension mismatch: S.shape[1]={S.shape[1]} must equal V.shape[1]={V.shape[1]}"
             )
         
-        # Check if S is diagonal - if so, warn to use SVD class for efficiency
-        # Skip this check if called from SVD class itself
-        if not extra_data.get('_skip_diagonal_check', False):
-            if S.shape[0] == S.shape[1]:
-                # Only check for diagonal structure if S is square
-                diag_elements = np.diag(S)
-                off_diag_norm = np.linalg.norm(S - np.diag(diag_elements), ord='fro')
-                if off_diag_norm < 100 * np.finfo(S.dtype).eps * np.linalg.norm(diag_elements):
-                    warnings.warn(
-                        "S is diagonal (or nearly diagonal). Consider using the SVD class instead "
-                        "for more efficient storage: SVD(U, np.diag(S), V)",
-                        UserWarning,
-                        stacklevel=2
-                    )
-        
         # Call the parent constructor (which includes memory efficiency check)
         super().__init__(U, S, V.T.conj(), **extra_data)
-        self._norms = {}
         
     ## STANDARD OPERATIONS
     def __add__(self, other: QuasiSVD | ndarray) -> QuasiSVD | ndarray:
@@ -465,11 +444,44 @@ class QuasiSVD(LowRankMatrix):
         Result is cached after first computation for efficiency.
         Computes via np.linalg.svdvals(S), which is O(r²q) for S with shape (r, q).
         """
-        try:
-            return self._sing_vals
-        except AttributeError:
-            self._sing_vals = la.svdvals(self.S)
-            return self._sing_vals
+        if 'sing_vals' in self._cache:
+            return self._cache['sing_vals']
+        else:
+            self._cache['sing_vals'] = la.svdvals(self.S)
+            return self._cache['sing_vals']
+        
+    @property
+    def numerical_rank(self) -> int:
+        """Numerical rank of the QuasiSVD matrix.
+        
+        The numerical rank is defined as the number of non-negligible singular values up to the machine precision.
+        
+        Returns
+        -------
+        int
+            Numerical rank of the matrix.
+        """
+        if 'numerical_rank' in self._cache:
+            return self._cache['numerical_rank']
+        s = self.sing_vals()
+        eps = np.finfo(s.dtype).eps
+        self._cache['numerical_rank'] = np.sum(s > eps)
+        return self._cache['numerical_rank']
+            
+        
+    def cond_estimate(self) -> float:
+        """Condition number of the QuasiSVD matrix, estimated from the singular values.
+        
+        Returns
+        -------
+        float
+            Condition number of the matrix.
+        """
+        if 'cond' in self._cache:
+            return self._cache['cond']
+        s = self.sing_vals()
+        self._cache['cond'] = s[0] / s[-1] if s[-1] != 0 else np.inf
+        return self._cache['cond']
 
     def is_symmetric(self) -> bool:
         """Check if the QuasiSVD matrix is symmetric.
@@ -485,11 +497,15 @@ class QuasiSVD(LowRankMatrix):
         This is a necessary condition when X = U @ S @ V.T.
         Uses np.allclose for comparison (tolerates small numerical errors).
         """
+        # Check cache
+        if 'is_symmetric' in self._cache:
+            return self._cache['is_symmetric']
         # Check squareness
         if self.shape[0] != self.shape[1]:
-            return False
-        # Check symmetry
-        return np.allclose(self.U, self.V)
+            self._cache['is_symmetric'] = False
+        else:
+            self._cache['is_symmetric'] = np.allclose(self.U, self.V)
+        return self._cache['is_symmetric']
     
     def is_orthogonal(self) -> bool:
         """Check if U and V have orthonormal columns.
@@ -506,17 +522,16 @@ class QuasiSVD(LowRankMatrix):
         Orthogonality is ASSUMED at initialization but not enforced.
         This method verifies the assumption.
         """
-        try:
-            return self._is_orthogonal
-        except AttributeError:
-            # Orthogonality of U and V
-            c1 = np.allclose(self.Uh.dot(self.U), np.eye(self.U.shape[1]))
-            c2 = np.allclose(self.Vh.dot(self.V), np.eye(self.V.shape[1]))
-            if not (c1 and c2):
-                return False
-            else:
-                self._is_orthogonal = True
-                return self._is_orthogonal
+        # Check cache
+        if 'is_orthogonal' in self._cache:
+            return self._cache['is_orthogonal']
+        c1 = np.allclose(self.Uh.dot(self.U), np.eye(self.U.shape[1]))
+        c2 = np.allclose(self.Vh.dot(self.V), np.eye(self.V.shape[1]))
+        if not (c1 and c2):
+            self._cache['is_orthogonal'] = False
+        else:
+            self._cache['is_orthogonal'] = True
+        return self._cache['is_orthogonal']
     
     def is_singular(self) -> bool:
         """Check if middle matrix S is numerically singular.
@@ -532,11 +547,12 @@ class QuasiSVD(LowRankMatrix):
         Uses condition number test: cond(S) >= 1/ε where ε is machine precision.
         S may become singular after operations like addition or subtraction.
         """
-        try:
-            return self._is_singular
-        except AttributeError:
-            self._is_singular = np.linalg.cond(self.S) >= 1 / np.finfo(float).eps
-            return self._is_singular
+        # Check cache
+        if 'is_singular' in self._cache:
+            return self._cache['is_singular']
+        else:
+            self._cache['is_singular'] = self.cond_estimate() >= 1 / np.finfo(float).eps
+            return self._cache['is_singular']
     
     @property
     def svd_type(self) -> str:
@@ -597,23 +613,21 @@ class QuasiSVD(LowRankMatrix):
         - Spectral (2-norm): ||X||_2 = σ_max(S)
         - Nuclear: ||X||_* = Σ σ_i(S)
         """
-        try:
-            return self._norms[ord]
-        except (AttributeError, KeyError):
-            
+        # check cache
+        if ord in self._cache:
+            return self._cache[ord]
+        else:
             if self.is_orthogonal():
                 if ord == 2:
-                    self._norms[ord] = np.max(self.sing_vals())
-                    return self._norms[ord]
+                    self._cache[ord] = np.max(self.sing_vals())
                 elif ord == 'fro':
-                    self._norms[ord] = np.sqrt(np.sum(self.sing_vals()**2))
-                    return self._norms[ord]
+                    self._cache[ord] = np.sqrt(np.sum(self.sing_vals()**2))
                 elif ord == 'nuc':
-                    self._norms[ord] = np.sum(self.sing_vals())
-                    return self._norms[ord]
+                    self._cache[ord] = np.sum(self.sing_vals())
             else:
-                self._norms[ord] = np.linalg.norm(self.full(), ord=ord)
-                return self._norms[ord]
+                warnings.warn('This norm is not efficiently implemented in the QuasiSVD class. Forming the dense matrix.', category=LowRankEfficiencyWarning)
+                self._cache[ord] = np.linalg.norm(self.full(), ord=ord)
+            return self._cache[ord]
         
     ## CONVERSIONS
     def to_svd(self) -> SVD:
@@ -646,9 +660,7 @@ class QuasiSVD(LowRankMatrix):
         new_V = self.V.dot(vh_s.T.conj())
         
         # Create SVD object
-        result = SVD(new_U, s, new_V, **self._extra_data)
-            
-        return result
+        return SVD(new_U, s, new_V, _cache=self._cache)
     
     def truncate(self, r: int = None, rtol: float = None, 
                  atol: float = DEFAULT_ATOL, inplace: bool = False) -> SVD:
@@ -843,6 +855,17 @@ class QuasiSVD(LowRankMatrix):
         # Check inputs
         assert all(isinstance(matrix, QuasiSVD) for matrix in matrices), "All matrices must be QuasiSVD"
         assert all(matrix.shape == matrices[0].shape for matrix in matrices), "All matrices must have the same shape"
+        # Warning on low-rank memory efficiency
+        if not auto_truncate:
+            total_rank = sum(matrix.rank for matrix in matrices)
+            m, n = matrices[0].shape
+            dense_size = m * n
+            low_rank_size = total_rank * (m + n + max(matrix.S.shape[1] for matrix in matrices))
+            if low_rank_size > dense_size:
+                warnings.warn(
+                    "Memory efficiency warning: Adding many QuasiSVD matrices without truncation may use more memory than dense storage.",
+                    LowRankEfficiencyWarning
+                )
         # Add the matrices
         U_stack = np.hstack([*[matrix.U for matrix in matrices]])
         V_stack = np.hstack([*[matrix.V for matrix in matrices]])
@@ -1333,6 +1356,10 @@ class QuasiSVD(LowRankMatrix):
         ndarray
             The diagonal elements
         """
+        # Check cache
+        if 'diag' in self._cache:
+            return self._cache['diag']
+        
         m, n = self.shape
         min_dim = min(m, n)
         diagonal = np.zeros(min_dim, dtype=self.dtype)
@@ -1341,6 +1368,7 @@ class QuasiSVD(LowRankMatrix):
             # diag[i] = U[i,:] @ S @ V[i,:].conj()
             diagonal[i] = self.U[i, :] @ self.S @ self.V[i, :].conj()
         
+        self._cache['diag'] = diagonal
         return diagonal
     
     def norm_squared(self) -> float:
@@ -1355,26 +1383,39 @@ class QuasiSVD(LowRankMatrix):
         float
             The squared Frobenius norm
         """
+        # Check cache
+        if 'norm_squared' in self._cache:
+            return self._cache['norm_squared']
         if self.is_orthogonal():
-            return np.sum(self.S * self.S.conj()).real
+            self._cache['norm_squared'] = np.sum(self.S * self.S.conj()).real
         else:
             # Fall back to full matrix computation
-            return np.sum(self.full() ** 2).real
+            self._cache['norm_squared'] = np.sum(self.full() ** 2).real
+        return self._cache['norm_squared']
     
     @property
     def T(self) -> QuasiSVD:
         """
-        Transpose of the QuasiSVD matrix.
+        Transpose of the QuasiSVD matrix (without conjugation).
         
-        Returns QuasiSVD instead of generic LowRankMatrix.
-        X.T = (U @ S @ V.T).T = V @ S.T @ U.T
+        For X = U @ S @ V.H, the transpose is:
+            X.T = (U @ S @ V.H).T = V* @ S.T @ U.T
+        where V* denotes conjugate (not Hermitian).
+        
+        Returns QuasiSVD(V.conj(), S.T, U.conj()) which stores [V*, S.T, U*.H]
+        and represents V* @ S.T @ U.T.
         
         Returns
         -------
         QuasiSVD
             Transposed matrix in QuasiSVD format
+            
+        Notes
+        -----
+        For real matrices, this is equivalent to QuasiSVD(V, S.T, U).
+        For complex matrices, U and V must be conjugated.
         """
-        return QuasiSVD(self.V, self.S.T, self.U, **self._extra_data)
+        return QuasiSVD(self.V.conj(), self.S.T, self.U.conj(), **self._extra_data)
     
     def transpose(self) -> QuasiSVD:
         """Transpose the matrix (returns QuasiSVD)."""
@@ -1398,17 +1439,22 @@ class QuasiSVD(LowRankMatrix):
         """
         Hermitian conjugate (conjugate transpose) of the QuasiSVD matrix.
         
-        Returns QuasiSVD instead of generic LowRankMatrix.
-        X.H = (U @ S @ V.T).H = V* @ S.H @ U.T = V* @ S.H @ U*^T
-        where V* is conjugate of V
+        For X = U @ S @ V.H, the Hermitian conjugate is:
+            X.H = (U @ S @ V.H).H = V @ S.H @ U.H = V @ S*.T @ U.H
         
-        Note: Since V is stored as V (not V.T), we need V as first argument
-        and conjugate both U and V.
+        Returns QuasiSVD(V, S.T.conj(), U) which stores [V, S*.T, U.H]
+        and represents V @ S*.T @ U.H.
+        
+        This is equivalent to X.T.conj() or X.conj().T.
         
         Returns
         -------
         QuasiSVD
             Hermitian conjugate in QuasiSVD format
+            
+        Notes
+        -----
+        For real matrices, X.H is equivalent to X.T.
         """
         return QuasiSVD(self.V, self.S.T.conj(), self.U, **self._extra_data)
     
@@ -1510,6 +1556,7 @@ class QuasiSVD(LowRankMatrix):
                 self.U = Q_u
                 self.V = Q_v
                 self.S = S_new
+                self._cache.clear()  # Clear cache as data changed
                 return self
             else:
                 return QuasiSVD(Q_u, S_new, Q_v, **self._extra_data)
@@ -1521,6 +1568,7 @@ class QuasiSVD(LowRankMatrix):
                 self.U = Y.U
                 self.S = Y.S
                 self.V = Y.V
+                self._cache.clear()  # Clear cache as data changed
                 return self
             else:
                 return self.to_svd()
@@ -1591,7 +1639,7 @@ class QuasiSVD(LowRankMatrix):
         health['min_singular_value'] = float(np.min(sing_vals))
         health['max_singular_value'] = float(np.max(sing_vals))
         health['singular_value_ratio'] = health['max_singular_value'] / health['min_singular_value'] if health['min_singular_value'] > 0 else np.inf
-        health['condition_number_S'] = float(np.linalg.cond(self.S))
+        health['condition_number_S'] = float(sing_vals[0] / sing_vals[-1]) if sing_vals[-1] > 0 else np.inf
         health['is_singular'] = bool(self.is_singular())
         
         if health['is_singular']:
@@ -1887,6 +1935,112 @@ class QuasiSVD(LowRankMatrix):
         # Use pseudoinverse
         X_pinv = self.pseudoinverse(rtol=rtol, atol=atol)
         return X_pinv.dot(b, dense_output=True)
+    
+    def sqrtm(self, inplace: bool = False, **extra_data) -> QuasiSVD:
+        """
+        Compute the matrix square root X^{1/2} such that X^{1/2} @ X^{1/2} = X.
+        
+        For QuasiSVD X = U @ S @ V.T, the square root is:
+            X^{1/2} = U @ S^{1/2} @ V.T
+        where S^{1/2} is the matrix square root of S.
+            
+        Parameters
+        ----------
+        inplace : bool, optional
+            If True, modify the current object in-place. Default is False.
+            
+        Returns
+        -------
+        QuasiSVD
+            Matrix square root in QuasiSVD format
+        """
+        S_sqrt = la.sqrtm(self.S)
+        
+        if inplace:
+            self.S = S_sqrt
+            self._cache.clear()  # Clear cache as data changed
+            return self
+        else:
+            return QuasiSVD(self.U, S_sqrt, self.V, **extra_data)
+    
+    def expm(self, inplace: bool = False, **extra_data) -> QuasiSVD:
+        """
+        Compute the matrix exponential exp(X) = e^X.
+        
+        For QuasiSVD X = U @ S @ V.H, if X is Hermitian (V.H == U), then:
+            exp(X) = U @ exp(S) @ U.H
+        where exp(S) is the matrix exponential of S.
+        
+        This is more efficient than general matrix exponentiation when the
+        middle matrix S is small (r << n).
+        
+        Parameters
+        ----------
+        inplace : bool, optional
+            If True, modify the current object in-place. Default is False.
+        **extra_data
+            Additional keyword arguments passed to __init__ for the new object.
+            
+        Returns
+        -------
+        QuasiSVD
+            Matrix exponential in QuasiSVD format.
+        
+        Raises
+        ------
+        ValueError
+            If matrix is not square.
+        NotImplementedError
+            If matrix is not Hermitian (V.H != U).
+        
+        Notes
+        -----
+        Computational cost: O(r³) for matrix exponential of r×r matrix S
+        (vs O(n³) for general n×n matrix).
+        
+        This method currently only supports Hermitian matrices where V.H == U.
+        For general matrices, the eigenvalue decomposition would be needed.
+        
+        Examples
+        --------
+        >>> S = np.array([[1.0, 0.1], [0.1, 0.5]])
+        >>> U, _ = np.linalg.qr(np.random.randn(100, 2))
+        >>> X = QuasiSVD(U, S, U)  # Symmetric/Hermitian
+        >>> X_exp = X.expm()
+        
+        See Also
+        --------
+        sqrtm : Matrix square root
+        SVD.expm : Optimized version for diagonal S
+        """
+        # Check if matrix is square
+        if self.shape[0] != self.shape[1]:
+            raise ValueError(f"Matrix must be square for expm, got shape {self.shape}")
+        
+        # Check if matrix is complex
+        if np.iscomplexobj(self.U) or np.iscomplexobj(self.V) or np.iscomplexobj(self.s):
+            raise NotImplementedError(
+                "Matrix exponential not implemented for complex matrices. "
+                "Use scipy.linalg.expm(X.full()) instead."
+            )
+        
+        # Check if matrix is symmetric (V.H == U, which means V == U in storage for real matrices)
+        if not self.is_symmetric():
+            raise NotImplementedError(
+                "Matrix exponential currently only implemented for symmetric matrices (V.T == U). "
+                "For general matrices, use scipy.linalg.expm(X.full())."
+            )
+        
+        # Compute exp(S) using scipy
+        S_exp = la.expm(self.S)
+        
+        if inplace:
+            self.S = S_exp
+            self._cache.clear()  # Clear cache as data changed
+            return self
+        else:
+            return QuasiSVD(self.U, S_exp, self.V, **extra_data)
+            
     
     def plot_singular_value_decay(self, semilogy: bool = True, show: bool = True, **kwargs):
         """
