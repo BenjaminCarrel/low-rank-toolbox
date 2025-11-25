@@ -8,15 +8,16 @@ Author: Benjamin Carrel, University of Geneva
 import numpy as np
 from numpy import ndarray
 from scipy import linalg as la
+from scipy.sparse.linalg import LinearOperator
 
 #%% The randomized rangefinder
-def randomized_rangefinder(A: ndarray, r: int, p: int = 5, q:int = 0, seed: int = 1234, **extra_args) -> ndarray:
+def randomized_rangefinder(A: LinearOperator, r: int, p: int = 5, q:int = 0, seed: int = 1234, **extra_args) -> ndarray:
     """
     The randomized rangefinder method.
 
     Parameters
     ----------
-    A : ndarray
+    A : LinearOperator
         The matrix to sketch.
     r : int
         The target rank.
@@ -67,7 +68,7 @@ def randomized_rangefinder(A: ndarray, r: int, p: int = 5, q:int = 0, seed: int 
     return Q
 
 #%% The adaptive randomized rangefinder
-def adaptive_randomized_rangefinder(A: ndarray, tol: float = 1e-6, failure_prob: float = 1e-6, seed: int = 1234) -> ndarray:
+def adaptive_randomized_rangefinder(A: LinearOperator, tol: float = 1e-6, failure_prob: float = 1e-6, seed: int = 1234) -> ndarray:
     """
     The adaptive randomized rangefinder method.
     The tolerance is the error made by the approximation space ||A - QQ^H A||_F <= tol
@@ -79,7 +80,7 @@ def adaptive_randomized_rangefinder(A: ndarray, tol: float = 1e-6, failure_prob:
 
     Parameters
     ----------
-    A : ndarray
+    A : LinearOperator
         The matrix to sketch.
     tol : float
         The tolerance for the approximation.

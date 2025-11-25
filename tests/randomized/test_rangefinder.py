@@ -1,7 +1,7 @@
 #%% Import packages
 import numpy as np
 from numpy.testing import assert_allclose
-from lowrank.utils import adaptive_randomized_rangefinder, randomized_rangefinder
+from lowrank.randomized import adaptive_randomized_rangefinder, randomized_rangefinder
 
 #%% Test adaptive_randomized_rangefinder
 def test_adaptive_randomized_rangefinder():

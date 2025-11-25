@@ -1,34 +1,119 @@
 # Authors: Benjamin Carrel and Rik Vorhaar
-#         University of Geneva, 2022
-# File for generic low-rank matrix format
+#         University of Geneva, 2022
+# File for generic low-rank matrix format
 # Path: low_rank_toolbox/matrices/low_rank_matrix.py
 
-# Import packages
+# Import packages
 from __future__ import annotations
 from copy import deepcopy
 import numpy as np
-from typing import Sequence, Type, Union
+from typing import Sequence
 from numpy import ndarray
 import scipy.sparse.linalg as spala
 from scipy.sparse import spmatrix
+from scipy.sparse.linalg import LinearOperator
 import warnings
 
-class InefficiencyWarning(Warning):
+class LowRankEfficiencyWarning(Warning):
     """Warning for inefficient operations on low-rank matrices."""
     pass
-warnings.simplefilter('once', InefficiencyWarning)
+
+class MemoryEfficiencyWarning(Warning):
+    """Warning when low-rank representation uses more memory than dense storage."""
+    pass
+
+warnings.simplefilter('once', LowRankEfficiencyWarning)
+warnings.simplefilter('once', MemoryEfficiencyWarning)
 
 
 
 # %% Define class LowRankMatrix
-class LowRankMatrix:
+class LowRankMatrix(LinearOperator):
     """
     Meta class for dealing with low rank matrices in different formats.
+    
+    Inherits from scipy.sparse.linalg.LinearOperator for seamless integration
+    with iterative solvers and standard numerical linear algebra tools.
 
     Do not use this class directly, but rather use its subclasses.
 
     We always decompose a matrix as a product of smaller matrices. These smaller
     matrices are stored in ``self._matrices``.
+    
+    LinearOperator Integration
+    ---------------------------
+    As a subclass of scipy.sparse.linalg.LinearOperator, LowRankMatrix provides
+    efficient matrix-vector and matrix-matrix products without forming the full
+    dense matrix. This enables direct use with scipy's iterative solvers and
+    other numerical algorithms.
+    
+    Key LinearOperator features:
+    - Matrix-vector multiplication: A @ v or A.matvec(v)
+    - Adjoint multiplication: A.H @ v or A.rmatvec(v)
+    - Matrix-matrix multiplication: A @ B or A.matmat(B)
+    - Lazy composition: A + B, A @ B (when B is LinearOperator)
+    - Shape and dtype attributes: A.shape, A.dtype
+    
+    Examples
+    --------
+    Using with scipy iterative solvers:
+    
+    >>> from scipy.sparse.linalg import gmres, LinearOperator
+    >>> from lowrank import SVD
+    >>> import numpy as np
+    >>> 
+    >>> # Create a low-rank matrix
+    >>> U = np.random.randn(1000, 10)
+    >>> s = np.logspace(0, -2, 10)
+    >>> V = np.random.randn(1000, 10)
+    >>> A = SVD(U, s, V)
+    >>> 
+    >>> # Solve Ax = b using GMRES (never forms the full matrix)
+    >>> b = np.random.randn(1000)
+    >>> x, info = gmres(A, b, rtol=1e-6)
+    >>> print(f"GMRES converged: {info == 0}")
+    
+    Lazy composition with other operators:
+    
+    >>> from scipy.sparse import diags
+    >>> from scipy.sparse.linalg import aslinearoperator
+    >>> 
+    >>> # Create a diagonal preconditioner
+    >>> D = diags([1.0 / (i + 1) for i in range(1000)])
+    >>> D_op = aslinearoperator(D)
+    >>> 
+    >>> # Lazy sum - doesn't form full matrix
+    >>> B = A + D_op  # Returns _SumLinearOperator
+    >>> 
+    >>> # Use in iterative solver
+    >>> x2, info2 = gmres(B, b, rtol=1e-6)
+    
+    Matrix-vector products (efficient, no dense formation):
+    
+    >>> v = np.random.randn(1000)
+    >>> y = A @ v  # Efficient: never forms full 1000x1000 matrix
+    >>> 
+    >>> # Adjoint product
+    >>> z = A.H @ v  # Hermitian transpose product
+    
+    Custom preconditioners:
+    
+    >>> def precondition(v):
+    ...     # Custom preconditioning function
+    ...     return v / (1 + np.arange(len(v)))
+    >>> 
+    >>> # Create LinearOperator from function
+    >>> M = LinearOperator((1000, 1000), matvec=precondition)
+    >>> 
+    >>> # Use as preconditioner
+    >>> x3, info3 = gmres(A, b, M=M, rtol=1e-6)
+    
+    Notes
+    -----
+    - All matrix-vector products are computed efficiently in O(rank) operations
+    - Full matrix is never formed unless explicitly requested with .full()
+    - Subclasses (SVD, QR, QuasiSVD) inherit all LinearOperator functionality
+    - Compatible with all scipy.sparse.linalg iterative solvers (gmres, cg, bicgstab, etc.)
     """
 
     _format = "generic"
@@ -68,34 +153,80 @@ class LowRankMatrix:
                     f"Matrix shapes do not align: "
                     f"{self._matrices[i].shape} and {self._matrices[i + 1].shape}."
                 )
+        
+        # Initialize parent LinearOperator
+        shape = (self._matrices[0].shape[0], self._matrices[-1].shape[-1])
+        dtype = self._matrices[0].dtype
+        super().__init__(dtype=dtype, shape=shape)
+        
+        # Initialize cache dictionary BEFORE computing storage size (if not provided in extra_data)
+        if '_cache' in extra_data:
+            self._cache = extra_data['_cache']
+        else:
+            self._cache = {}
+        
+        # Check memory efficiency after initialization (unless disabled)
+        if not extra_data.get('_skip_memory_check', False):
+            m, n = self.shape
+            dense_size = m * n
+            lowrank_size = self._compute_storage_size()
+            
+            # Only check if matrix is non-empty
+            if dense_size > 0 and lowrank_size >= dense_size:
+                compression_ratio = lowrank_size / dense_size
+                warnings.warn(
+                    f"Memory inefficiency: {self.__class__.__name__} format uses {compression_ratio:.2f}x "
+                    f"the memory of dense storage ({lowrank_size:,} vs {dense_size:,} elements). "
+                    f"Consider using dense array instead, or reduce the rank.",
+                    MemoryEfficiencyWarning,
+                    stacklevel=2
+                )
                 
-    ## PROPERTIES
+    ## PROPERTIES
     @property
     def rank(self) -> int:
-        """Rank of the low-rank factorization."""
+        """Rank of the low-rank factorization.
+        
+        Returns
+        -------
+        int
+            The maximum possible rank given the factorization structure,
+            computed as the minimum dimension across all factor matrices.
+            
+        Notes
+        -----
+        This is an upper bound on the true numerical rank. The actual rank
+        may be lower if the factors are rank-deficient. For the true numerical
+        rank, compute SVD of the full matrix.
+        """
         return min(min(M.shape) for M in self._matrices)
 
     @property
     def length(self) -> int:
-        """Number of factor matrices in the factorization."""
+        """Number of factor matrices in the factorization.
+        
+        Returns
+        -------
+        int
+            The number of matrices in the product chain.
+        """
         return len(self._matrices)
 
     @property
-    def shape(self) -> tuple:
-        """Shape of the full matrix as (rows, cols)."""
-        return (self._matrices[0].shape[0], self._matrices[-1].shape[-1])
-
-    @property
     def deepshape(self) -> tuple:
-        """Shape tuple including all intermediate dimensions of the factorization."""
+        """Shape tuple including all intermediate dimensions of the factorization.
+        
+        Returns
+        -------
+        tuple
+            Tuple of dimensions showing the shape of each factor in the chain.
+            For factors A (m×k), B (k×n), returns (m, k, n).
+        """
+        if not self._matrices:
+            return ()
         return tuple(
-            M.shape[0] for M in self._matrices if len(M.shape) == 2
+            M.shape[0] for M in self._matrices
         ) + (self._matrices[-1].shape[-1],)
-
-    @property
-    def dtype(self):
-        """Data type of the matrix elements."""
-        return self._matrices[0].dtype
 
     @property
     def ndim(self) -> int:
@@ -104,14 +235,27 @@ class LowRankMatrix:
     
     @property
     def size(self) -> int:
-        """Total number of elements stored in all factor matrices."""
+        """Total number of elements stored in the factorization.
+        
+        Returns
+        -------
+        int
+            Sum of elements across all factor matrices.
+            
+        Notes
+        -----
+        This returns the storage cost, not the matrix size (m×n).
+        For matrix dimensions, use `.shape`. For compression ratio,
+        use `.compression_ratio()`.
+        """
         return np.sum([M.size for M in self._matrices])
 
     @property
     def T(self) -> LowRankMatrix:
         """Transpose of the matrix (reverse order and transpose each factor)."""
-        new_matrix = self.copy()
-        new_matrix._matrices = [M.T for M in reversed(self._matrices)]
+        # Create a new LowRankMatrix with transposed factors in reverse order
+        transposed_matrices = [M.T for M in reversed(self._matrices)]
+        new_matrix = type(self)(*transposed_matrices, **self._extra_data)
         return new_matrix
     
     def conj(self) -> LowRankMatrix:
@@ -123,8 +267,9 @@ class LowRankMatrix:
     @property
     def H(self):
         """Hermitian transpose (conjugate transpose) of the matrix."""
-        new_matrix = self.copy()
-        new_matrix._matrices = [M.T.conj() for M in reversed(self._matrices)]
+        # Create a new LowRankMatrix with conjugate-transposed factors in reverse order
+        hermitian_matrices = [M.T.conj() for M in reversed(self._matrices)]
+        new_matrix = type(self)(*hermitian_matrices, **self._extra_data)
         return new_matrix
 
     def is_symmetric(self) -> bool:
@@ -142,7 +287,7 @@ class LowRankMatrix:
         """
         warnings.warn(
             "Checking symmetry requires forming the full dense matrix, which may be inefficient.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         if self.shape[0] != self.shape[1]:
             return False
@@ -178,15 +323,47 @@ class LowRankMatrix:
 
     @classmethod
     def from_low_rank(cls, low_rank_matrix: LowRankMatrix) -> LowRankMatrix:
-        """Overload this method for each subclass"""
+        """Convert a LowRankMatrix to this specific subclass format.
+        
+        Parameters
+        ----------
+        low_rank_matrix : LowRankMatrix
+            Existing low-rank matrix to convert.
+        
+        Returns
+        -------
+        LowRankMatrix
+            New matrix of the target subclass type.
+        
+        Notes
+        -----
+        Subclasses should override this to perform format-specific conversions.
+        For example, SVD.from_low_rank() would compute the SVD of the input.
+        The base class implementation creates a generic LowRankMatrix.
+        
+        Examples
+        --------
+        >>> X_generic = LowRankMatrix(A, B)
+        >>> X_svd = SVD.from_low_rank(X_generic)  # Converts to SVD format
+        """
         return LowRankMatrix(*low_rank_matrix._matrices)
 
     def norm(self, ord: str | int = 'fro') -> float:
         """Default implementation, overload this for some subclasses"""
         if ord == 'fro':
-            return np.sqrt(np.trace(self.T.dot(self, dense_output=True)))
+            if 'fro' in self._cache:
+                return self._cache['fro']
+            else:
+                norm = np.sqrt(self.norm_squared())
+                self._cache['fro'] = norm
+                return norm
         else:
-            return np.linalg.norm(self.full(), ord=ord)
+            if ord in self._cache:
+                return self._cache[ord]
+            else:
+                norm = np.linalg.norm(self.full(), ord=ord)
+                self._cache[ord] = norm
+                return norm
 
     def __repr__(self) -> str:
         """String representation of the low-rank matrix."""
@@ -195,26 +372,49 @@ class LowRankMatrix:
             f" and type {self.__class__._format}."
         )
 
-    def __getitem__(self, indices) -> float:
-        """Access matrix element at indices (alias for gather)."""
-        return self.gather(indices)
-
-    def copy(self) -> self.__class__:
-        """Create a deep copy of the matrix."""
+    def copy(self):
+        """Create a deep copy of the matrix.
+        
+        Returns
+        -------
+        LowRankMatrix
+            A deep copy of this matrix with independent factor matrices.
+        """
         return deepcopy(self)
 
-    def __add__(self, other: LowRankMatrix | ndarray) -> ndarray:
-        """Addition of two low-rank matrices (returns dense array)."""
-        warnings.warn(
-            "Addition of generic low-rank matrices returns a dense matrix, which may be inefficient.",
-            InefficiencyWarning
-        )
-        if isinstance(other, LowRankMatrix):
-            return self.full() + other.full()
+    def __add__(self, other: LowRankMatrix | ndarray | LinearOperator) -> ndarray | LinearOperator:
+        """Addition of matrices.
+        
+        Behavior depends on the type of `other`:
+        - If `other` is a generic LinearOperator (not LowRankMatrix): returns lazy _SumLinearOperator
+        - If `other` is LowRankMatrix or ndarray: returns dense array (with warning)
+        
+        Parameters
+        ----------
+        other : LowRankMatrix, ndarray, or LinearOperator
+            Matrix to add.
+        
+        Returns
+        -------
+        ndarray or LinearOperator
+            Result of addition. Type depends on input type.
+        """
+        # Check if other is a generic LinearOperator (but not our subclass)
+        if isinstance(other, LinearOperator) and not isinstance(other, LowRankMatrix):
+            # Use lazy composition from parent LinearOperator
+            return super().__add__(other)
         else:
-            return self.full() + other
+            # Keep current behavior for LowRankMatrix + LowRankMatrix or ndarray
+            warnings.warn(
+                "Addition of generic low-rank matrices returns a dense matrix, which may be inefficient.",
+                LowRankEfficiencyWarning
+            )
+            if isinstance(other, LowRankMatrix):
+                return self.full() + other.full()
+            else:
+                return self.full() + other
 
-    def __radd__(self, other: Union[LowRankMatrix, ndarray]) -> ndarray:
+    def __radd__(self, other: LowRankMatrix | ndarray | LinearOperator) -> ndarray | LinearOperator:
         """Right-side addition: other + self (addition is commutative)."""
         return self.__add__(other)
 
@@ -230,7 +430,7 @@ class LowRankMatrix:
             self._matrices[0] *= other
             return self
         elif isinstance(other, LowRankMatrix | ndarray):
-            warnings.warn("In-place Hadamard multiplication creates a new object.", InefficiencyWarning)
+            warnings.warn("In-place Hadamard multiplication creates a new object.", LowRankEfficiencyWarning)
             return self.hadamard(other)
 
     def __mul__(self, other: float | LowRankMatrix | ndarray) -> LowRankMatrix | ndarray:
@@ -251,15 +451,15 @@ class LowRankMatrix:
         """Negation of the matrix."""
         return -1 * self
 
-    def __sub__(self, other: LowRankMatrix) -> ndarray:
+    def __sub__(self, other: LinearOperator | LowRankMatrix) -> LinearOperator | ndarray:
         """Subtraction of two matrices (returns dense result)."""
         warnings.warn(
             "Subtraction of low-rank matrices returns a dense matrix, which may be inefficient.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         return self.full() - (other.full() if isinstance(other, LowRankMatrix) else other)
 
-    def __rsub__(self, other: Union[LowRankMatrix, ndarray]) -> ndarray:
+    def __rsub__(self, other: LinearOperator | LowRankMatrix | ndarray) -> ndarray | LinearOperator:
         """Right-side subtraction: other - self (not commutative)."""
         return (-1) * self + other
 
@@ -294,7 +494,7 @@ class LowRankMatrix:
         
         Returns
         -------
-        ndarray
+        float | ndarray
             The requested matrix element(s).
         
         Notes
@@ -308,9 +508,9 @@ class LowRankMatrix:
 
     ## STANDARD MATRIX MULTIPLICATION
     def dot(self,
-            other: Union[LowRankMatrix, ndarray, spmatrix],
+            other: LowRankMatrix | ndarray | spmatrix,
             side: str = 'right',
-            dense_output: bool = False) -> Union[ndarray, LowRankMatrix]:
+            dense_output: bool = False) -> ndarray | LowRankMatrix:
         """Matrix and vector multiplication
 
         Parameters
@@ -365,7 +565,7 @@ class LowRankMatrix:
 
     __matmul__ = dot
 
-    def __rmatmul__(self, other: Union[LowRankMatrix, ndarray]) -> Union[ndarray, LowRankMatrix]:
+    def __rmatmul__(self, other: LowRankMatrix | ndarray) -> ndarray | LowRankMatrix:
         """Right-side matrix multiplication: other @ self (not commutative)."""
         return self.dot(other, side='left')
 
@@ -391,7 +591,7 @@ class LowRankMatrix:
     def dot_sparse(self,
                    sparse_other: spmatrix,
                    side: str = 'usual',
-                   dense_output: bool = False) -> Union[ndarray, LowRankMatrix]:
+                   dense_output: bool = False) -> ndarray | LowRankMatrix:
         """Efficient multiplication with a sparse matrix.
         
         Parameters
@@ -406,7 +606,7 @@ class LowRankMatrix:
         
         Returns
         -------
-        Union[ndarray, LowRankMatrix]
+        ndarray | LowRankMatrix
             Result of the multiplication.
         """
         sparse_other = sparse_other.tocsc()
@@ -465,7 +665,7 @@ class LowRankMatrix:
             # If compress returns dense array, we can't stay in low-rank format
             warnings.warn(
                 "Compression would return a dense matrix. Matrix unchanged.",
-                InefficiencyWarning
+                LowRankEfficiencyWarning
             )
             return self
         
@@ -489,13 +689,13 @@ class LowRankMatrix:
         return self
         
 
-    ## EXPONENTIAL ACTION OF A SPARSE MATRIX ON THE LOW-RANK MATRIX
+    ## EXPONENTIAL ACTION OF A SPARSE MATRIX ON THE LOW-RANK MATRIX
     def expm_multiply(self,
                       A: spmatrix,
                       h: float,
                       side: str = 'left',
                       dense_output: bool = False,
-                      **extra_args) -> Union[ndarray, LowRankMatrix]:
+                      **extra_args) -> ndarray | LowRankMatrix:
         """ Efficient action of sparse matrix exponential
         left: output = exp(h*A) @ self
         right: output = self @ exp(h*A)
@@ -515,7 +715,7 @@ class LowRankMatrix:
         
         Returns
         -------
-        Union[ndarray, LowRankMatrix]
+        ndarray | LowRankMatrix
             Resulting matrix after applying the exponential action.
         """
         if h <= 0:
@@ -553,7 +753,7 @@ class LowRankMatrix:
         """
         warnings.warn(
             "multi_add() requires forming full dense matrices, which may be inefficient.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         result = self.full()
         for other in others:
@@ -576,7 +776,7 @@ class LowRankMatrix:
         """
         warnings.warn(
             "Hadamard product requires forming full dense matrices, which may be inefficient.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         other_dense = other.to_dense() if isinstance(other, LowRankMatrix) else other
         return np.multiply(self.to_dense(), other_dense)
@@ -597,6 +797,9 @@ class LowRankMatrix:
         """
         if self.shape[0] != self.shape[1]:
             raise ValueError("Matrix must be square to extract diagonal.")
+        
+        if 'diag' in self._cache:
+            return self._cache['diag']
         
         n = self.shape[0]
         diag_elements = np.zeros(n, dtype=self.dtype)
@@ -622,6 +825,8 @@ class LowRankMatrix:
         """
         if self.shape[0] != self.shape[1]:
             raise ValueError("Matrix must be square to compute trace.")
+        if 'trace' in self._cache:
+            return self._cache['trace']
         
         # Use cyclic property: tr(A1 @ A2 @ ... @ An) = tr(A2 @ ... @ An @ A1)
         # Try to minimize computation by finding best cyclic permutation
@@ -631,9 +836,13 @@ class LowRankMatrix:
             # tr(AB) = tr(BA) - choose smaller intermediate
             A, B = self._matrices
             if A.shape[1] * B.shape[0] <= A.shape[0] * B.shape[1]:
-                return np.trace(A @ B)
+                tr = np.trace(A @ B)
+                self._cache['trace'] = tr
+                return tr
             else:
-                return np.trace(B @ A)
+                tr = np.trace(B @ A)
+                self._cache['trace'] = tr
+                return tr
         
         # For more matrices, compute trace by cyclically permuting
         # to minimize the first multiplication
@@ -654,7 +863,9 @@ class LowRankMatrix:
         
         # Compute the product and take trace
         product = np.linalg.multi_dot(shifted_matrices)
-        return np.trace(product)
+        tr = np.trace(product)
+        self._cache['trace'] = tr
+        return tr
     
     def norm_squared(self) -> float:
         """Compute squared Frobenius norm efficiently: ||X||²_F = tr(X^H X).
@@ -670,6 +881,9 @@ class LowRankMatrix:
         as it avoids the square root operation. For complex matrices,
         uses Hermitian transpose (X^H X) to ensure real result.
         """
+        if 'norm_squared' in self._cache:
+            return self._cache['norm_squared']
+        
         # ||X||²_F = tr(X^H @ X)
         # For X = A₁A₂...Aₙ, we have X^H X = Aₙ^H...A₁^H A₁...Aₙ
         hermitian_matrices = [M.T.conj() for M in reversed(self._matrices)]
@@ -682,10 +896,12 @@ class LowRankMatrix:
         # For X^H X, trace should be real (up to numerical errors)
         if np.iscomplexobj(trace_val):
             return np.real(trace_val)
+        
+        self._cache['norm_squared'] = trace_val
         return trace_val
     
     ## MATRIX POWER
-    def power(self, n: int) -> Union[LowRankMatrix, ndarray]:
+    def power(self, n: int) -> LowRankMatrix | ndarray:
         """Compute matrix power X^n efficiently using repeated squaring.
         
         Parameters
@@ -695,7 +911,7 @@ class LowRankMatrix:
         
         Returns
         -------
-        Union[LowRankMatrix, ndarray]
+        LowRankMatrix | ndarray
             Matrix raised to the n-th power. Returns identity matrix (as ndarray)
             for n=0, self for n=1, and LowRankMatrix for n>1.
         
@@ -733,26 +949,37 @@ class LowRankMatrix:
         return result
     
     ## SLICING SUPPORT
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> float | ndarray:
         """Access matrix elements or slices.
         
         Parameters
         ----------
-        key : tuple, int, or slice
+        key : tuple, int, slice, or ndarray
             Index specification. Can be:
-            - (row_idx, col_idx): single element
-            - (row_slice, col_slice): block submatrix
-            - (row_array, col_array): fancy indexing
+            - (row_idx, col_idx): single element → returns float
+            - (row_slice, col_slice): block submatrix → returns ndarray
+            - (row_array, col_array): fancy indexing → returns ndarray
+            - single int: row indexing → returns ndarray (1D)
         
         Returns
         -------
         float or ndarray
             The requested matrix element(s) or submatrix.
+            - float: for single element access (row_idx, col_idx)
+            - ndarray: for slices, fancy indexing, or row selection
         
         Notes
         -----
         Slicing operations form the full matrix, which may be inefficient.
         For single element access, gather() is used for efficiency.
+        
+        Examples
+        --------
+        >>> X = LowRankMatrix(A, B)
+        >>> x_ij = X[2, 3]  # Single element (efficient via gather)
+        >>> row = X[2, :]   # Row slice (forms full matrix)
+        >>> block = X[0:5, 0:10]  # Block submatrix
+        >>> fancy = X[[0, 2, 4], [1, 3, 5]]  # Fancy indexing
         """
         # Handle single index (not a tuple)
         if not isinstance(key, tuple):
@@ -770,7 +997,7 @@ class LowRankMatrix:
         # Slicing or fancy indexing - form full matrix
         warnings.warn(
             "Slicing operations require forming the full dense matrix, which may be inefficient.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         return self.full()[key]
     
@@ -796,14 +1023,14 @@ class LowRankMatrix:
         """
         warnings.warn(
             "Block extraction requires forming the full dense matrix, which may be inefficient.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         return self.full()[rows, cols]
 
 
-    ## ITERATIVE SOLVERS INTERFACE
-    def matvec(self, v: ndarray) -> ndarray:
-        """Matrix-vector product for use with iterative solvers.
+    ## ITERATIVE SOLVERS INTERFACE (LinearOperator implementation)
+    def _matvec(self, v: ndarray) -> ndarray:
+        """Matrix-vector product (required by LinearOperator).
         
         Parameters
         ----------
@@ -817,12 +1044,12 @@ class LowRankMatrix:
         
         Notes
         -----
-        This method is compatible with scipy.sparse.linalg iterative solvers.
+        This is the core method required by scipy.sparse.linalg.LinearOperator.
         """
         return self.dot(v, dense_output=True)
     
-    def rmatvec(self, v: ndarray) -> ndarray:
-        """Adjoint matrix-vector product for use with iterative solvers.
+    def _rmatvec(self, v: ndarray) -> ndarray:
+        """Adjoint matrix-vector product (required by LinearOperator).
         
         Parameters
         ----------
@@ -837,31 +1064,94 @@ class LowRankMatrix:
         Notes
         -----
         This computes v^H @ self for compatibility with iterative solvers.
+        This is the core method for the Hermitian adjoint in LinearOperator.
         """
         return self.H.dot(v, dense_output=True)
     
-    def as_linear_operator(self):
-        """Return a scipy LinearOperator representation.
+    def _matmat(self, X: ndarray) -> ndarray:
+        """Matrix-matrix product (optional, for efficiency).
+        
+        Parameters
+        ----------
+        X : ndarray
+            Matrix to multiply with, shape (n, k).
         
         Returns
         -------
-        scipy.sparse.linalg.LinearOperator
-            LinearOperator that can be used with scipy iterative solvers.
+        ndarray
+            Result of matrix-matrix multiplication, shape (m, k).
         
-        Examples
-        --------
-        >>> A = LowRankMatrix(U, V)
-        >>> linop = A.as_linear_operator()
-        >>> x, info = scipy.sparse.linalg.gmres(linop, b)
+        Notes
+        -----
+        This method is optional but improves performance for matrix-matrix operations.
         """
-        from scipy.sparse.linalg import LinearOperator
+        return self.dot(X, dense_output=True)
+    
+    def _rmatmat(self, X: ndarray) -> ndarray:
+        """Adjoint matrix-matrix product (optional, for efficiency).
         
-        return LinearOperator(
-            shape=self.shape,
-            matvec=self.matvec,
-            rmatvec=self.rmatvec,
-            dtype=self.dtype
-        )
+        Parameters
+        ----------
+        X : ndarray
+            Matrix to multiply with, shape (m, k).
+        
+        Returns
+        -------
+        ndarray
+            Result of adjoint matrix-matrix multiplication, shape (n, k).
+        
+        Notes
+        -----
+        This method is optional but improves performance for matrix-matrix operations.
+        """
+        return self.H.dot(X, dense_output=True)
+    
+    def _adjoint(self):
+        """Return the adjoint (Hermitian transpose) as a LinearOperator.
+        
+        Returns
+        -------
+        LowRankMatrix
+            The Hermitian transpose of this matrix.
+        
+        Notes
+        -----
+        This method is part of the LinearOperator interface. It enables
+        expressions like `A.H` or `A.T` (for real matrices) to work properly
+        with scipy's iterative solvers.
+        """
+        return self.H
+    
+    # Public wrappers for backward compatibility
+    def matvec(self, v: ndarray) -> ndarray:
+        """Matrix-vector product (public interface, backward compatibility).
+        
+        Parameters
+        ----------
+        v : ndarray
+            Vector to multiply with.
+        
+        Returns
+        -------
+        ndarray
+            Result of matrix-vector multiplication.
+        """
+        return self._matvec(v)
+    
+    def rmatvec(self, v: ndarray) -> ndarray:
+        """Adjoint matrix-vector product (public interface, backward compatibility).
+        
+        Parameters
+        ----------
+        v : ndarray
+            Vector to multiply with.
+        
+        Returns
+        -------
+        ndarray
+            Result of adjoint matrix-vector multiplication.
+        """
+        return self._rmatvec(v)
     
     ## CONDITION NUMBER ESTIMATION
     def cond_estimate(self, method: str = 'power_iteration', n_iter: int = 10) -> float:
@@ -894,12 +1184,19 @@ class LowRankMatrix:
                 UserWarning
             )
         
+        # Create cache key that includes method
+        cache_key = f'cond_estimate_{method}'
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+        
         if method == 'norm_ratio':
             # Use Frobenius norm approximation
             norm_fro = self.norm('fro')
             norm_2 = self.norm(2)
             # This is a rough estimate
-            return (norm_fro / norm_2) * np.sqrt(min(self.shape))
+            cond = (norm_fro / norm_2) * np.sqrt(min(self.shape))
+            self._cache[cache_key] = cond
+            return cond
         
         elif method == 'power_iteration':
             # Estimate largest singular value via power iteration on X^T X
@@ -919,12 +1216,30 @@ class LowRankMatrix:
             # This is more complex and would require solving systems
             # For now, use a simpler bound
             sigma_min_estimate = 1.0 / self.norm(2)
+            cond = sigma_max / sigma_min_estimate
+            self._cache[cache_key] = cond
             
-            return sigma_max / sigma_min_estimate
+            return cond
+        
         else:
-            raise ValueError(f"Unknown method: {method}. Use 'power_iteration' or 'norm_ratio'.")
+            raise ValueError(f"Unknown method: {method}. Use 'norm_ratio' or 'power_iteration'.")
     
     ## MEMORY FOOTPRINT REPORTING
+    def _compute_storage_size(self) -> int:
+        """Compute total number of elements stored in the factorization.
+        
+        This method can be overloaded in subclasses for specialized storage schemes.
+        For example, SVD stores only the diagonal of S, not the full matrix.
+        
+        Returns
+        -------
+        int
+            Total number of elements stored.
+        """
+        size = sum(M.size for M in self._matrices)
+        self._cache['storage_size'] = size
+        return size
+    
     def memory_usage(self, unit: str = 'MB') -> float:
         """Report actual memory used by the factorization.
         
@@ -939,7 +1254,7 @@ class LowRankMatrix:
             Memory usage in the specified unit.
         """
         bytes_per_element = self.dtype.itemsize
-        total_elements = sum(M.size for M in self._matrices)
+        total_elements = self._compute_storage_size()
         total_bytes = total_elements * bytes_per_element
         
         units = {'B': 1, 'KB': 1024, 'MB': 1024**2, 'GB': 1024**3}
@@ -961,9 +1276,38 @@ class LowRankMatrix:
         A ratio of 0.1 means the low-rank format uses 10% of the memory
         of the dense format, i.e., a 10x compression.
         """
-        low_rank_size = self.size
+        low_rank_size = self._compute_storage_size()
         dense_size = np.prod(self.shape)
         return low_rank_size / dense_size
+    
+    @property
+    def is_memory_efficient(self) -> bool:
+        """Check if the low-rank representation uses less memory than dense storage.
+        
+        Returns
+        -------
+        bool
+            True if low-rank format uses less memory than dense format, False otherwise.
+        
+        Notes
+        -----
+        This compares the total number of elements stored in the factorization
+        versus the full m×n matrix. For empty matrices (zero size), returns True.
+        
+        Examples
+        --------
+        >>> A = LowRankMatrix(np.random.randn(1000, 10), np.random.randn(10, 1000))
+        >>> A.is_memory_efficient  # True: 20,000 elements vs 1,000,000
+        True
+        >>> B = LowRankMatrix(np.random.randn(100, 90), np.random.randn(90, 100))
+        >>> B.is_memory_efficient  # False: 18,000 elements vs 10,000
+        False
+        """
+        dense_size = np.prod(self.shape)
+        if dense_size == 0:
+            return True
+        low_rank_size = self._compute_storage_size()
+        return low_rank_size < dense_size
     
     ## SERIALIZATION
     def save(self, filename: str):
@@ -1047,7 +1391,7 @@ class LowRankMatrix:
         """
         warnings.warn(
             "Computing approximation error requires forming the full dense matrix.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         diff = self.full() - reference
         return np.linalg.norm(diff, ord=ord)
@@ -1071,14 +1415,18 @@ class LowRankMatrix:
         This uses an approximate condition number estimate and may not be
         accurate for all cases. Consider this a heuristic check.
         """
+        if 'is_well_conditioned' in self._cache:
+            return self._cache['is_well_conditioned']
         if self.shape[0] != self.shape[1]:
             warnings.warn(
                 "Well-conditioning check is designed for square matrices.",
                 UserWarning
             )
-            return True  # Non-square matrices don't have a standard condition number
+            self._cache['is_well_conditioned'] = True
+            return True
         
         cond = self.cond_estimate(method='norm_ratio')
+        self._cache['is_well_conditioned'] = bool(cond < threshold)
         return bool(cond < threshold)
     
     ## SPARSE CONVERSION
@@ -1106,7 +1454,7 @@ class LowRankMatrix:
         
         warnings.warn(
             "Converting to sparse format requires forming the full dense matrix.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         
         dense = self.full()
@@ -1143,7 +1491,7 @@ class LowRankMatrix:
         """
         warnings.warn(
             "Equality check requires forming the full dense matrix.",
-            InefficiencyWarning
+            LowRankEfficiencyWarning
         )
         
         if isinstance(other, LowRankMatrix):
@@ -1157,7 +1505,7 @@ class LowRankMatrix:
         else:
             return False
     
-    def allclose(self, other: Union[LowRankMatrix, ndarray], 
+    def allclose(self, other: LowRankMatrix | ndarray, 
                  rtol: float = 1e-5, atol: float = 1e-8) -> bool:
         """Check approximate equality with another matrix.
         

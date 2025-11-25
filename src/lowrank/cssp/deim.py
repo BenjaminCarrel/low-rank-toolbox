@@ -3,8 +3,6 @@ from numpy import ndarray
 from scipy import linalg as la
 
 
-
-
 def DEIM(U: ndarray, compute_M: bool = False, **extra_args) -> ndarray:
     """
     DEIM - Discrete empirical interpolation method

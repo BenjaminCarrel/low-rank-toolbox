@@ -10,8 +10,6 @@ Matrices:
 - SVD
 - QR
 
-Tensors:
-# TODO
 
 Techniques related to low-rank matrices:
 - CSSP (Column Subset Selection Problem)
@@ -19,6 +17,5 @@ Techniques related to low-rank matrices:
 
 """
 from .matrices import *
-from .tensors import *
 from .cssp import *
 from .utils import *

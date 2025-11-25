@@ -1,5 +1,4 @@
 import scipy.linalg as la
-from numpy import ndarray
 
 
 def gpodr(U, oversampling_size:int = None, tol: float = None, max_iter: int = None, compute_M: bool = False, **extra_args):
