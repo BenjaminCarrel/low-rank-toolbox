@@ -80,6 +80,10 @@ class QuasiSVD(LowRankMatrix):
         Transpose of U (without conjugate)
     Uh : ndarray, shape (r, m)
         Hermitian conjugate of U (U.T.conj())
+    K : ndarray, shape (m, r)
+        Product U @ S, computed on demand and not cached
+    L : ndarray, shape (r, n)
+        Product V @ S.T, computed on demand and not cached
     
     Properties
     ----------
@@ -506,6 +510,28 @@ class QuasiSVD(LowRankMatrix):
         else:
             self._cache['is_symmetric'] = np.allclose(self.U, self.V)
         return self._cache['is_symmetric']
+    
+    @property
+    def K(self) -> ndarray:
+        """Compute and return the product U @ S on demand.
+        
+        Returns
+        -------
+        ndarray
+            Product U @ S, shape (m, r)
+        """
+        return self.U.dot(self.S)
+    
+    @property
+    def L(self) -> ndarray:
+        """Compute and return the product V @ S.T on demand.
+        
+        Returns
+        -------
+        ndarray
+            Product V @ S.T, shape (n, r)
+        """
+        return self.V.dot(self.S.T)
     
     def is_orthogonal(self) -> bool:
         """Check if U and V have orthonormal columns.
@@ -1041,13 +1067,13 @@ class QuasiSVD(LowRankMatrix):
             if dense_output:
                 return YV.dot(self.Vh)
             else:
-                return QR(self.V, YV.T.conj(), conjugate=True)
+                return QR(self.V, YV.T.conj(), tranposed=True)
         else:
             if dense_output:
                 return other.dot(self.V).dot(self.Vh)
             else:
                 YV = other.dot(self.V)
-                return QR(self.V, YV.T.conj(), conjugate=True)
+                return QR(self.V, YV.T.conj(), tranposed=True)
     
     def project_onto_tangent_space(self, other: LowRankMatrix | ndarray, dense_output: bool = False, auto_truncate: bool = AUTOMATIC_TRUNCATION) -> QuasiSVD:
         """
@@ -1710,7 +1736,7 @@ class QuasiSVD(LowRankMatrix):
         # where Q = U (already orthogonal) and R = S @ V.T
         Q = self.U
         R = self.S @ self.Vh
-        return QR(Q, R, conjugate=False)
+        return QR(Q, R, tranposed=False)
     
     @classmethod
     def from_qr(cls, qr: QR) -> QuasiSVD:
@@ -1737,7 +1763,7 @@ class QuasiSVD(LowRankMatrix):
         # Use QR decomposition of R.T: R.T = V @ S.T
         # So R = S @ V.T where S = (R.T @ V).T
         
-        if qr._conjugate:
+        if qr._transposed:
             # X = R.H @ Q.H
             # Convert to standard form first
             Q, S = la.qr(qr.R.T.conj(), mode='economic')

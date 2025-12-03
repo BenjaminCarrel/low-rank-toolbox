@@ -168,6 +168,36 @@ def test_is_symmetric():
     assert not X_nonsym.is_symmetric(), "Non-square matrix cannot be symmetric"
 
 
+def test_K_L_properties(simple_quasisvd, rectangular_quasisvd, complex_quasisvd):
+    """Test K and L properties."""
+    # Test with simple QuasiSVD
+    X_simple, _ = simple_quasisvd
+    K_simple = X_simple.K
+    L_simple = X_simple.L
+    assert K_simple.shape == (X_simple.shape[0], X_simple.S.shape[1]), "Incorrect shape for K (simple)"
+    assert L_simple.shape == (X_simple.shape[1], X_simple.S.shape[0]), "Incorrect shape for L (simple)"
+    assert np.allclose(K_simple, X_simple.U @ X_simple.S), "K property is not U @ S"
+    assert np.allclose(L_simple, X_simple.V @ X_simple.S.T), "L property is not V @ S.T"
+
+    # Test with rectangular S matrix
+    X_rect, _ = rectangular_quasisvd
+    K_rect = X_rect.K
+    L_rect = X_rect.L
+    assert K_rect.shape == (15, 3), "Incorrect shape for K (rectangular)"
+    assert L_rect.shape == (10, 5), "Incorrect shape for L (rectangular)"
+    assert np.allclose(K_rect, X_rect.U @ X_rect.S), "K property is not U @ S (rectangular)"
+    assert np.allclose(L_rect, X_rect.V @ X_rect.S.T), "L property is not V @ S.T (rectangular)"
+
+    # Test with complex QuasiSVD
+    X_complex, _ = complex_quasisvd
+    K_complex = X_complex.K
+    L_complex = X_complex.L
+    assert K_complex.shape == (10, 3), "Incorrect shape for K (complex)"
+    assert L_complex.shape == (8, 3), "Incorrect shape for L (complex)"
+    assert np.allclose(K_complex, X_complex.U @ X_complex.S), "K property is not U @ S (complex)"
+    assert np.allclose(L_complex, X_complex.V @ X_complex.S.T), "L property is not V @ S.T (complex)"
+
+
 def test_is_singular():
     """Test singularity check."""
     np.random.seed(222)
@@ -1904,5 +1934,3 @@ def test_complex_projection_row_space():
     # Expected: Y @ V @ V.H
     expected = Y @ V @ V.T.conj()
     assert np.allclose(result, expected), "Complex row space projection failed"
-
-
