@@ -2,7 +2,11 @@ import numpy as np
 import scipy.linalg as la
 
 
-def gpode(U, oversampling_size: int, compute_M: bool = False, **extra_args) -> list:
+def gpode(U, 
+          oversampling_size: int, 
+          return_projector: bool = False, 
+          return_inverse: bool = False, 
+          **extra_args) -> list:
     """
     Gappy POD+E - Greedy algorithm for the selection of m rows of U
     Minimize the norm of the pseudoinverse of U[S, :]
@@ -19,20 +23,29 @@ def gpode(U, oversampling_size: int, compute_M: bool = False, **extra_args) -> l
         Orthonormal matrix of size n x k
     oversampling_size: int
         Oversampling size p such that m = k + p
-    compute_M: bool 
+    return_projector: bool
         If True, return also the matrix U @ pinv(U[p, :])
-
+    return_inverse: bool
+        If True, return also the inverse of U[p, :]
+    extra_args: dict
+        Additional arguments: 
+            qr_kwargs: dict
+                Additional arguments for the QR factorization
+            lstsq_kwargs: dict
+                Additional arguments for the lstsq function
     Returns
     -------
     p: list
         Selection of m row indices
-    M: ndarray (optional)
+    P_U: ndarray (n x k) (optional)
         Matrix U @ pinv(U[p, :])
+    inv_U: ndarray (k x k) (optional)
+        Inverse of U[p, :]
     """
     # QDEIM
     _, k = U.shape
     m = k + oversampling_size
-    _, _, P = la.qr(U.T.conj(), pivoting=True)
+    _, _, P = la.qr(U.T.conj(), pivoting=True, **extra_args.get('qr_kwargs', {}))
     p = P[0:k]
     for _ in np.arange(k, m):
         # Compute SVD
@@ -50,8 +63,12 @@ def gpode(U, oversampling_size: int, compute_M: bool = False, **extra_args) -> l
         while np.any(I[e] in p):
             e += 1
         p = np.append(p, I[e])
-    if compute_M:
-        M = la.lstsq(U[p, :].T.conj(), U.T.conj())[0].T.conj()
-        return p, M
+    if return_projector:
+        P_U = la.lstsq(U[p, :].T.conj(), U.T.conj(), **extra_args.get('lstsq_kwargs', {}))[0].T.conj()
+        if return_inverse:
+            inv_U = U.T.conj().dot(P_U)
+            return p, P_U, inv_U
+        else:
+            return p, P_U
     else:
         return p

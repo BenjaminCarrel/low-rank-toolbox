@@ -4,7 +4,11 @@ from ..utils import sRRQR
 import scipy.linalg as la
 
     
-def oversampling_sQDEIM(U: ndarray, oversampling_size: int, tol: float = None, compute_M: bool = False) -> list:
+def oversampling_sQDEIM(U: ndarray, 
+                        oversampling_size: int, 
+                        tol: float = None, 
+                        return_projection: bool = False,
+                        return_inverse: bool = False) -> list:
     """
     Oversampling sQDEIM - Oversampled version of sQDEIM
 
@@ -20,16 +24,22 @@ def oversampling_sQDEIM(U: ndarray, oversampling_size: int, tol: float = None, c
         Oversampling size p < k such that m = k + p
     tol: float
         Tolerance for the strong rank-revealing QR factorization
-        If None, use the rank-revealing QR factorization with f=2
-    compute_M: bool
+        If None, use the rank-revealing QR factorization with eta=2
+    return_projection: bool
         If True, return also the matrix U @ pseudoinv(U[S, :])
+    return_inverse: bool
+        If True, return also the inverse of U[S, :]
 
     Returns
     -------
     p: list
-        Selection of m row indices.
-    M: ndarray (optional)
-        Matrix U @ pseudoinv(U[S, :])
+        Selection of m = k + oversampling_size row indices.
+    P_U: ndarray (n x m) (optional)
+        Matrix U @ pseudoinv(U[p, :]) where U[p, :] is the (m x k) submatrix.
+        Only returned if return_projection=True.
+    inv_U: ndarray (k x m) (optional)
+        Matrix U.T @ P_U, representing the pseudoinverse relationship.
+        Only returned if return_inverse=True (requires return_projection=True).
     """
     # Sanity check
     if oversampling_size < 0:
@@ -40,10 +50,10 @@ def oversampling_sQDEIM(U: ndarray, oversampling_size: int, tol: float = None, c
     _, k = U.shape
     m = k + oversampling_size
     if tol is None:
-        Q, R, P = sRRQR(U.T.conj(), f=2, mode="rank", param=k)
+        Q, R, P = sRRQR(U.T.conj(), eta=2, mode="rank", param=k)
         p1 = P[:k]
     else:
-        Q, R, P = sRRQR(U.T.conj(), f=2, mode="tol", param=tol)
+        Q, R, P = sRRQR(U.T.conj(), eta=2, mode="tol", param=tol)
         k = Q.shape[1]
         p1 = P[:k]
 
@@ -52,18 +62,26 @@ def oversampling_sQDEIM(U: ndarray, oversampling_size: int, tol: float = None, c
     Vp = vt.T.conj()[:, k-oversampling_size:]
 
     # Apply again SQDEIM on the unchosen rows
-    M = U[P[k:], :].dot(Vp)
+    # Store the first permutation for mapping back indices
+    P_first = P
+    P_U_temp = U[P_first[k:], :].dot(Vp)
     if tol is None:
-        Q, R, P = sRRQR(M.T.conj(), f=2, mode="rank", param=oversampling_size)
-        p2 = P[:oversampling_size]
+        Q, _, P_second = sRRQR(P_U_temp.T.conj(), eta=2, mode="rank", param=oversampling_size)
+        # Map back to original indices
+        p2 = P_first[k:][P_second[:oversampling_size]]
     else:
-        Q, R, P = sRRQR(M.T.conj(), f=2, mode="tol", param=tol)
-        p2 = P[:oversampling_size]
+        Q, _, P_second = sRRQR(P_U_temp.T.conj(), eta=2, mode="tol", param=tol)
+        # Map back to original indices
+        p2 = P_first[k:][P_second[:oversampling_size]]
     # Concatenate the two selections
     p = np.concatenate((p1, p2))
 
-    if compute_M:
-        M = la.lstsq(U[p, :].T.conj(), U.T.conj())[0].T.conj()
-        return p, M
+    if return_projection:
+        P_U = la.lstsq(U[p, :].T.conj(), U.T.conj())[0].T.conj()
+        if return_inverse:
+            inv_U = U.T.conj().dot(P_U)
+            return p, P_U, inv_U
+        else:
+            return p, P_U
     else:
         return p

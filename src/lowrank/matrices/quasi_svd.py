@@ -1131,8 +1131,8 @@ class QuasiSVD(LowRankMatrix):
                                                         Y_u: ndarray,
                                                         Y_v: ndarray,
                                                         Y_uv: ndarray,
-                                                        M_u: ndarray,
-                                                        M_v: ndarray,
+                                                        P_u: ndarray,
+                                                        P_v: ndarray,
                                                         auto_truncate: bool,
                                                         dense_output: bool
                                                         ) -> QuasiSVD:
@@ -1159,16 +1159,16 @@ class QuasiSVD(LowRankMatrix):
             raise ValueError(f"Y_uv must have shape ({r_u}, {r_v})")
         
         # M_u: (m, r_u)
-        if M_u.ndim != 2 or M_u.shape != (m, r_u):
+        if P_u.ndim != 2 or P_u.shape != (m, r_u):
             raise ValueError(f"M_u must have shape ({m}, {r_u})")
         
         # M_v: (n, r_v)
-        if M_v.ndim != 2 or M_v.shape != (n, r_v):
+        if P_v.ndim != 2 or P_v.shape != (n, r_v):
             raise ValueError(f"M_v must have shape ({n}, {r_v})")
         
         # Perform projection using double QR
-        M1 = np.column_stack([M_u, Y_v])
-        M2 = np.vstack([Y_u - Y_uv.dot(M_v.T.conj()), M_v.T.conj()])
+        M1 = np.column_stack([P_u, Y_v])
+        M2 = np.vstack([Y_u - Y_uv.dot(P_v.T.conj()), P_v.T.conj()])
         Q1, R1 = la.qr(M1, mode='economic')
         Q2, R2 = la.qr(M2.T.conj(), mode='economic')
         
@@ -1201,10 +1201,10 @@ class QuasiSVD(LowRankMatrix):
             raise ValueError(f"Shape mismatch: self has shape {self.shape}, Y has shape {Y.shape}")
         
         # Compute interpolation indices and matrices
-        p_u, M_u = cssp_method_u(self.U, compute_M=True, **cssp_kwargs_u)
+        p_u, M_u = cssp_method_u(self.U, return_projector=True, **cssp_kwargs_u)
         p_u = np.array(p_u)
         
-        p_v, M_v = cssp_method_v(self.V, compute_M=True, **cssp_kwargs_v)
+        p_v, M_v = cssp_method_v(self.V, return_projector=True, **cssp_kwargs_v)
         p_v = np.array(p_v)
         
         # Extract interpolated slices from Y
@@ -1271,8 +1271,8 @@ class QuasiSVD(LowRankMatrix):
         **Offline mode:**
         
         >>> # Pre-compute interpolatory matrices
-        >>> p_u, M_u = DEIM(X.U, compute_M=True)
-        >>> p_v, M_v = DEIM(X.V, compute_M=True)
+        >>> p_u, M_u = DEIM(X.U, return_projector=True)
+        >>> p_v, M_v = DEIM(X.V, return_projector=True)
         >>> Y_full = Y.full()
         >>> Y_u = Y_full[p_u, :]
         >>> Y_v = Y_full[:, p_v]
@@ -1309,8 +1309,8 @@ class QuasiSVD(LowRankMatrix):
             Y_u=kwargs['Y_u'],
             Y_v=kwargs['Y_v'],
             Y_uv=kwargs['Y_uv'],
-            M_u=kwargs['M_u'],
-            M_v=kwargs['M_v'],
+            P_u=kwargs['M_u'],
+            P_v=kwargs['M_v'],
             auto_truncate=auto_truncate,
             dense_output=dense_output
             )

@@ -856,8 +856,8 @@ def test_project_onto_interpolated_tangent_space():
     assert isinstance(result_online_qdeim, QuasiSVD), "Should return QuasiSVD"
     
     # TEST: Offline mode
-    p_u, M_u = DEIM(X.U, compute_M=True)
-    p_v, M_v = DEIM(X.V, compute_M=True)
+    p_u, M_u = DEIM(X.U, return_projector=True)
+    p_v, M_v = DEIM(X.V, return_projector=True)
     Y_full = Y.full()
     Y_u = Y_full[p_u, :]
     Y_v = Y_full[:, p_v]

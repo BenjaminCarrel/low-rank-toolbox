@@ -2,7 +2,7 @@ import numpy as np
 from numpy import ndarray
 import scipy.linalg as la
 
-def Osinsky(U: ndarray, compute_M: bool = False, return_Uk: bool = False) -> list:
+def Osinsky(U: ndarray, return_projector: bool = False, return_inverse: bool = False, **extra_args) -> list:
     """
     Osinsky's quasi optimal column subset selection algorithm.
 
@@ -13,17 +13,25 @@ def Osinsky(U: ndarray, compute_M: bool = False, return_Uk: bool = False) -> lis
     ----------
     U : numpy.ndarray
         Orthonormal real matrix of shape (n, r) defining a row space approximation
-    compute_M : bool
+    return_projector : bool
         If True, return also the matrix U @ inv(U[S, :])
-    return_Uk : bool
-        If True, return also the modified matrix Uk after applying Householder reflections.
+    return_inverse : bool
+        If True, return also the inverse matrix inv(U[S, :])
+    extra_args : dict
+        Additional arguments:
+            solve_kwargs : dict
+                Additional arguments for the solve function
 
     Returns
     -------
-    J : list
-        Selected column indices
-    M : numpy.ndarray (optional)
-        Matrix U @ inv(U[S, :])
+    J : ndarray
+        Selected column indices (r elements)
+    P_U : ndarray (n x r) (optional)
+        Matrix U @ inv(U[J, :]) where U[J, :] is the (r x r) submatrix.
+        Only returned if return_projector=True.
+    inv_U : ndarray (r x r) (optional)
+        Matrix inv(U[J, :]).
+        Only returned if return_inverse=True (requires return_projector=True).
     """
     n, r = U.shape
     if r > n:
@@ -74,18 +82,17 @@ def Osinsky(U: ndarray, compute_M: bool = False, return_Uk: bool = False) -> lis
                 d_update = Uk[k, k:n].copy()
 
         # --- Update Scores ---
-        # Use **2 for real scores update
-        l_scores[k:n] += np.abs(d_update)**2  # CHANGED to absolute value for complex matrices
-        #l_scores[k:n] += d_update**2  # CHANGED to absolute value for complex matrices
+        # Use absolute value squared for both real and complex matrices
+        l_scores[k:n] += np.abs(d_update)**2
     # --- End Loop ---
 
-    if compute_M:
-        M = la.solve(U[P[:r], :].T.conj(), U.T.conj()).T.conj()
-        if return_Uk:
-            return P[:r], M, Uk
-        return P[:r], M
-    if return_Uk:
-        return P[:r], Uk
+    if return_projector:
+        P_U = la.solve(U[P[:r], :].T.conj(), U.T.conj(), **extra_args.get('solve_kwargs', {})).T.conj()
+        if return_inverse:
+            inv_U = U.T.conj().dot(P_U)
+            return P[:r], P_U, inv_U
+        else:
+            return P[:r], P_U
     return P[:r]
 
 if __name__ == "__main__":
@@ -97,17 +104,17 @@ if __name__ == "__main__":
     U = np.random.randn(n, r)
     U, _ = la.qr(U, mode='economic')
 
-    J, Uk = Osinsky(U, compute_M=False, return_Uk=True)
+    J = Osinsky(U, return_projector=False)
     print("Selected indices J:", J)
-    print("Matrix U:\n", Uk)
+    print("U[J, :]:\n", U[J, :])
 
     # Example usage - complex case
     print("\nComplex case -- Tall matrix with orthonormal columns")
     U_complex = np.random.randn(n, r) + 1j * np.random.randn(n, r)
     U_complex, _ = la.qr(U_complex, mode='economic')
 
-    J_complex, Uk_complex = Osinsky(U_complex, compute_M=False, return_Uk=True)
+    J_complex = Osinsky(U_complex, return_projector=False)
     print("Selected indices J (complex case):", J_complex)
-    print("Matrix U (complex case):\n", Uk_complex)
+    print("U[J, :] (complex case):\n", U_complex[J_complex, :])
 
 

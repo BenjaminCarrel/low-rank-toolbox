@@ -2,6 +2,21 @@ import numpy as np
 import scipy.linalg as la
 
 def _householder_vector(x):
+    """
+    Compute Householder reflection vector.
+    
+    Parameters
+    ----------
+    x : ndarray
+        Input vector
+        
+    Returns
+    -------
+    v : ndarray
+        Householder vector
+    beta : float
+        Scaling factor (2 / ||v||^2)
+    """
     norm_x = np.linalg.norm(x) # Full norm
     if norm_x < 1e-15:
         return np.zeros_like(x), 0.0 # Zero vector input
@@ -24,6 +39,23 @@ def _householder_vector(x):
     return v, beta
 
 def _apply_householder_right(A, v, beta):
+    """
+    Apply Householder transformation from the right: A @ (I - beta * v * v^H).
+    
+    Parameters
+    ----------
+    A : ndarray
+        Matrix to transform
+    v : ndarray
+        Householder vector
+    beta : float
+        Scaling factor
+        
+    Returns
+    -------
+    A_updated : ndarray
+        Transformed matrix
+    """
     v = v.reshape(-1, 1) # Ensure v is n x 1
     # Apply the Householder transformation
     Av = A.dot(v)
@@ -31,7 +63,7 @@ def _apply_householder_right(A, v, beta):
     return A_updated
 
 
-def ARP(U: np.ndarray, compute_M: bool = False, seed: int=None, return_Uk: bool=False) -> np.ndarray:
+def ARP(U: np.ndarray, seed: int = None, return_projector: bool = False, return_inverse: bool = False, **extra_args) -> np.ndarray:
     """
     Implements the Adaptive Randomized Pivoting (ARP) algorithm for Column Subset Selection Problem (CSSP).
 
@@ -44,19 +76,23 @@ def ARP(U: np.ndarray, compute_M: bool = False, seed: int=None, return_Uk: bool=
     ----------
     U: ndarray
         An (n x r) matrix with orthonormal columns.
-    compute_M: bool
-        If True, return also the matrix U @ inv(U[S, :])
     seed: int, optional
-        Random seed for reproducibility.
-    return_Uk: bool, optional
-        If True, return also the modified matrix Uk after applying Householder reflections.
-
+        Random seed for reproducibility. 
+    return_projector: bool, optional
+        If True, return also the matrix U @ inv(U[S, :])
+    return_inverse: bool, optional
+        If True, return also the inverse matrix inv(U[S, :])
+        
     Returns
     -------
-    J: list
-        Selection of m column indices.
-    M: ndarray (optional)
-        Matrix U @ inv(U[S, :])
+    J: ndarray
+        Selection of r row indices.
+    P_U: ndarray (n x r) (optional)
+        Matrix U @ inv(U[J, :]) where U[J, :] is the (r x r) submatrix.
+        Only returned if return_projector=True.
+    inv_U: ndarray (r x r) (optional)
+        Matrix inv(U[J, :]).
+        Only returned if return_inverse=True (requires return_projector=True).
     """
     # Seed for reproducibility
     if seed is not None:
@@ -98,13 +134,15 @@ def ARP(U: np.ndarray, compute_M: bool = False, seed: int=None, return_Uk: bool=
         if beta != 0: # Apply only if reflection is non-trivial
             Uk[:, k:r] = _apply_householder_right(Uk[:, k:r], v, beta)
 
-    if compute_M:
+    J = np.array(J)  # Convert to ndarray
+    
+    if return_projector:
         M = la.lstsq(U[J, :].T.conj(), U.T.conj())[0].T.conj()
-        if return_Uk:
-            return J, M, Uk
-        return J, M
-    if return_Uk:
-        return J, Uk
+        if return_inverse:
+            inv_U = U.T.conj().dot(M)
+            return J, M, inv_U
+        else:
+            return J, M
     return J
     
 
@@ -117,14 +155,14 @@ if __name__ == "__main__":
     U = np.random.randn(n, r)
     U, _ = la.qr(U, mode='economic')
 
-    J, Uk = ARP(U, compute_M=False, seed=42, return_Uk=True)
+    J = ARP(U, return_projector=False, seed=42)
     print("Selected indices J:", J)
-    print("Matrix U:\n", Uk)
+    print("U[J, :]:\n", U[J, :])
 
     # Example usage - complex case
     print("\nComplex case -- Tall matrix with orthonormal columns")
     U_complex = np.random.randn(n, r) + 1j * np.random.randn(n, r)
     U_complex, _ = la.qr(U_complex, mode='economic')
-    J, Uk_complex = ARP(U_complex, compute_M=False, seed=42, return_Uk=True)
-    print("Selected indices J (complex case):", J)
-    print("Matrix U (complex case):\n", Uk_complex)
+    J_complex = ARP(U_complex, return_projector=False, seed=42)
+    print("Selected indices J (complex case):", J_complex)
+    print("U[J, :] (complex case):\n", U_complex[J_complex, :])
