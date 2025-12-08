@@ -38,7 +38,7 @@ def sRRQR_rank(A, eta, k):
     $$
     A P = [Q_1, Q_2] \\begin{pmatrix} R_{11} & R_{12} \\\\ 0 & R_{22} \\end{pmatrix}
     $$
-    such that the entries of $R_{11}^{-1} R_{12}$ are bounded by a factor $\eta$.
+    such that the entries of $R_{11}^{-1} R_{12}$ are bounded by a factor $eta$.
 
     Args:
         A (np.ndarray): The input matrix (m x n), real or complex.
