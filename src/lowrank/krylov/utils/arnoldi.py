@@ -50,17 +50,22 @@ def Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int) -> tuple[ndarray, ndarray
     if m > A.shape[0]:
         raise ValueError("m must be smaller than the dimension of the matrix")
 
+    # dtype depends on the type of A and x
+    dtype = A.dtype
+    if x.dtype != dtype:
+        dtype = np.promote_types(dtype, x.dtype)
+
     # Initialize
     n = A.shape[0]
-    Q = np.zeros((n, m), dtype=A.dtype)
-    H = np.zeros((m, m), dtype=A.dtype)
+    Q = np.zeros((n, m), dtype=dtype)
+    H = np.zeros((m, m), dtype=dtype)
     Q[:, 0] = x / la.norm(x)
 
     # Arnoldi algorithm
     for j in np.arange(m):
         u = A.dot(Q[:, j])
         for i in np.arange(j+1):
-            H[i, j] = Q[:, i].T.dot(u)
+            H[i, j] = Q[:, i].conj().T.dot(u)
             u = u - H[i, j] * Q[:, i]
         if j < m-1:
             H[j+1, j] = la.norm(u)
@@ -99,7 +104,7 @@ def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: f
     assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
     assert isinstance(x, np.ndarray), "x must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
-    assert isinstance(shift, (int, float)), "shift must be a number"
+    assert isinstance(shift, (int, float, complex)), "shift must be a number"
     assert shift != np.inf, "infty shift is not supported"
 
     # Sanity check
@@ -126,14 +131,13 @@ def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: f
     for j in np.arange(m-1):
         u = spsla.spsolve(A - shift*sps.eye(n, format='csc'), Q[:, j])
         for i in np.arange(j+1):
-            H[i, j] = Q[:, i].T.dot(u)
+            H[i, j] = Q[:, i].conj().T.dot(u)
             u = u - H[i, j] * Q[:, i]
-        if j < m-1:
-            H[j+1, j] = la.norm(u)
-            if H[j+1, j] < 1e-15:
-                print('Lucky breakdown.')
-                break
-            Q[:, j+1] = u/H[j+1, j]
+        H[j+1, j] = la.norm(u)
+        if H[j+1, j] < 1e-15:
+            print('Lucky breakdown.')
+            break
+        Q[:, j+1] = u/H[j+1, j]
     return Q, H
 
 
@@ -200,7 +204,8 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
         inverses = [None for _ in poles]
     for i, pole in enumerate(poles):
         if inverses[i] is None:
-            inverses[i] = lambda v: spsla.spsolve(A - pole*sps.eye(n, format='csc'), small_matvec(v))
+            # Use default argument to capture pole value (avoid lambda closure bug)
+            inverses[i] = lambda v, p=pole: spsla.spsolve(A - p*sps.eye(n, format='csc'), small_matvec(v))
             
     # Initialize
     Q = np.zeros((n, m), dtype=dtype)
@@ -209,10 +214,9 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
 
     # Arnoldi algorithm
     for j in np.arange(len(poles)):
-        current_matvec = lambda v: spsla.spsolve(A - poles[j]*sps.eye(n, format='csc'), small_matvec(v))
-        u = current_matvec(Q[:, j])
+        u = inverses[j](Q[:, j])
         for i in np.arange(j+1):
-            H[i, j] = Q[:, i].T.dot(u)
+            H[i, j] = Q[:, i].conj().T.dot(u)
             u = u - H[i, j] * Q[:, i]
         if j < m-1:
             H[j+1, j] = la.norm(u)
@@ -262,11 +266,11 @@ def block_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, n
     H = np.zeros((m*r, m*r), dtype=A.dtype)
     Q[:, :r], _ = la.qr(X, mode='economic')
 
-    # Block Arnoldi algorithm
+    # Arnoldi algorithm
     for j in np.arange(m):
         Wj = A.dot(Q[:, j*r:(j+1)*r])
         for i in np.arange(j+1):
-            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].T.dot(Wj)
+            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].conj().T.dot(Wj)
             Wj = Wj - Q[:, i*r:(i+1)*r].dot(H[i*r:(i+1)*r, j*r:(j+1)*r])
         if j < m-1:
             Q[:, (j+1)*r:(j+2)*r], H[(j+1)*r:(j+2)*r, j*r:(j+1)*r] = la.qr(Wj, mode='economic')
@@ -303,7 +307,7 @@ def block_shift_and_invert_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int, sh
     assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
     assert isinstance(X, np.ndarray), "X must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
-    assert isinstance(shift, (int, float)), "shift must be a number"
+    assert isinstance(shift, (int, float, complex)), "shift must be a number"
     assert shift != np.inf, "infty shift is not supported"
 
     # Sanity check
@@ -333,7 +337,7 @@ def block_shift_and_invert_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int, sh
     for j in np.arange(m):
         Wj = invA(Q[:, j*r:(j+1)*r])
         for i in np.arange(j+1):
-            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].T.dot(Wj)
+            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].conj().T.dot(Wj)
             Wj = Wj - Q[:, i*r:(i+1)*r].dot(H[i*r:(i+1)*r, j*r:(j+1)*r])
         if j < m-1:
             Q[:, (j+1)*r:(j+2)*r], H[(j+1)*r:(j+2)*r, j*r:(j+1)*r] = la.qr(Wj, mode='economic')
@@ -356,7 +360,7 @@ def block_rational_Arnoldi(A: ndarray | spmatrix, X: ndarray, poles: list, inver
         Matrix of shape (n,r), r > 1
     poles : list
         List of poles
-    shift_only : bool
+    inverse_only : bool
         If True, only invert the matrices. Default is False.
     inverses : list
         List of functions that compute the matrix-vector product with the inverse of (A - pole*I). Optional, faster if provided.
@@ -397,7 +401,8 @@ def block_rational_Arnoldi(A: ndarray | spmatrix, X: ndarray, poles: list, inver
         inverses = [None for _ in range(len(poles))]
     for i in range(len(poles)):
         if inverses[i] is None:
-            inverses[i] = lambda v: spsla.spsolve(A - poles[i]*sps.eye(n, format='csc'), v)
+            # Use default argument to capture pole value (avoid lambda closure bug)
+            inverses[i] = lambda v, p=poles[i]: spsla.spsolve(A - p*sps.eye(n, format='csc'), v)
     
     if inverse_only:
         small_matvec = lambda v: v
@@ -416,7 +421,7 @@ def block_rational_Arnoldi(A: ndarray | spmatrix, X: ndarray, poles: list, inver
         # Arnoldi procedure
         Wj = current_matvec(Q[:, j*r:(j+1)*r])
         for i in np.arange(j+1):
-            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].T.dot(Wj)
+            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].conj().T.dot(Wj)
             Wj = Wj - Q[:, i*r:(i+1)*r].dot(H[i*r:(i+1)*r, j*r:(j+1)*r])
         if j < m-1:
             Q[:, (j+1)*r:(j+2)*r], H[(j+1)*r:(j+2)*r, j*r:(j+1)*r] = la.qr(Wj, mode='economic')
