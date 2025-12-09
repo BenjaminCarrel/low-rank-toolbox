@@ -6,6 +6,7 @@ Test file for the ExtendedKrylovSpace class and methods
 
 # %% Imports
 import numpy as np
+import pytest
 import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
@@ -165,6 +166,130 @@ def test_block_KrylovSpace():
     assert np.allclose(KS.Q.dot(KS.Q.T), Q_ref.dot(Q_ref.T), atol=1e-6), "Wrong projection -> error in block Krylov Space"
     print('Block Krylov Space Projection OK.')
 
+
+# %% Test fixtures
+@pytest.fixture
+def valid_extended_matrix():
+    """Create a valid sparse matrix"""
+    np.random.seed(42)
+    return sps.random(10, 10, density=0.3, format='csc')
+
+
+@pytest.fixture
+def valid_extended_vector():
+    """Create a valid vector"""
+    np.random.seed(42)
+    return np.random.rand(10, 1)
+
+
+# %% Input validation tests for ExtendedKrylovSpace
+class TestExtendedKrylovInputValidation:
+    """Test input validation for ExtendedKrylovSpace"""
+    
+    def test_non_sparse_matrix(self, valid_extended_vector):
+        """Test that non-sparse matrix raises TypeError"""
+        A = np.random.rand(10, 10)  # Dense matrix
+        with pytest.raises(TypeError, match="A must be a sparse matrix"):
+            ExtendedKrylovSpace(A, valid_extended_vector)
+    
+    def test_non_array_vector(self, valid_extended_matrix):
+        """Test that non-numpy array raises TypeError"""
+        x = [[1], [2], [3]]  # List instead of array
+        with pytest.raises(TypeError, match="X must be a numpy array"):
+            ExtendedKrylovSpace(valid_extended_matrix, x)
+    
+    def test_non_square_matrix(self, valid_extended_vector):
+        """Test that non-square matrix raises ValueError"""
+        A = sps.random(10, 15, density=0.3, format='csc')
+        with pytest.raises(ValueError, match="A must be a square matrix"):
+            ExtendedKrylovSpace(A, valid_extended_vector)
+    
+    def test_dimension_mismatch(self, valid_extended_matrix):
+        """Test that dimension mismatch raises ValueError"""
+        x = np.random.rand(5, 1)  # Wrong dimension
+        with pytest.raises(ValueError, match="A and X must have the same number of rows"):
+            ExtendedKrylovSpace(valid_extended_matrix, x)
+    
+    def test_nan_in_vector(self, valid_extended_matrix):
+        """Test that NaN in vector raises ValueError"""
+        x = np.random.rand(10, 1)
+        x[0] = np.nan
+        with pytest.raises(ValueError, match="X contains NaN or Inf values"):
+            ExtendedKrylovSpace(valid_extended_matrix, x)
+    
+    def test_inf_in_vector(self, valid_extended_matrix):
+        """Test that Inf in vector raises ValueError"""
+        x = np.random.rand(10, 1)
+        x[0] = np.inf
+        with pytest.raises(ValueError, match="X contains NaN or Inf values"):
+            ExtendedKrylovSpace(valid_extended_matrix, x)
+    
+    def test_nan_in_matrix(self, valid_extended_vector):
+        """Test that NaN in matrix raises ValueError"""
+        A = sps.random(10, 10, density=0.3, format='csc')
+        A.data[0] = np.nan
+        with pytest.raises(ValueError, match="A contains NaN or Inf values"):
+            ExtendedKrylovSpace(A, valid_extended_vector)
+    
+    def test_inf_in_matrix(self, valid_extended_vector):
+        """Test that Inf in matrix raises ValueError"""
+        A = sps.random(10, 10, density=0.3, format='csc')
+        A.data[0] = np.inf
+        with pytest.raises(ValueError, match="A contains NaN or Inf values"):
+            ExtendedKrylovSpace(A, valid_extended_vector)
+
+
+# %% Property tests for ExtendedKrylovSpace
+class TestExtendedKrylovProperties:
+    """Test properties for ExtendedKrylovSpace"""
+    
+    def test_extended_krylov_size(self, valid_extended_matrix, valid_extended_vector):
+        """Test ExtendedKrylovSpace size is sum of components"""
+        EK = ExtendedKrylovSpace(valid_extended_matrix, valid_extended_vector)
+        expected_size = EK.krylov_space.size + EK.inverted_krylov_space.size
+        assert EK.size == expected_size, "Size should be sum of K and IK sizes"
+        
+        EK.augment_basis()
+        expected_size = EK.krylov_space.size + EK.inverted_krylov_space.size
+        assert EK.size == expected_size, "Size should update correctly"
+    
+    def test_extended_krylov_caching(self, valid_extended_matrix, valid_extended_vector):
+        """Test ExtendedKrylov Q property caching works"""
+        EK = ExtendedKrylovSpace(valid_extended_matrix, valid_extended_vector)
+        
+        # Access Q multiple times
+        Q1 = EK.Q
+        Q2 = EK.Q
+        assert Q1 is Q2, "Q should be cached and return same object"
+        
+        # Augment and check cache is invalidated
+        EK.augment_basis()
+        Q3 = EK.Q
+        assert Q3 is not Q1, "Cache should be invalidated after augmentation"
+
+
+# %% Advanced functionality tests for ExtendedKrylovSpace
+class TestExtendedKrylovAdvancedFunctionality:
+    """Test convergence and consistency"""
+    
+    def test_extended_krylov_combines_spaces(self, valid_extended_matrix, valid_extended_vector):
+        """Test ExtendedKrylov properly combines K and IK"""
+        EK = ExtendedKrylovSpace(valid_extended_matrix, valid_extended_vector)
+        EK.augment_basis()
+        
+        # The combined basis should span both K and IK subspaces
+        Q1, Q2 = EK.Q1, EK.Q2
+        Q_combined = EK.Q
+        
+        # Q should approximately span the same space as [Q1, Q2]
+        Q_concat = np.hstack([Q1, Q2])
+        Q_concat_orth, _ = la.qr(Q_concat, mode='economic')
+        
+        P1 = Q_combined @ Q_combined.T
+        P2 = Q_concat_orth @ Q_concat_orth.T
+        
+        assert np.allclose(P1, P2, atol=1e-8), \
+            "ExtendedKrylov should span union of K and IK spaces"
 
 
 # %%
