@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import ndarray
-from ..utils import sRRQR
+from .utils import sRRQR
 import scipy.linalg as la
 
 
