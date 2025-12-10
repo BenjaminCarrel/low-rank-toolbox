@@ -18,5 +18,4 @@ Techniques related to low-rank matrices:
 """
 from .matrices import *
 from .cssp import *
-from .utils import *
 from .krylov import *
