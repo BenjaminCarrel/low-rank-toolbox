@@ -12,24 +12,30 @@ def generalized_nystrom(X: LinearOperator,
                         epsilon: float = None,
                         seed: int = 1234,
                         **extra_data) -> QuasiSVD:
-    """General Nystroem method
+    """
+    Generalized Nyström method
 
-    Reference
-    "Fast and stable randomized low-rank matrix approximation"
-    Nakatsukasa, 2019
+    Reference:
+        "Fast and stable randomized low-rank matrix approximation"
+        Nakatsukasa, 2019
 
-    X ~= X J (K^T X J)^{dagger} K^T X
+    Approximation with formula
+        X ~= X J (K^T X J)^{dagger} K^T X
 
     Parameters
     ----------
-    X: LinearOperator
-        Matrix to approximate
-    r: int
-        Rank of approximation
-    oversamplings: tuple
-        Oversampling parameters (p1, p2) for the two sketch matrices
-    epsilon: float (default is None)
-        When given, perform stable GN with epsilon-pseudoinverse
+    X : LinearOperator
+        Matrix to approximate (real-valued only, complex matrices not supported)
+    r : int
+        Rank of approximation, must be positive
+    oversampling_params : tuple, optional
+        Oversampling parameters (p1, p2) for the two sketch matrices (default: (10, 15))
+    epsilon : float, optional
+        When given, perform stable GN with epsilon-truncation for SVD (default: None)
+    seed : int, optional
+        Random seed for reproducibility (default: 1234)
+    **extra_data : dict
+        Additional arguments passed to QuasiSVD constructor
 
     Returns
     -------
@@ -40,10 +46,21 @@ def generalized_nystrom(X: LinearOperator,
     -----
     This method returns a QuasiSVD (not SVD) because the middle matrix S
     is typically inverted, making it non-diagonal. Convert to SVD if needed:
-        result = QuasiSVD.generalized_nystroem(X, r).to_svd()
+        result = generalized_nystrom(X, r).to_svd()
     """
+    # Input validation
+    if r < 1:
+        raise ValueError(f'Rank must be at least 1, got r={r}.')
+    if epsilon is not None and epsilon <= 0:
+        raise ValueError(f'Epsilon must be positive when provided, got epsilon={epsilon}.')
+    
     m, n = X.shape
     p1, p2 = oversampling_params
+    
+    if r + p1 > n:
+        raise ValueError(f'Rank + p1 ({r + p1}) exceeds number of columns ({n}).')
+    if r + p2 > m:
+        raise ValueError(f'Rank + p2 ({r + p2}) exceeds number of rows ({m}).')
     # Draw the two random matrices
     np.random.seed(seed)
     J= np.random.randn(n, r + p1)
@@ -66,7 +83,7 @@ def generalized_nystrom(X: LinearOperator,
 
     # Return in QuasiSVD format
     U = XJ.dot(C.V)
-    S = np.linalg.inv(C.S)
+    S_inv = np.diag(1.0 / C.s)  # Inverse of diagonal matrix
     V = (C.U.T.dot(KtX)).T
 
-    return QuasiSVD(U, S, V, **extra_data)
+    return QuasiSVD(U, S_inv, V, **extra_data)
