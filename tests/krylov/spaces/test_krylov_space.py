@@ -395,4 +395,164 @@ class TestKrylovAdvancedFunctionality:
             "Reduced matrix should be symmetric for symmetric A"
 
 
+# %% Tests for space_structure base class properties
+def test_space_structure_repr():
+    """Test __repr__ method of SpaceStructure."""
+    np.random.seed(400)
+    A = sps.random(15, 15, density=0.3, format='csc')
+    x = np.random.rand(15, 1)
+    
+    KS = KrylovSpace(A, x)
+    KS.augment_basis()
+    
+    repr_str = repr(KS)
+    assert "KrylovSpace" in repr_str, "repr should contain class name"
+    assert "size" in repr_str, "repr should mention size"
+    assert "shape" in repr_str, "repr should mention shape"
+
+
+def test_space_structure_dtype():
+    """Test dtype handling in SpaceStructure."""
+    np.random.seed(401)
+    # Float case
+    A_float = sps.random(10, 10, density=0.3, format='csc')
+    x_float = np.random.rand(10, 1)
+    KS_float = KrylovSpace(A_float, x_float)
+    assert KS_float.dtype == np.float64, "Should detect float64"
+    
+    # Complex case
+    A_complex = sps.random(10, 10, density=0.3, format='csc', dtype=np.complex128)
+    x_complex = np.random.rand(10, 1) + 1j * np.random.rand(10, 1)
+    KS_complex = KrylovSpace(A_complex, x_complex)
+    assert KS_complex.dtype == np.complex128, "Should detect complex128"
+    
+    # Mixed case (should promote)
+    x_complex_mixed = np.random.rand(10, 1) + 1j * np.random.rand(10, 1)
+    KS_mixed = KrylovSpace(A_float, x_complex_mixed)
+    assert np.iscomplexobj(np.zeros(1, dtype=KS_mixed.dtype)), "Should promote to complex"
+
+
+def test_space_structure_max_iter():
+    """Test max_iter parameter in SpaceStructure."""
+    np.random.seed(402)
+    A = sps.random(20, 20, density=0.3, format='csc')
+    x = np.random.rand(20, 1)
+    
+    # Default max_iter
+    KS1 = KrylovSpace(A, x)
+    assert KS1.max_iter == 20, f"Default max_iter should be n=20, got {KS1.max_iter}"
+    
+    # Custom max_iter
+    KS2 = KrylovSpace(A, x, max_iter=10)
+    assert KS2.max_iter == 10, f"Custom max_iter should be 10, got {KS2.max_iter}"
+
+
+def test_space_structure_symmetry_detection():
+    """Test automatic symmetry detection."""
+    np.random.seed(403)
+    
+    # Non-symmetric matrix
+    A_nonsym = sps.random(10, 10, density=0.3, format='csc')
+    x = np.random.rand(10, 1)
+    KS_nonsym = KrylovSpace(A_nonsym, x)
+    # Should detect as non-symmetric
+    assert not KS_nonsym.is_symmetric or (A_nonsym - A_nonsym.T).nnz == 0
+    
+    # Symmetric matrix
+    A_dense = np.random.randn(10, 10)
+    A_sym = sps.csc_matrix(A_dense + A_dense.T)
+    KS_sym = KrylovSpace(A_sym, x)
+    assert KS_sym.is_symmetric, "Should detect symmetry"
+    
+    # Manual override
+    KS_override = KrylovSpace(A_nonsym, x, is_symmetric=True)
+    assert KS_override.is_symmetric, "Should respect is_symmetric parameter"
+
+
+def test_space_structure_extra_args():
+    """Test extra_args parameter storage."""
+    np.random.seed(404)
+    A = sps.random(10, 10, density=0.3, format='csc')
+    x = np.random.rand(10, 1)
+    
+    extra = {'custom_param': 42, 'another_param': 'test'}
+    KS = KrylovSpace(A, x, **extra)
+    
+    assert 'custom_param' in KS.extra_args, "extra_args should store custom params"
+    assert KS.extra_args['custom_param'] == 42, "Should preserve param values"
+
+
+def test_space_structure_n_r_attributes():
+    """Test n and r attributes."""
+    np.random.seed(405)
+    A = sps.random(15, 15, density=0.3, format='csc')
+    
+    # Vector case
+    x_vec = np.random.rand(15, 1)
+    KS_vec = KrylovSpace(A, x_vec)
+    assert KS_vec.n == 15, "n should be matrix dimension"
+    assert KS_vec.r == 1, "r should be 1 for vector"
+    
+    # Block case
+    x_block = np.random.rand(15, 3)
+    KS_block = KrylovSpace(A, x_block)
+    assert KS_block.n == 15, "n should be matrix dimension"
+    assert KS_block.r == 3, "r should be 3 for block of 3"
+
+
+def test_space_structure_X_reshape():
+    """Test that X must be 2D - 1D arrays should raise error."""
+    np.random.seed(406)
+    A = sps.random(10, 10, density=0.3, format='csc')
+    
+    # 1D array should raise error
+    x_1d = np.random.rand(10)
+    with pytest.raises((ValueError, np.linalg.LinAlgError)):
+        KS = KrylovSpace(A, x_1d)
+
+
+def test_space_structure_reduced_A_property():
+    """Test reduced_A property computes Q^T A Q."""
+    np.random.seed(407)
+    A = sps.random(12, 12, density=0.4, format='csc')
+    x = np.random.rand(12, 1)
+    
+    KS = KrylovSpace(A, x)
+    KS.augment_basis()
+    KS.augment_basis()
+    
+    Q = KS.Q
+    Am = KS.reduced_A
+    
+    # Should equal Q^T @ A @ Q
+    expected = Q.T @ A.toarray() @ Q
+    
+    assert np.allclose(Am, expected, atol=1e-10), "reduced_A incorrect"
+    assert Am.shape == (Q.shape[1], Q.shape[1]), "reduced_A wrong shape"
+
+
+def test_space_structure_Am_property():
+    """Test Am property (alias for reduced_A)."""
+    np.random.seed(408)
+    A = sps.random(10, 10, density=0.4, format='csc')
+    x = np.random.rand(10, 1)
+    
+    KS = KrylovSpace(A, x)
+    KS.augment_basis()
+    
+    # Am should be alias for reduced_A
+    assert np.allclose(KS.Am, KS.reduced_A), "Am should equal reduced_A"
+
+
+def test_space_structure_check_inputs():
+    """Test input validation in SpaceStructure."""
+    np.random.seed(409)
+    A = sps.random(10, 10, density=0.3, format='csc')
+    x_wrong = np.random.rand(5, 1)  # Wrong dimension
+    
+    # Should raise error for dimension mismatch
+    with pytest.raises(ValueError):
+        KS = KrylovSpace(A, x_wrong)
+
+
 # %%
