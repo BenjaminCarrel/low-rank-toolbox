@@ -15,4 +15,12 @@ dependencies:
   - build # for package building
   - twine # for uploading to PyPi
   - pytest # for testing the code
+  - pytest-cov # for test coverage review
   - ipykernel # for using Jupyter notebooks
+
+  # Sphinx documentation dependencies
+  - sphinx>=7.0
+  - sphinx_rtd_theme  # Read the Docs theme
+  - sphinx-autodoc-typehints  # Better type hint support
+  - myst-parser  # Optional: support Markdown in addition to RST
+
