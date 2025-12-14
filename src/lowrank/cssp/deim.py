@@ -1,3 +1,8 @@
+"""Discrete Empirical Interpolation Method (DEIM).
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 from numpy import ndarray
 from scipy import linalg as la

@@ -1,3 +1,8 @@
+"""Gappy POD with Residual constraint (GPOD+R).
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import scipy.linalg as la
 
 

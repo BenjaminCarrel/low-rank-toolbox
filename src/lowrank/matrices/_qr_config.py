@@ -1,7 +1,8 @@
-## Authors: Benjamin Carrel and Rik Vorhaar
-#          University of Geneva, 2022
-# File for configurations related to QR computations
-# Path: src/lowrank/matrices/_qr_config.py
+"""Configuration parameters for QR computations.
+
+Authors: Benjamin Carrel and Rik Vorhaar
+         University of Geneva, 2022-2025
+"""
 
 import numpy as np
 

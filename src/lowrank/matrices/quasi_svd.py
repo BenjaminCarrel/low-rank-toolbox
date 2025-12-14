@@ -1,8 +1,8 @@
-# Authors: Benjamin Carrel and Rik Vorhaar
-#          University of Geneva, initiated in 2022
-# File for QuasiSVD low-rank matrix class and functions
-# Path: src/lowrank/matrices/quasi_svd.py
+"""QuasiSVD low-rank matrix class and functions.
 
+Authors: Benjamin Carrel and Rik Vorhaar
+         University of Geneva, 2022-2025
+"""
 
 #%% Imports
 from __future__ import annotations

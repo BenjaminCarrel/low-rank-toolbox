@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Extended Krylov subspace construction.
 
-This module contains the definition of the ExtendedKrylovSpace class.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 # %% Imports
@@ -64,10 +63,23 @@ class ExtendedKrylovSpace(SpaceStructure):
     --------
     >>> import numpy as np
     >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import ExtendedKrylovSpace
+    >>> # Create a sparse matrix
     >>> A = csr_matrix([[4, 1], [1, 3]])
     >>> X = np.array([[1.0], [0.0]])
+    >>> # Extended Krylov includes both A^k*X and A^(-k)*X
     >>> EK = ExtendedKrylovSpace(A, X)
-    >>> EK.augment_basis()  # Adds both A^k*X and A^(-k-1)*X
+    >>> EK.augment_basis()  # Adds both A*X and A^(-1)*X
+    >>> EK.size  # Total size is sum of both components
+    4
+    >>> # Access individual components
+    >>> EK.Q1.shape  # Standard Krylov part
+    (2, 2)
+    >>> EK.Q2.shape  # Inverted Krylov part
+    (2, 2)
+    >>> # Combined basis is orthonormal
+    >>> np.allclose(EK.Q.T @ EK.Q, np.eye(EK.Q.shape[1]))
+    True
     """
 
     def __init__(self, A: spmatrix, X: ndarray, invA: callable = None, **extra_args):

@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Base class for space structures.
 
-This module contains the definition of the SpaceStructure class.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 # %% Imports

@@ -1,7 +1,7 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
 
-Lanczos related functions.
+"""Lanczos iteration algorithms for symmetric matrices.
+
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 # %% Imports
@@ -38,6 +38,25 @@ def Lanczos(A: ndarray | spmatrix, x: ndarray, m: int) -> tuple[ndarray, spmatri
         Matrix of shape (n,m) containing the basis of the Krylov space.
     T : spmatrix
         Tridiagonal matrix of shape (m,m). It is also the projection of A on the Krylov space.
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import Lanczos
+    >>> # Create a symmetric matrix
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> x = np.array([1.0, 0.0, 0.0])
+    >>> Q, T = Lanczos(A, x, m=3)
+    >>> # Verify orthogonality
+    >>> np.allclose(Q.T @ Q, np.eye(3))
+    True
+    >>> # Verify Lanczos relation: A @ Q = Q @ T (up to numerical error)
+    >>> np.allclose(A @ Q, Q @ T.toarray())
+    True
+    >>> # T is tridiagonal (more efficient than Arnoldi's Hessenberg)
+    >>> T.toarray()
+    array([[...]]) # doctest: +SKIP
     """
     # Check inputs
     assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
@@ -103,6 +122,25 @@ def block_Lanczos(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, s
         Matrix of shape (n,m*r) containing the basis of the Krylov space
     T : spmatrix
         Tridiagonal matrix of shape (m*r,m*r). It is also the projection of A on the Krylov space.
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import block_Lanczos
+    >>> # Create a symmetric matrix
+    >>> A = csr_matrix([[4, 1, 0, 0], [1, 3, 1, 0], [0, 1, 2, 1], [0, 0, 1, 1]])
+    >>> X = np.array([[1.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0]])
+    >>> # Build block Krylov space with m=2 blocks
+    >>> Q, T = block_Lanczos(A, X, m=2)
+    >>> Q.shape
+    (4, 4)
+    >>> # Verify orthogonality
+    >>> np.allclose(Q.T @ Q, np.eye(4))
+    True
+    >>> # T is block tridiagonal
+    >>> T.shape
+    (4, 4)
     """
     # Check inputs
     assert isinstance(A, (ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"

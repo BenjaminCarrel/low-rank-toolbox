@@ -1,7 +1,8 @@
-# Authors: Benjamin Carrel and Rik Vorhaar
-#         University of Geneva, 2022
-# File for generic low-rank matrix format
-# Path: low_rank_toolbox/matrices/low_rank_matrix.py
+"""Generic low-rank matrix base class and utilities.
+
+Authors: Benjamin Carrel and Rik Vorhaar
+         University of Geneva, 2022-2025
+"""
 
 # Import packages
 from __future__ import annotations

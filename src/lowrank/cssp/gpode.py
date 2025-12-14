@@ -1,3 +1,8 @@
+"""Gappy POD with Energy constraint (GPOD+E).
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 import scipy.linalg as la
 

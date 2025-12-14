@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Krylov-based solvers for the Sylvester equation.
 
-This module contains solvers for the Sylvester equation.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 #%% Imports
@@ -146,6 +145,29 @@ def solve_sparse_low_rank_sylvester(A: spmatrix,
     -------
     QuasiSVD
         Low-rank solution X of shape (m, n)
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank import LowRankMatrix
+    >>> from lowrank.krylov import solve_sparse_low_rank_sylvester
+    >>> # Create sparse matrices A and B
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> B = csr_matrix([[2, 1], [1, 1]])
+    >>> # Create a low-rank right-hand side
+    >>> U = np.array([[1.0], [0.0], [0.0]])
+    >>> V = np.array([[1.0], [0.0]])
+    >>> C = LowRankMatrix(U, V.T)
+    >>> # Solve AX + XB = C
+    >>> X = solve_sparse_low_rank_sylvester(A, B, C, tol=1e-10)
+    >>> # Verify the solution
+    >>> residual = A @ X + X @ B - C
+    >>> residual.norm() < 1e-9
+    True
+    >>> # X is low-rank
+    >>> X.rank <= 10
+    True
     """
     # Check inputs
     assert isinstance(A, spmatrix), "A must be a sparse matrix"
@@ -294,6 +316,33 @@ def solve_sylvester(A: ndarray | spmatrix,
     -------
     ndarray | LowRankMatrix
         Solution X of shape (m, n), either dense or low-rank depending on inputs
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank import LowRankMatrix
+    >>> from lowrank.krylov import solve_sylvester
+    >>> # Small dense case
+    >>> A_small = np.array([[4, 1], [1, 3]])
+    >>> B_small = np.array([[2, 1], [1, 1]])
+    >>> C_small = np.array([[1, 0], [0, 1]])
+    >>> X_small = solve_sylvester(A_small, B_small, C_small)
+    >>> # Verify: AX + XB = C
+    >>> np.allclose(A_small @ X_small + X_small @ B_small, C_small)
+    True
+    >>> # Large sparse case with low-rank RHS
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> B = csr_matrix([[2, 1], [1, 1]])
+    >>> U = np.array([[1.0], [0.0], [0.0]])
+    >>> V = np.array([[1.0], [0.0]])
+    >>> C = LowRankMatrix(U, V.T)
+    >>> X = solve_sylvester(A, B, C, tol=1e-10)
+    >>> # Solution is low-rank
+    >>> type(X).__name__
+    'SVD'
+    >>> X.rank <= 10
+    True
     """
     # Check Krylov kwargs
     if krylov_kwargs is None:

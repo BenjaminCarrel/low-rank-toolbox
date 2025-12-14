@@ -197,6 +197,225 @@ class TestExtendedKrylovInputValidation:
         x = [[1], [2], [3]]  # List instead of array
         with pytest.raises(TypeError, match="X must be a numpy array"):
             ExtendedKrylovSpace(valid_extended_matrix, x)
+
+
+# %% New property tests for better coverage
+def test_property_H1_H2():
+    """Test H1 and H2 properties for Hessenberg matrices."""
+    np.random.seed(300)
+    A = sps.random(15, 15, density=0.4, format='csc')
+    x = np.random.rand(15, 1)
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=invA, is_symmetric=False)
+    EKS.augment_basis()
+    
+    # Access H1 and H2 properties
+    H1 = EKS.H1
+    H2 = EKS.H2
+    
+    # For non-symmetric case, should return Hessenberg matrices
+    assert H1 is not None, "H1 should not be None for non-symmetric case"
+    assert H2 is not None, "H2 should not be None for non-symmetric case"
+    
+    # Check dimensions
+    assert H1.shape[0] == H1.shape[1] + 1 or H1.shape[0] == H1.shape[1], "H1 wrong shape"
+    assert H2.shape[0] == H2.shape[1] + 1 or H2.shape[0] == H2.shape[1], "H2 wrong shape"
+
+
+def test_property_Q1_Q2():
+    """Test Q1 and Q2 properties return correct bases."""
+    np.random.seed(301)
+    A = sps.random(12, 12, density=0.5, format='csc')
+    x = np.random.rand(12, 1)
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=invA)
+    EKS.augment_basis()
+    EKS.augment_basis()
+    
+    Q1 = EKS.Q1
+    Q2 = EKS.Q2
+    
+    # Both should be orthonormal
+    assert np.allclose(Q1.T @ Q1, np.eye(Q1.shape[1]), atol=1e-10), "Q1 not orthonormal"
+    assert np.allclose(Q2.T @ Q2, np.eye(Q2.shape[1]), atol=1e-10), "Q2 not orthonormal"
+    
+    # Q1 from krylov space, Q2 from inverted krylov space
+    assert Q1.shape[1] == EKS.krylov_space.size, "Q1 size mismatch"
+    assert Q2.shape[1] == EKS.inverted_krylov_space.size, "Q2 size mismatch"
+
+
+def test_Q_caching():
+    """Test that Q property caching works correctly."""
+    np.random.seed(302)
+    A = sps.random(10, 10, density=0.5, format='csc')
+    x = np.random.rand(10, 1)
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=invA)
+    
+    # First call should compute and cache
+    Q_first = EKS.Q
+    initial_size = EKS.size
+    
+    # Second call should return cached value (same object)
+    Q_second = EKS.Q
+    assert Q_first is Q_second, "Q should be cached"
+    
+    # After augmentation, cache should be invalidated
+    EKS.augment_basis()
+    Q_third = EKS.Q
+    assert Q_first is not Q_third, "Cache should be invalidated after augmentation"
+    assert Q_third.shape[1] > Q_first.shape[1], "Q should have more columns"
+    
+    # Verify cache tracking
+    assert EKS._cache_size == EKS.size, "Cache size tracking incorrect"
+
+
+def test_basis_property_alias():
+    """Test that basis property is an alias for Q."""
+    np.random.seed(303)
+    A = sps.random(10, 10, density=0.5, format='csc')
+    x = np.random.rand(10, 1)
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=invA)
+    EKS.augment_basis()
+    
+    # basis should be same as Q
+    assert np.allclose(EKS.basis, EKS.Q), "basis should equal Q"
+    assert EKS.basis.shape == EKS.Q.shape, "basis and Q should have same shape"
+
+
+def test_size_property():
+    """Test size property tracks total space dimension."""
+    np.random.seed(304)
+    A = sps.random(15, 15, density=0.4, format='csc')
+    x = np.random.rand(15, 2)  # Block case
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=invA)
+    
+    initial_size = EKS.size
+    assert initial_size == 4, f"Initial size should be 4 (2+2), got {initial_size}"
+    
+    # Augment and check size increases
+    EKS.augment_basis()
+    new_size = EKS.size
+    assert new_size == 8, f"Size after augment should be 8 (4+4), got {new_size}"
+    
+    # Size should equal sum of component sizes
+    assert EKS.size == EKS.krylov_space.size + EKS.inverted_krylov_space.size
+
+
+def test_extended_krylov_with_custom_invA():
+    """Test ExtendedKrylovSpace with custom inverse function."""
+    np.random.seed(305)
+    A = sps.random(12, 12, density=0.5, format='csc')
+    A = A + 5 * sps.eye(12)  # Make it well-conditioned
+    x = np.random.rand(12, 1)
+    
+    # Custom inverse using iterative solver
+    def custom_invA(v):
+        result, info = spsla.gmres(A, v.ravel(), rtol=1e-10)
+        return result.reshape(v.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=custom_invA)
+    EKS.augment_basis()
+    
+    # Should still produce orthonormal basis
+    Q = EKS.Q
+    assert np.allclose(Q.T @ Q, np.eye(Q.shape[1]), atol=1e-8), "Q not orthonormal with custom invA"
+
+
+def test_extended_krylov_symmetric_flag():
+    """Test symmetric matrix handling in ExtendedKrylovSpace."""
+    np.random.seed(306)
+    # Create symmetric matrix
+    A_dense = np.random.randn(10, 10)
+    A_dense = A_dense + A_dense.T
+    A = sps.csc_matrix(A_dense)
+    x = np.random.rand(10, 1)
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    # Test with is_symmetric=True
+    EKS = ExtendedKrylovSpace(A, x, invA=invA, is_symmetric=True)
+    EKS.augment_basis()
+    
+    # Both component spaces should use Lanczos
+    assert EKS.krylov_space.is_symmetric, "Krylov space should detect symmetry"
+    assert EKS.inverted_krylov_space.is_symmetric, "Inverted Krylov space should detect symmetry"
+    
+    Q = EKS.Q
+    assert np.allclose(Q.T @ Q, np.eye(Q.shape[1]), atol=1e-10), "Symmetric case: Q not orthonormal"
+
+
+def test_extended_krylov_multiple_augmentations():
+    """Test multiple augmentation steps."""
+    np.random.seed(307)
+    A = sps.random(20, 20, density=0.3, format='csc')
+    x = np.random.rand(20, 1)
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=invA)
+    
+    sizes = [EKS.size]
+    for i in range(5):
+        EKS.augment_basis()
+        sizes.append(EKS.size)
+    
+    # Size should increase with each augmentation
+    for i in range(len(sizes) - 1):
+        assert sizes[i+1] > sizes[i], f"Size should increase: {sizes[i]} -> {sizes[i+1]}"
+    
+    # Final Q should be orthonormal
+    Q = EKS.Q
+    assert np.allclose(Q.T @ Q, np.eye(Q.shape[1]), atol=1e-9), "Q not orthonormal after multiple augmentations"
+
+
+def test_extended_krylov_block_case_properties():
+    """Test properties with block (matrix) input."""
+    np.random.seed(308)
+    A = sps.random(15, 15, density=0.4, format='csc')
+    X = np.random.rand(15, 3)  # Block of 3 vectors
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, X, invA=invA)
+    EKS.augment_basis()
+    
+    # Properties should work with block case
+    Q1 = EKS.Q1
+    Q2 = EKS.Q2
+    Q = EKS.Q
+    
+    assert Q1.shape[1] == 6, f"Q1 should have 6 columns (2 blocks × 3), got {Q1.shape[1]}"
+    assert Q2.shape[1] == 6, f"Q2 should have 6 columns (2 blocks × 3), got {Q2.shape[1]}"
+    
+    # Combined Q should be orthonormal
+    assert np.allclose(Q.T @ Q, np.eye(Q.shape[1]), atol=1e-10), "Block case: Q not orthonormal"
+
+
+def test_extended_krylov_reduced_A():
+    """Test reduced_A property computation."""
+    np.random.seed(309)
+    A = sps.random(12, 12, density=0.5, format='csc')
+    x = np.random.rand(12, 1)
+    invA = lambda x: spsla.spsolve(A, x).reshape(x.shape)
+    
+    EKS = ExtendedKrylovSpace(A, x, invA=invA)
+    EKS.augment_basis()
+    EKS.augment_basis()
+    
+    # Get reduced A
+    Am = EKS.reduced_A
+    Q = EKS.Q
+    
+    # Should equal Q^T @ A @ Q
+    expected = Q.T @ A.toarray() @ Q
+    
+    assert np.allclose(Am, expected, atol=1e-10), "reduced_A computation incorrect"
+    assert Am.shape == (Q.shape[1], Q.shape[1]), "reduced_A wrong shape"
     
     def test_non_square_matrix(self, valid_extended_vector):
         """Test that non-square matrix raises ValueError"""

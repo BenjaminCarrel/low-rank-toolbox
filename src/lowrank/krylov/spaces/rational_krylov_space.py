@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Rational Krylov subspace construction with arbitrary poles.
 
-This module contains the RationalKrylovSpace class and methods
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 # %% Imports
@@ -52,11 +51,24 @@ class RationalKrylovSpace(SpaceStructure):
     --------
     >>> import numpy as np
     >>> from scipy.sparse import csr_matrix
-    >>> A = csr_matrix([[4, 1], [1, 3]])
-    >>> X = np.array([[1.0], [0.0]])
+    >>> from lowrank.krylov import RationalKrylovSpace
+    >>> # Create a sparse matrix
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> X = np.array([[1.0], [0.0], [0.0]])
+    >>> # Choose poles to emphasize specific spectral regions
+    >>> # (e.g., near eigenvalues of interest)
     >>> poles = [1.0, 2.0, 3.0]
     >>> RK = RationalKrylovSpace(A, X, poles)
-    >>> RK.augment_basis()  # Adds next basis vector using first pole
+    >>> # Each augmentation uses the next pole
+    >>> RK.augment_basis()  # Uses pole 1.0
+    >>> RK.Q.shape
+    (3, 2)
+    >>> RK.augment_basis()  # Uses pole 2.0
+    >>> RK.Q.shape
+    (3, 3)
+    >>> # Verify orthogonality
+    >>> np.allclose(RK.Q.T @ RK.Q, np.eye(3))
+    True
     """
 
     #%% INITIALIZATION

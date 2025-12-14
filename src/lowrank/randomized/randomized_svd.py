@@ -1,4 +1,7 @@
+"""Randomized SVD algorithms for low-rank matrix approximation.
 
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
 
 from scipy.sparse.linalg import LinearOperator
 import numpy as np

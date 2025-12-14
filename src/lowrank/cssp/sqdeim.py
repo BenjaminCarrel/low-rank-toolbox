@@ -1,3 +1,8 @@
+"""Strong QDEIM - Strong Rank-Revealing QR based DEIM.
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 from numpy import ndarray
 from .utils import sRRQR

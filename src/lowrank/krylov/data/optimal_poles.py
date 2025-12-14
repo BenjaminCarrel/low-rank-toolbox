@@ -1,5 +1,4 @@
-"""
-Wrapper for the optimal poles data set.
+"""Optimal poles data extraction for rational Krylov methods.
 
 Author: Benjamin Carrel, University of Geneva, 2023
 """

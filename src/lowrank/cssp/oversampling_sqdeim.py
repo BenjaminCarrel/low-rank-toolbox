@@ -1,3 +1,8 @@
+"""Oversampling Strong QDEIM algorithm.
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 from numpy import ndarray
 from .utils import sRRQR

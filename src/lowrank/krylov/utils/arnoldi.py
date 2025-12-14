@@ -1,7 +1,7 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
 
-Arnoldi related functions.
+"""Arnoldi iteration algorithms for Krylov subspaces.
+
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 # %% Imports
@@ -37,6 +37,22 @@ def Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int) -> tuple[ndarray, ndarray
         Orthogonal Matrix of shape (n,m) containing the basis of the Krylov space
     H : ndarray
         Hessenberg Matrix of shape (m,m) containing the projection of A on the Krylov space
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import Arnoldi
+    >>> # Create a non-symmetric matrix
+    >>> A = csr_matrix([[1, 2, 0], [0, 3, 1], [1, 0, 2]])
+    >>> x = np.array([1.0, 0.0, 0.0])
+    >>> Q, H = Arnoldi(A, x, m=3)
+    >>> # Verify orthogonality
+    >>> np.allclose(Q.T @ Q, np.eye(3))
+    True
+    >>> # Verify Arnoldi relation: A @ Q = Q @ H (up to numerical error)
+    >>> np.allclose(A @ Q, Q @ H[:3, :])
+    True
     """
     # Check inputs
     assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
@@ -99,6 +115,20 @@ def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: f
         Orthogonal Matrix of shape (n, m) containing the basis of the Krylov space
     H : ndarray
         Hessenberg Matrix of shape (m, m) containing the projection of A on the Krylov space
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import shift_and_invert_Arnoldi
+    >>> # Create a sparse matrix
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> x = np.array([1.0, 0.0, 0.0])
+    >>> # Use shift-and-invert to find eigenvectors near shift=3
+    >>> Q, H = shift_and_invert_Arnoldi(A, x, m=2, shift=3.0)
+    >>> # The Krylov space emphasizes eigenvalues close to 3
+    >>> Q.shape
+    (3, 2)
     """
     # Check inputs
     assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
@@ -168,6 +198,23 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
         Orthogonal Matrix of shape (n, m) containing the basis of the Krylov space
     H : ndarray
         Hessenberg Matrix of shape (m, m) containing the projection of A on the Krylov space
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import rational_Arnoldi
+    >>> # Create a sparse matrix
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> x = np.array([1.0, 0.0, 0.0])
+    >>> # Use poles to emphasize specific spectral regions
+    >>> poles = [1.0, 2.0]
+    >>> Q, H = rational_Arnoldi(A, x, poles)
+    >>> Q.shape
+    (3, 3)
+    >>> # Verify orthogonality
+    >>> np.allclose(Q.T @ Q, np.eye(3))
+    True
     """
     # Check inputs
     assert isinstance(A, spmatrix), "A must be a scipy sparse matrix"
@@ -249,6 +296,22 @@ def block_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, n
         Matrix of shape (n,m*r) containing the basis of the Krylov space
     H : ndarray
         Matrix of shape (m*r,m*r) containing the Hessenberg matrix
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import block_Arnoldi
+    >>> # Create a matrix and block starting vector
+    >>> A = csr_matrix([[1, 2, 0, 0], [0, 3, 1, 0], [1, 0, 2, 1], [0, 1, 0, 3]])
+    >>> X = np.array([[1.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0]])
+    >>> # Build block Krylov space with m=2 blocks
+    >>> Q, H = block_Arnoldi(A, X, m=2)
+    >>> Q.shape
+    (4, 4)
+    >>> # Verify orthogonality
+    >>> np.allclose(Q.T @ Q, np.eye(4))
+    True
     """
     # Check inputs
     assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"

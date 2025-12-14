@@ -23,7 +23,7 @@ from scipy.spatial.distance import cdist
 from .givens import givens
 
 
-def sRRQR_rank(A, eta, k):
+def sRRQR_rank(A: np.ndarray, eta: float, k: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Strong Rank-Revealing QR factorization for real or complex matrices with a fixed rank 'k'.
 
@@ -40,12 +40,14 @@ def sRRQR_rank(A, eta, k):
     $$
     such that the entries of $R_{11}^{-1} R_{12}$ are bounded by a factor $eta$.
 
-    Args:
+    Parameters
+    ----------
         A (np.ndarray): The input matrix (m x n), real or complex.
         eta (float): A constant (>= 1) that bounds the entries of $R_{11}^{-1} R_{12}$.
         k (int): The prescribed rank, i.e., the dimension of the $R_{11}$ block.
 
-    Returns:
+    Returns
+    -------
         tuple[np.ndarray, np.ndarray, np.ndarray]:
             - Q (np.ndarray): Truncated orthogonal/unitary matrix $Q_1$ (m x k).
             - R (np.ndarray): Truncated upper triangular matrix $[R_{11}, R_{12}]$ (k x n).
@@ -183,7 +185,7 @@ def sRRQR_rank(A, eta, k):
 
     return Q[:, :k], R[:k, :], p
 
-def sRRQR_tol(A, eta, tol):
+def sRRQR_tol(A: np.ndarray, eta: float, tol: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Strong Rank-Revealing QR for real or complex matrices with a tolerance 'tol'.
 
@@ -191,12 +193,14 @@ def sRRQR_tol(A, eta, tol):
     It determines the rank `k` such that the spectral norms of the columns of
     the $R_{22}$ block are all less than `tol`.
 
-    Args:
+    Parameters
+    ----------
         A (np.ndarray): The input matrix (m x n), real or complex.
         eta (float): A constant (>= 1) that bounds the entries of $R_{11}^{-1} R_{12}$.
         tol (float): The error threshold for determining the rank.
 
-    Returns:
+    Returns
+    -------
         tuple[np.ndarray, np.ndarray, np.ndarray]:
             - Q (np.ndarray): Truncated orthogonal/unitary matrix $Q_1$ (m x k).
             - R (np.ndarray): Truncated upper triangular matrix $[R_{11}, R_{12}]$ (k x n).
@@ -309,19 +313,17 @@ def sRRQR_tol(A, eta, tol):
         if k == 0:
             break
 
-    # if not np.all(p == p_orig):
-    #     print("sRRQR_tol: Column interchange performed.")
-
     return Q[:, :k], R[:k, :], p
 
-def sRRQR(A, eta, mode, param):
+def sRRQR(A: np.ndarray, eta: float, mode: str, param: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Dispatcher for Strong Rank-Revealing QR factorization.
 
     This function automatically detects if the input matrix A is real or complex
     and calls the appropriate implementation.
 
-    Args:
+    Parameters
+    ----------
         A (np.ndarray): The input matrix (m x n), real or complex.
         eta (float): Bounding factor for $R_{11}^{-1} R_{12}$, must be >= 1.
         mode (str): Specifies the truncation criterion. Must be 'rank' or 'tol'.
@@ -329,14 +331,13 @@ def sRRQR(A, eta, mode, param):
                            - If mode is 'rank', `param` is the desired rank `k`.
                            - If mode is 'tol', `param` is the error tolerance.
 
-    Returns:
+    Returns
+    -------
         tuple[np.ndarray, np.ndarray, np.ndarray]:
             - Q (np.ndarray): Truncated unitary/orthogonal matrix $Q_1$.
             - R (np.ndarray): Truncated upper triangular matrix $[R_{11}, R_{12}]$.
             - p (np.ndarray): The column permutation vector.
     """
-    # if np.iscomplexobj(A):
-    #     raise NotImplementedError("Complex matrix support is not implemented for sRRQR.")
 
     if mode.lower() == 'rank':
         return sRRQR_rank(A, eta, param)

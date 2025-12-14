@@ -1,6 +1,11 @@
+"""Complex Givens rotation for QR factorization.
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 
-def givens(x, y):
+def givens(x: complex, y: complex) -> np.ndarray:
     """
     Computes the complex Givens rotation matrix for a 2-element complex vector [x, y].
 
@@ -16,11 +21,13 @@ def givens(x, y):
     Specifically, the parameters are calculated as c = conj(x)/r and s = conj(y)/r.
     This implementation is numerically stable, avoiding overflow for large inputs.
 
-    Args:
+    Parameters
+    ----------
         x (complex or float): The first element of the vector.
         y (complex or float): The second element of the vector.
 
-    Returns:
+    Returns
+    -------
         np.ndarray: A 2x2 complex unitary Givens rotation matrix.
     """
     # Ensure inputs are complex for subsequent calculations

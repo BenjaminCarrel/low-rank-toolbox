@@ -1,9 +1,7 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Inverted Krylov subspace construction.
 
-This module contains the definition of the InvertedKrylovSpace class.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
-
 
 # %% Imports
 import numpy as np
@@ -45,10 +43,22 @@ class InvertedKrylovSpace(KrylovSpace):
     --------
     >>> import numpy as np
     >>> from scipy.sparse import csr_matrix
-    >>> A = csr_matrix([[4, 1], [1, 3]])
-    >>> X = np.array([[1.0], [0.0]])
+    >>> from lowrank.krylov import InvertedKrylovSpace
+    >>> # Create a sparse matrix
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> X = np.array([[1.0], [0.0], [0.0]])
+    >>> # Build inverted Krylov space
     >>> IK = InvertedKrylovSpace(A, X)
-    >>> IK.augment_basis()  # Adds next basis vector
+    >>> # Start with A^(-1)*X
+    >>> IK.Q.shape
+    (3, 1)
+    >>> # Augment with A^(-2)*X
+    >>> IK.augment_basis()
+    >>> IK.Q.shape
+    (3, 2)
+    >>> # Basis is orthonormal
+    >>> np.allclose(IK.Q.T @ IK.Q, np.eye(2))
+    True
     """
 
     def __init__(self, A: spmatrix, X: ndarray, invA: callable = None, **extra_args) -> None:

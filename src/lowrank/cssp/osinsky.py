@@ -1,3 +1,8 @@
+"""Osinsky's quasi-optimal column subset selection algorithm.
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 from numpy import ndarray
 import scipy.linalg as la

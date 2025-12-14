@@ -1,3 +1,7 @@
+"""Generalized Nyström method for low-rank matrix approximation.
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
 
 import numpy as np
 from scipy.sparse.linalg import LinearOperator

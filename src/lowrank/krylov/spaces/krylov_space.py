@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Standard Krylov subspace construction and operations.
 
-This module contains the KrylovSpace class.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 #%% Imports
@@ -59,6 +58,25 @@ class KrylovSpace(SpaceStructure):
         Lanczos off-diagonal coefficients
     H : ndarray (non-symmetric only)
         Upper Hessenberg matrix from Arnoldi
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import KrylovSpace
+    >>> # Non-symmetric case (uses Arnoldi)
+    >>> A = csr_matrix([[1, 2, 0], [0, 3, 1], [1, 0, 2]])
+    >>> x = np.array([1.0, 0.0, 0.0])
+    >>> K = KrylovSpace(A, x, is_symmetric=False)
+    >>> K.augment_basis()  # Add next basis vector
+    >>> K.Q.shape
+    (3, 2)
+    >>> # Symmetric case (uses Lanczos - more efficient)
+    >>> A_sym = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> K_sym = KrylovSpace(A_sym, x, is_symmetric=True)
+    >>> K_sym.augment_basis()
+    >>> K_sym.Q.shape
+    (3, 2)
     """
 
     #%% INITIALIZATION

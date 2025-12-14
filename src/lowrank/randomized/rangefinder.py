@@ -1,7 +1,7 @@
-"""
-File for rangefinder related functions
 
-Author: Benjamin Carrel, University of Geneva
+"""Randomized rangefinder algorithms for range approximation.
+
+Author: Benjamin Carrel, University of Geneva, 2024
 """
 
 #%% Importations

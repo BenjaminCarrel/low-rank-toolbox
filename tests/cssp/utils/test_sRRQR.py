@@ -885,5 +885,261 @@ def test_sRRQR_tol_reproducibility():
     assert np.array_equal(p1, p2), "Permutation should be reproducible"
 
 
+# ===========================
+# TESTS FOR COLUMN INTERCHANGE LOGIC
+# ===========================
+
+def test_sRRQR_rank_column_interchange():
+    """Test sRRQR_rank with matrix that requires column interchanges."""
+    np.random.seed(100)
+    # Create a matrix where initial pivoting is not optimal
+    # Use a matrix with columns of varying norms to trigger swaps
+    m, n, k = 50, 40, 8
+    A = np.random.randn(m, n)
+    # Make some columns much larger to ensure interchange
+    A[:, 5:10] *= 10.0
+    A[:, 15:20] *= 0.1
+    
+    eta = 1.5  # Strict eta to force interchanges
+    
+    Q, R, p = sRRQR_rank(A, eta, k)
+    
+    # Check output dimensions
+    assert Q.shape == (m, k)
+    assert R.shape == (k, n)
+    assert len(p) == n
+    
+    # Verify QR decomposition (first k columns should match well)
+    A_perm = A[:, p]
+    reconstructed = Q @ R
+    error = np.linalg.norm(A_perm[:, :k] - reconstructed[:, :k], 'fro')
+    assert error < 1e-9, f"QR decomposition error {error} too large"
+    
+    # Check that permutation was applied (not identity)
+    assert not np.array_equal(p, np.arange(n)), "No column interchange occurred"
+
+
+def test_sRRQR_rank_violates_eta_condition():
+    """Test with matrix designed to violate eta condition."""
+    np.random.seed(101)
+    # Create matrix with specific structure to violate eta
+    m, n = 30, 25
+    k = 5
+    
+    # Create low-rank matrix with specific column ordering
+    U = np.random.randn(m, k)
+    V = np.random.randn(k, n)
+    # Scale columns unevenly
+    V[:, :k] *= 10.0
+    V[:, k:] *= 0.01
+    A = U @ V
+    
+    eta = 1.2  # Small eta to trigger violations
+    
+    Q, R, p = sRRQR_rank(A, eta, k)
+    
+    # Verify orthogonality
+    assert np.allclose(Q.T @ Q, np.eye(k), atol=1e-10)
+    
+    # Verify factorization for first k columns
+    A_perm = A[:, p]
+    assert np.allclose(Q @ R[:, :k], A_perm[:, :k], atol=1e-9)
+    
+    # Check R11 and R12 blocks
+    R11 = R[:k, :k]
+    R12 = R[:k, k:]
+    
+    # R11 should be well-conditioned
+    cond_R11 = np.linalg.cond(R11)
+    assert cond_R11 < 1e10, f"R11 is ill-conditioned: {cond_R11}"
+
+
+def test_sRRQR_rank_multiple_iterations():
+    """Test sRRQR_rank requiring multiple column swaps."""
+    np.random.seed(102)
+    m, n, k = 60, 50, 10
+    
+    # Create matrix with deliberately bad initial ordering
+    A = np.zeros((m, n))
+    for i in range(n):
+        # Reverse importance: first columns are weakest
+        A[:, i] = np.random.randn(m) * (0.1 if i < k else 10.0)
+    
+    eta = 1.5
+    Q, R, p = sRRQR_rank(A, eta, k)
+    
+    # Verify dimensions
+    assert Q.shape == (m, k)
+    assert R.shape == (k, n)
+    
+    # Verify orthogonality
+    assert np.allclose(Q.T @ Q, np.eye(k), atol=1e-10)
+    
+    # Permutation should significantly differ from identity
+    identity_perm = np.arange(n)
+    changes = np.sum(p != identity_perm)
+    assert changes >= k, f"Only {changes} columns swapped, expected at least {k}"
+
+
+def test_sRRQR_tol_rank_reduction():
+    """Test sRRQR_tol with rank reduction scenarios."""
+    np.random.seed(103)
+    # Create low-rank matrix with known structure
+    m, n, true_rank = 50, 40, 5
+    U = np.random.randn(m, true_rank)
+    V = np.random.randn(n, true_rank)
+    A = U @ V.T
+    
+    # Add small noise
+    A += 1e-10 * np.random.randn(m, n)
+    
+    eta = 2.0
+    tol = 1e-8  # Should detect rank ~5
+    
+    Q, R, p = sRRQR_tol(A, eta, tol)
+    
+    # Rank should be close to true_rank
+    assert Q.shape[1] <= true_rank + 2, f"Detected rank {Q.shape[1]} too large"
+    assert Q.shape[1] >= true_rank - 2, f"Detected rank {Q.shape[1]} too small"
+    
+    # Verify orthogonality
+    k_detected = Q.shape[1]
+    assert np.allclose(Q.T @ Q, np.eye(k_detected), atol=1e-10)
+
+
+def test_sRRQR_tol_iterative_rank_reduction():
+    """Test sRRQR_tol that reduces rank iteratively."""
+    np.random.seed(104)
+    # Create matrix with gradual singular value decay
+    m, n = 40, 35
+    U, _ = np.linalg.qr(np.random.randn(m, min(m, n)))
+    V, _ = np.linalg.qr(np.random.randn(n, min(m, n)))
+    
+    # Exponentially decaying singular values
+    s = np.exp(-np.arange(min(m, n)))
+    A = U @ np.diag(s) @ V.T
+    
+    eta = 2.0
+    tol = 0.1  # Should eliminate many singular values
+    
+    Q, R, p = sRRQR_tol(A, eta, tol)
+    
+    k = Q.shape[1]
+    assert k < min(m, n), "No rank reduction occurred"
+    assert k >= 1, "Rank reduced to zero"
+    
+    # Verify factorization quality
+    A_perm = A[:, p]
+    A_approx = Q @ R[:, :n]
+    relative_error = np.linalg.norm(A_perm - A_approx) / np.linalg.norm(A)
+    assert relative_error < 0.2, f"High approximation error: {relative_error}"
+
+
+def test_sRRQR_rank_complex_interchange():
+    """Test sRRQR_rank with complex matrices requiring interchange."""
+    np.random.seed(105)
+    m, n, k = 40, 30, 6
+    
+    # Complex matrix with varying column magnitudes
+    A = np.random.randn(m, n) + 1j * np.random.randn(m, n)
+    A[:, :5] *= 0.1
+    A[:, 10:15] *= 10.0
+    
+    eta = 1.8
+    Q, R, p = sRRQR_rank(A, eta, k)
+    
+    # Verify complex orthogonality
+    assert np.allclose(Q.conj().T @ Q, np.eye(k), atol=1e-10)
+    
+    # Verify factorization for first k columns
+    A_perm = A[:, p]
+    assert np.allclose(Q @ R[:, :k], A_perm[:, :k], atol=1e-9)
+    
+    # Diagonal of R should have positive real parts
+    for i in range(k):
+        assert np.real(R[i, i]) > 0, f"R[{i},{i}] has negative real part"
+
+
+def test_sRRQR_tol_near_singular():
+    """Test sRRQR_tol with nearly singular matrix."""
+    np.random.seed(106)
+    m, n = 35, 30
+    
+    # Create matrix with very small singular values
+    U, _ = np.linalg.qr(np.random.randn(m, min(m, n)))
+    V, _ = np.linalg.qr(np.random.randn(n, min(m, n)))
+    s = np.array([1, 0.1, 0.01, 1e-5, 1e-8] + [1e-10] * (min(m, n) - 5))
+    A = U @ np.diag(s) @ V.T
+    
+    eta = 2.0
+    tol = 1e-6
+    
+    Q, R, p = sRRQR_tol(A, eta, tol)
+    
+    # Should detect rank around 3-4
+    k = Q.shape[1]
+    assert 2 <= k <= 5, f"Detected rank {k} outside expected range [2, 5]"
+    
+    # Verify orthogonality
+    assert np.allclose(Q.T @ Q, np.eye(k), atol=1e-10)
+
+
+def test_sRRQR_dispatcher():
+    """Test sRRQR dispatcher function with different modes."""
+    np.random.seed(107)
+    m, n = 30, 25
+    A = np.random.randn(m, n)
+    eta = 2.0
+    
+    # Test 'rank' mode
+    k = 5
+    Q1, R1, p1 = sRRQR(A, eta, mode='rank', param=k)
+    Q2, R2, p2 = sRRQR_rank(A, eta, k)
+    assert np.allclose(Q1, Q2), "Dispatcher 'rank' mode failed"
+    assert np.allclose(R1, R2), "Dispatcher 'rank' mode failed"
+    
+    # Test 'tol' mode
+    tol = 1e-6
+    Q1, R1, p1 = sRRQR(A, eta, mode='tol', param=tol)
+    Q2, R2, p2 = sRRQR_tol(A, eta, tol)
+    assert np.allclose(Q1, Q2), "Dispatcher 'tol' mode failed"
+    assert np.allclose(R1, R2), "Dispatcher 'tol' mode failed"
+
+
+def test_sRRQR_edge_case_k_equals_1():
+    """Test sRRQR_rank with k=1 (edge case)."""
+    np.random.seed(108)
+    m, n = 20, 15
+    A = np.random.randn(m, n)
+    eta = 2.0
+    k = 1
+    
+    Q, R, p = sRRQR_rank(A, eta, k)
+    
+    assert Q.shape == (m, 1)
+    assert R.shape == (1, n)
+    assert len(p) == n
+    
+    # Verify orthogonality (single column should be unit norm)
+    assert np.allclose(np.linalg.norm(Q), 1.0)
+
+
+def test_sRRQR_edge_case_k_equals_min_dim():
+    """Test sRRQR_rank with k equal to min dimension."""
+    np.random.seed(109)
+    m, n = 25, 20
+    A = np.random.randn(m, n)
+    eta = 2.0
+    k = min(m, n)
+    
+    Q, R, p = sRRQR_rank(A, eta, k)
+    
+    assert Q.shape == (m, k)
+    assert R.shape == (k, n)
+    
+    # Should produce full QR factorization
+    assert np.allclose(Q.T @ Q, np.eye(k), atol=1e-10)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

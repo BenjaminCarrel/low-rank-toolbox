@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Krylov-based solvers for the Lyapunov equation.
 
-This module contains solvers for the Lyapunov equation.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 #%% Imports
@@ -72,6 +71,27 @@ def solve_sparse_low_rank_symmetric_lyapunov(A: spmatrix,
     -------
     QuasiSVD
         Symmetric low-rank solution X
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank import LowRankMatrix
+    >>> from lowrank.krylov import solve_sparse_low_rank_symmetric_lyapunov
+    >>> # Create a symmetric sparse matrix
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> # Create a symmetric low-rank right-hand side
+    >>> U = np.array([[1.0], [0.0], [0.0]])
+    >>> C = LowRankMatrix(U, U.T)  # Rank-1 symmetric matrix
+    >>> # Solve AX + XA = C
+    >>> X = solve_sparse_low_rank_symmetric_lyapunov(A, C, tol=1e-10)
+    >>> # Verify the solution
+    >>> residual = A @ X + X @ A - C
+    >>> residual.norm() < 1e-9
+    True
+    >>> # X is also symmetric and low-rank
+    >>> X.is_symmetric()
+    True
     """
     # Check inputs
     assert isinstance(A, spmatrix), "A must be a sparse matrix"
@@ -331,6 +351,30 @@ def solve_lyapunov(A: ndarray | spmatrix,
     -------
     ndarray | LowRankMatrix
         The solution X, either dense or low-rank and symmetric if and only if C is symmetric.
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank import LowRankMatrix
+    >>> from lowrank.krylov import solve_lyapunov
+    >>> # Small dense case
+    >>> A_small = np.array([[4, 1], [1, 3]])
+    >>> C_small = np.array([[1, 0], [0, 1]])
+    >>> X_small = solve_lyapunov(A_small, C_small)
+    >>> # Verify: AX + XA = C
+    >>> np.allclose(A_small @ X_small + X_small @ A_small, C_small)
+    True
+    >>> # Large sparse case with low-rank RHS
+    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> U = np.array([[1.0], [0.0], [0.0]])
+    >>> C = LowRankMatrix(U, U.T)
+    >>> X = solve_lyapunov(A, C, is_symmetric=True, tol=1e-10)
+    >>> # Solution is low-rank and symmetric
+    >>> type(X).__name__
+    'SVD'
+    >>> X.rank <= 10  # Much lower rank than n
+    True
     """
     # Check Krylov kwargs
     if krylov_kwargs is None:

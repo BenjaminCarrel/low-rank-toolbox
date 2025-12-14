@@ -1,3 +1,8 @@
+"""QR-based Discrete Empirical Interpolation Method (QDEIM).
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 from numpy import ndarray
 import scipy.linalg as la

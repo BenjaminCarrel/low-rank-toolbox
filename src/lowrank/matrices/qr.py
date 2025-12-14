@@ -1,9 +1,9 @@
-# Authors: Benjamin Carrel and Rik Vorhaar
-#          University of Geneva, 2022
-# File for QR low-rank matrix class and functions
-# Path: low_rank_toolbox/matrices/qr.py
+"""QR low-rank matrix class and functions.
 
-# Imports
+Authors: Benjamin Carrel and Rik Vorhaar
+         University of Geneva, 2022-2025
+"""
+
 from __future__ import annotations
 from .low_rank_matrix import LowRankMatrix, LowRankEfficiencyWarning, MemoryEfficiencyWarning
 from ._qr_config import AUTOMATIC_TRUNCATION, DEFAULT_ATOL, DEFAULT_RTOL
