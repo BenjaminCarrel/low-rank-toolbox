@@ -35,10 +35,36 @@ Homepage = "https://github.com/BenjaminCarrel/low-rank-toolbox"
 [dependency-groups]
 dev = [
     "pytest>=8.3.5",
+    "pytest-cov>=5.0.0",
 ]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 filterwarnings = [
     "ignore::lowrank.matrices.low_rank_matrix.LowRankEfficiencyWarning",
     "ignore::lowrank.matrices.low_rank_matrix.MemoryEfficiencyWarning",
 ]
+
+[tool.coverage.run]
+source = ["src/lowrank"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+]
+precision = 2
+show_missing = true

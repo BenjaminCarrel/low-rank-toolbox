@@ -1,7 +1,8 @@
-# Authors: Benjamin Carrel and Rik Vorhaar
-#          University of Geneva, initiated in 2022
-# File for SVD low-rank matrix class and functions
-# Path: src/lowrank/matrices/svd.py
+"""SVD low-rank matrix class and functions.
+
+Authors: Benjamin Carrel and Rik Vorhaar
+         University of Geneva, 2022-2025
+"""
 
 #%% Imports
 from __future__ import annotations

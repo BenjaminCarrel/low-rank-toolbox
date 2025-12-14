@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Standard Krylov subspace construction and operations.
 
-This module contains the KrylovSpace class.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 #%% Imports
@@ -21,6 +20,17 @@ class KrylovSpace(SpaceStructure):
     The definition of a Krylov space of size $m$ is the following:
         K_m(A,x) = span{x, A x, A^2 x, ..., A^(m-1) x}
     where $A$ is a sparse matrix, and $x$ is a vector or a matrix.
+    
+    **Algorithm Selection:**
+    - If A is symmetric (is_symmetric=True): Uses Lanczos algorithm with 3-term recurrence
+      - Stores tridiagonal coefficients (alpha, beta) in O(m) space
+      - Orthogonalization cost: O(n*r) per iteration
+    - If A is non-symmetric (is_symmetric=False): Uses Arnoldi algorithm with full orthogonalization
+      - Stores upper Hessenberg matrix H in O(m²) space
+      - Orthogonalization cost: O(n*m*r) per iteration
+    
+    **Performance:** For symmetric problems, Lanczos is faster and uses significantly 
+    less memory than Arnoldi.
 
     How to use
     ----------
@@ -36,12 +46,37 @@ class KrylovSpace(SpaceStructure):
         Vector of shape (n,1) or (n,r)
     m : int
         Size of the Krylov space
-    symmetric : bool
-        True if A is symmetric, False otherwise
+    is_symmetric : bool
+        True if A is symmetric (uses Lanczos), False otherwise (uses Arnoldi)
     Q : ndarray
         Matrix of shape (n,m) or (n,m*r) containing the basis of the Krylov space
     basis : ndarray
         Pointer to Q
+    _alpha : ndarray (symmetric only)
+        Lanczos diagonal coefficients
+    _beta : ndarray (symmetric only)
+        Lanczos off-diagonal coefficients
+    H : ndarray (non-symmetric only)
+        Upper Hessenberg matrix from Arnoldi
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> from lowrank.krylov import KrylovSpace
+    >>> # Non-symmetric case (uses Arnoldi)
+    >>> A = csr_matrix([[1, 2, 0], [0, 3, 1], [1, 0, 2]])
+    >>> x = np.array([1.0, 0.0, 0.0])
+    >>> K = KrylovSpace(A, x, is_symmetric=False)
+    >>> K.augment_basis()  # Add next basis vector
+    >>> K.Q.shape
+    (3, 2)
+    >>> # Symmetric case (uses Lanczos - more efficient)
+    >>> A_sym = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
+    >>> K_sym = KrylovSpace(A_sym, x, is_symmetric=True)
+    >>> K_sym.augment_basis()
+    >>> K_sym.Q.shape
+    (3, 2)
     """
 
     #%% INITIALIZATION
@@ -61,7 +96,8 @@ class KrylovSpace(SpaceStructure):
         Extra arguments
         ---------------
         is_symmetric : bool
-            True if A is symmetric, False otherwise
+            True if A is symmetric (uses Lanczos), False otherwise (uses Arnoldi).
+            Lanczos is much cheaper for symmetric problems.
         matvec: callable
             Function for the matrix-vector product
         """
@@ -84,30 +120,44 @@ class KrylovSpace(SpaceStructure):
             self.Q, self.H = la.qr(X, mode="reduced")
         self.Q = np.array(self.Q, dtype=self.dtype)
 
-        # # Symmetric case -> Lanczos algorithm
-        # if self.is_symmetric:
-        #     self._alpha = np.empty(self.n, dtype=object)
-        #     self._beta = np.empty(self.n, dtype=object)
-        #     self.Q, self._beta[0] = la.qr(X, mode="reduced")
-        # # Non symmetric case -> Arnoldi algorithm
-        # else:
-        #     self.Q, self.H = la.qr(X, mode="reduced")
-
     #%% PROPERTIES
     @property
     def basis(self):
+        """The orthonormal basis of the Krylov space.
+        
+        Returns
+        -------
+        ndarray
+            Matrix of shape (n, m*r) containing the basis vectors.
+        """
         return self.Q
 
     @property
     def size(self):
+        """The size of the Krylov space.
+        
+        Returns
+        -------
+        int
+            The number of basis vectors (m * r).
+        """
         return self.m * self.r
 
     #%% AUGMENT BASIS
     def augment_basis(self) -> None:
-        """
-        Augment the basis of the space.
-        If A is symmetric, the Arnoldi algorithm is used.
-        If A is not symmetric, the Lanczos algorithm is used.
+        """Augment the basis of the Krylov space.
+        
+        Adds the next block of r basis vectors to the Krylov space using:
+        - Lanczos algorithm if A is symmetric
+        - Arnoldi algorithm if A is non-symmetric
+        
+        The new basis vectors are computed as A * Q[:, (m-1)*r:m*r] and then
+        orthogonalized against the existing basis.
+        
+        Notes
+        -----
+        If the next basis would exceed the dimension of the matrix, a warning
+        is issued and the method returns without modifying the basis.
         """
         # Check the next size does not exceed the dimension of the matrix
         if self.n < self.r * (self.m + 1):
@@ -135,27 +185,5 @@ class KrylovSpace(SpaceStructure):
         # Non-symmetric case (scipy's qr_insert)
         else:
             self.Q, self.H = sla.qr_insert(self.Q, self.H, AQ, (m - 1) * r, which="col")
-
-        # # Symmetric case (Lanczos)
-        # if self.is_symmetric:
-        #     self._alpha[m-1] = Q[:, (m - 2) * r : (m - 1) * r].T.dot(Wm)
-        #     Wm -= Q[:, (m - 2) * r : (m - 1) * r].dot(self._alpha[m-1])
-        #     if m > 2:
-        #         Wm -= Q[:, (m - 3) * r : (m - 2) * r].dot(self._beta[m-2].T)
-        #     Q[:, (m - 1) * r : m * r], self._beta[m-1] = la.qr(Wm, mode="reduced")
-
-        # # Non-symmetric case (Arnoldi)
-        # else:
-        #     H = np.empty(m, dtype=object)
-        #     for i in np.arange(m-1):
-        #         H[i] = Q[:, i * r : (i + 1) * r].T.dot(Wm)
-        #         Wm -= Q[:, i * r : (i + 1) * r].dot(H[i])
-        #     Q[:, (m - 1) * r : m * r], H[m-1] = la.qr(Wm, mode="reduced")
-        #     self.H = H
-
-        # # Update the basis
-        # self.Q = Q
-
-
     
 

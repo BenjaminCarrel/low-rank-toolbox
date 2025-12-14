@@ -168,6 +168,36 @@ def test_is_symmetric():
     assert not X_nonsym.is_symmetric(), "Non-square matrix cannot be symmetric"
 
 
+def test_K_L_properties(simple_quasisvd, rectangular_quasisvd, complex_quasisvd):
+    """Test K and L properties."""
+    # Test with simple QuasiSVD
+    X_simple, _ = simple_quasisvd
+    K_simple = X_simple.K
+    L_simple = X_simple.L
+    assert K_simple.shape == (X_simple.shape[0], X_simple.S.shape[1]), "Incorrect shape for K (simple)"
+    assert L_simple.shape == (X_simple.shape[1], X_simple.S.shape[0]), "Incorrect shape for L (simple)"
+    assert np.allclose(K_simple, X_simple.U @ X_simple.S), "K property is not U @ S"
+    assert np.allclose(L_simple, X_simple.V @ X_simple.S.T), "L property is not V @ S.T"
+
+    # Test with rectangular S matrix
+    X_rect, _ = rectangular_quasisvd
+    K_rect = X_rect.K
+    L_rect = X_rect.L
+    assert K_rect.shape == (15, 3), "Incorrect shape for K (rectangular)"
+    assert L_rect.shape == (10, 5), "Incorrect shape for L (rectangular)"
+    assert np.allclose(K_rect, X_rect.U @ X_rect.S), "K property is not U @ S (rectangular)"
+    assert np.allclose(L_rect, X_rect.V @ X_rect.S.T), "L property is not V @ S.T (rectangular)"
+
+    # Test with complex QuasiSVD
+    X_complex, _ = complex_quasisvd
+    K_complex = X_complex.K
+    L_complex = X_complex.L
+    assert K_complex.shape == (10, 3), "Incorrect shape for K (complex)"
+    assert L_complex.shape == (8, 3), "Incorrect shape for L (complex)"
+    assert np.allclose(K_complex, X_complex.U @ X_complex.S), "K property is not U @ S (complex)"
+    assert np.allclose(L_complex, X_complex.V @ X_complex.S.T), "L property is not V @ S.T (complex)"
+
+
 def test_is_singular():
     """Test singularity check."""
     np.random.seed(222)
@@ -826,8 +856,8 @@ def test_project_onto_interpolated_tangent_space():
     assert isinstance(result_online_qdeim, QuasiSVD), "Should return QuasiSVD"
     
     # TEST: Offline mode
-    p_u, M_u = DEIM(X.U, compute_M=True)
-    p_v, M_v = DEIM(X.V, compute_M=True)
+    p_u, M_u = DEIM(X.U, return_projector=True)
+    p_v, M_v = DEIM(X.V, return_projector=True)
     Y_full = Y.full()
     Y_u = Y_full[p_u, :]
     Y_v = Y_full[:, p_v]
@@ -1906,3 +1936,431 @@ def test_complex_projection_row_space():
     assert np.allclose(result, expected), "Complex row space projection failed"
 
 
+# ===========================
+# NEW TESTS FOR COVERAGE GAPS
+# ===========================
+
+def test_numerical_rank():
+    """Test numerical_rank property."""
+    np.random.seed(200)
+    m, n, r = 20, 15, 5
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    
+    # Create S with some small singular values
+    s = np.array([10, 5, 1, 0.1, 1e-10])
+    S = np.diag(s)
+    
+    X = QuasiSVD(U, S, V)
+    
+    # numerical_rank is a property, not a method
+    num_rank = X.numerical_rank
+    assert 3 <= num_rank <= 5, f"Numerical rank {num_rank} unexpected"
+    
+    # numerical_rank is computed with default tolerance
+
+
+def test_is_symmetric_true():
+    """Test is_symmetric for symmetric matrices."""
+    np.random.seed(201)
+    n, r = 15, 4
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    s = np.random.rand(r) + 1
+    S = np.diag(s)
+    
+    # Symmetric: V @ S @ V.T
+    X = QuasiSVD(V, S, V)
+    
+    assert X.is_symmetric(), "Should be symmetric"
+
+
+def test_is_symmetric_false():
+    """Test is_symmetric for non-symmetric matrices."""
+    np.random.seed(202)
+    m, n, r = 20, 15, 4
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    
+    assert not X.is_symmetric(), "Should not be symmetric"
+
+
+def test_hadamard_with_dense():
+    """Test Hadamard (element-wise) multiplication with dense matrix."""
+    np.random.seed(203)
+    m, n, r = 10, 8, 3
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    X_full = X.full()
+    
+    # Dense matrix for Hadamard product
+    Y = np.random.randn(m, n)
+    
+    result = X.hadamard(Y, auto_truncate=False)
+    expected = X_full * Y
+    
+    # Result may be dense array
+    if hasattr(result, 'full'):
+        result_full = result.full()
+    else:
+        result_full = result
+    assert np.allclose(result_full, expected, atol=1e-10), "Hadamard product failed"
+
+
+def test_hadamard_with_quasisvd():
+    """Test Hadamard multiplication between two QuasiSVD matrices."""
+    np.random.seed(204)
+    m, n, r = 10, 8, 3
+    U1, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V1, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S1 = np.random.randn(r, r)
+    X1 = QuasiSVD(U1, S1, V1)
+    
+    U2, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V2, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S2 = np.random.randn(r, r)
+    X2 = QuasiSVD(U2, S2, V2)
+    
+    result = X1.hadamard(X2, auto_truncate=False)
+    expected = X1.full() * X2.full()
+    
+    assert np.allclose(result.full(), expected, atol=1e-9), "Hadamard between QuasiSVDs failed"
+
+
+def test_multi_add_basic():
+    """Test QuasiSVD.multi_add class method."""
+    np.random.seed(205)
+    m, n, r = 12, 10, 3
+    
+    # Create multiple QuasiSVD matrices
+    matrices = []
+    full_matrices = []
+    for i in range(3):
+        U, _ = la.qr(np.random.randn(m, r), mode='economic')
+        V, _ = la.qr(np.random.randn(n, r), mode='economic')
+        S = np.random.randn(r, r)
+        X = QuasiSVD(U, S, V)
+        matrices.append(X)
+        full_matrices.append(X.full())
+    
+    # Test multi_add
+    result = QuasiSVD.multi_add(matrices, auto_truncate=False)
+    expected = sum(full_matrices)
+    
+    assert np.allclose(result.full(), expected, atol=1e-10), "multi_add failed"
+    assert result.rank == 3 * r, f"Expected rank {3*r}, got {result.rank}"
+
+
+def test_multi_add_with_weights():
+    """Test QuasiSVD.multi_add with weights."""
+    np.random.seed(206)
+    m, n, r = 12, 10, 3
+    
+    matrices = []
+    weights = [2.0, -1.5, 0.5]
+    expected = None
+    
+    for i, w in enumerate(weights):
+        U, _ = la.qr(np.random.randn(m, r), mode='economic')
+        V, _ = la.qr(np.random.randn(n, r), mode='economic')
+        S = np.random.randn(r, r)
+        X = QuasiSVD(U, S, V)
+        matrices.append(X)
+        
+        if expected is None:
+            expected = w * X.full()
+        else:
+            expected += w * X.full()
+    
+    # Apply weights manually since multi_add doesn't have weights parameter
+    weighted_matrices = [w * mat for w, mat in zip(weights, matrices)]
+    result = QuasiSVD.multi_add(weighted_matrices, auto_truncate=False)
+    
+    assert np.allclose(result.full(), expected, atol=1e-10), "multi_add with weights failed"
+
+
+def test_multi_add_auto_truncate():
+    """Test multi_add with automatic truncation."""
+    np.random.seed(207)
+    m, n, r = 15, 12, 4
+    
+    # Create matrices that when added produce low numerical rank
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S1 = np.diag([10, 5, 1, 0.1])
+    S2 = np.diag([10, 5, 1, 1e-10])
+    
+    X1 = QuasiSVD(U, S1, V)
+    X2 = QuasiSVD(U, S2, V)
+    
+    # Add with truncation
+    result = QuasiSVD.multi_add([X1, -X2], auto_truncate=True, rtol=1e-8)
+    
+    # Result should have reduced rank
+    assert result.rank < 2 * r, f"Truncation didn't reduce rank: {result.rank}"
+
+
+def test_multi_dot_basic():
+    """Test QuasiSVD.multi_dot class method."""
+    np.random.seed(208)
+    
+    # Create chain of matrices for multiplication
+    matrices = []
+    m, n = 20, 20
+    for i in range(3):
+        r = 4
+        U, _ = la.qr(np.random.randn(m, r), mode='economic')
+        V, _ = la.qr(np.random.randn(n, r), mode='economic')
+        S = np.random.randn(r, r)
+        X = QuasiSVD(U, S, V)
+        matrices.append(X)
+    
+    # Compute multi_dot
+    result = QuasiSVD.multi_dot(matrices)
+    
+    # Compute expected via sequential multiplication
+    expected = matrices[0].full() @ matrices[1].full() @ matrices[2].full()
+    
+    assert np.allclose(result.full(), expected, atol=1e-9), "multi_dot failed"
+
+
+def test_multi_dot_different_sizes():
+    """Test multi_dot with matrices of different sizes."""
+    np.random.seed(209)
+    
+    # Create compatible matrices
+    U1, _ = la.qr(np.random.randn(20, 5), mode='economic')
+    V1, _ = la.qr(np.random.randn(15, 5), mode='economic')
+    S1 = np.random.randn(5, 5)
+    X1 = QuasiSVD(U1, S1, V1)  # 20x15
+    
+    U2, _ = la.qr(np.random.randn(15, 4), mode='economic')
+    V2, _ = la.qr(np.random.randn(10, 4), mode='economic')
+    S2 = np.random.randn(4, 4)
+    X2 = QuasiSVD(U2, S2, V2)  # 15x10
+    
+    result = QuasiSVD.multi_dot([X1, X2])
+    expected = X1.full() @ X2.full()
+    
+    assert result.shape == (20, 10), f"Wrong shape: {result.shape}"
+    assert np.allclose(result.full(), expected, atol=1e-9), "multi_dot with different sizes failed"
+
+
+def test_generalized_nystroem():
+    """Test generalized_nystroem - use from randomized module."""
+    np.random.seed(210)
+    # Create a low-rank matrix
+    m, n, true_rank = 50, 40, 5
+    U_true, _ = la.qr(np.random.randn(m, true_rank), mode='economic')
+    V_true, _ = la.qr(np.random.randn(n, true_rank), mode='economic')
+    S_true = np.diag(np.random.rand(true_rank) + 1)
+    
+    A = U_true @ S_true @ V_true.T
+    
+    # generalized_nystroem is in randomized module
+    try:
+        from lowrank.randomized import generalized_nystrom
+        r = 8
+        X_approx = generalized_nystrom(A, r)
+    except ImportError:
+        # Skip if not available
+        pytest.skip("generalized_nystrom not available")
+        return
+    
+    assert X_approx.shape == (m, n), "Wrong shape"
+    assert X_approx.rank <= r, f"Rank {X_approx.rank} exceeds r={r}"
+    
+    # Check approximation quality
+    error = np.linalg.norm(A - X_approx.full()) / np.linalg.norm(A)
+    assert error < 0.2, f"High approximation error: {error}"
+
+
+def test_cond_estimate():
+    """Test condition number estimate."""
+    np.random.seed(211)
+    m, n, r = 20, 15, 5
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    
+    # Well-conditioned S
+    S = np.diag([10, 8, 6, 4, 2])
+    X = QuasiSVD(U, S, V)
+    cond = X.cond_estimate()
+    assert 4 < cond < 6, f"Condition estimate {cond} unexpected"
+    
+    # Ill-conditioned S
+    S_bad = np.diag([100, 10, 1, 0.1, 0.01])
+    X_bad = QuasiSVD(U, S_bad, V)
+    cond_bad = X_bad.cond_estimate()
+    assert cond_bad > 1000, f"Should be ill-conditioned: {cond_bad}"
+
+
+def test_svd_type_property():
+    """Test svd_type property for different S configurations."""
+    np.random.seed(212)
+    m, n, r = 15, 12, 4
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    
+    # Diagonal S
+    S_diag = np.diag([5, 3, 1, 0.5])
+    X_diag = QuasiSVD(U, S_diag, V)
+    # svd_type is a property, not a method
+    svd_type = X_diag.svd_type
+    # May be 'truncated', 'reduced', or 'full' depending on dimensions
+    assert svd_type in ['truncated', 'reduced', 'full', 'unconventional'], f"Unexpected type: {svd_type}"
+    
+    # Non-diagonal S
+    S_full = np.random.randn(r, r)
+    X_full = QuasiSVD(U, S_full, V)
+    assert X_full.svd_type == 'truncated', f"Expected 'truncated', got '{X_full.svd_type}'"
+    
+    # Nearly diagonal S
+    S_near = np.diag([5, 3, 1, 0.5]) + 1e-12 * np.random.randn(r, r)
+    X_near = QuasiSVD(U, S_near, V)
+    svd_type = X_near.svd_type
+    assert svd_type in ['truncated', 'reduced', 'full', 'unconventional'], f"Unexpected type: {svd_type}"
+
+
+def test_truncate_with_atol():
+    """Test truncate with absolute tolerance."""
+    np.random.seed(213)
+    m, n, r = 20, 15, 5
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.diag([10, 5, 1, 0.1, 0.01])
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Truncate with atol
+    X_trunc = X.truncate(atol=0.5)
+    
+    # Should keep singular values >= 0.5
+    assert X_trunc.rank <= 3, f"Rank {X_trunc.rank} too high"
+    assert X_trunc.rank >= 2, f"Rank {X_trunc.rank} too low"
+
+
+def test_truncate_with_rtol():
+    """Test truncate with relative tolerance."""
+    np.random.seed(214)
+    m, n, r = 20, 15, 5
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.diag([100, 10, 1, 0.1, 0.001])
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Truncate with rtol
+    X_trunc = X.truncate(rtol=0.05)  # 5% of max singular value
+    
+    # Should keep singular values >= 5
+    assert X_trunc.rank == 2, f"Expected rank 2, got {X_trunc.rank}"
+
+
+def test_truncate_with_fixed_rank():
+    """Test truncate with fixed rank parameter."""
+    np.random.seed(215)
+    m, n, r = 20, 15, 5
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.diag([10, 5, 3, 1, 0.5])
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Truncate to rank 3
+    X_trunc = X.truncate(r=3)
+    
+    assert X_trunc.rank == 3, f"Expected rank 3, got {X_trunc.rank}"
+    
+    # Verify it keeps the largest singular values (converted to SVD)
+    from lowrank import SVD
+    if isinstance(X_trunc, SVD):
+        assert np.allclose(X_trunc.s, [10, 5, 3], atol=1e-10)
+    else:
+        assert np.allclose(X_trunc.sing_vals, [10, 5, 3], atol=1e-10)
+
+
+def test_K_L_properties_computation():
+    """Test K and L properties are computed correctly."""
+    np.random.seed(216)
+    m, n, r = 15, 12, 4
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.random.randn(r, r)
+    
+    X = QuasiSVD(U, S, V)
+    
+    # K should be U @ S
+    K_expected = U @ S
+    assert np.allclose(X.K, K_expected), "K property incorrect"
+    
+    # L should be V @ S.T
+    L_expected = V @ S.T
+    assert np.allclose(X.L, L_expected), "L property incorrect"
+
+
+def test_norm_nuclear():
+    """Test nuclear norm computation."""
+    np.random.seed(217)
+    m, n, r = 20, 15, 4
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.diag([10, 5, 2, 1])
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Nuclear norm is sum of singular values  
+    nuc_norm = X.norm('nuc')  # Use 'nuc' not 'nuclear'
+    expected = 10 + 5 + 2 + 1
+    
+    assert np.isclose(nuc_norm, expected, rtol=1e-10), f"Nuclear norm {nuc_norm} != {expected}"
+
+
+def test_norm_spectral():
+    """Test spectral (2-norm) computation."""
+    np.random.seed(218)
+    m, n, r = 20, 15, 4
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    S = np.diag([10, 5, 2, 1])
+    
+    X = QuasiSVD(U, S, V)
+    
+    # Spectral norm is largest singular value
+    spec_norm = X.norm(2)
+    expected = 10
+    
+    assert np.isclose(spec_norm, expected, rtol=1e-10), f"Spectral norm {spec_norm} != {expected}"
+
+
+def test_is_singular_true():
+    """Test is_singular for singular S matrix."""
+    np.random.seed(219)
+    m, n, r = 15, 12, 4
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    
+    # Singular S (zero singular value)
+    S = np.diag([10, 5, 2, 0])
+    X = QuasiSVD(U, S, V)
+    
+    assert X.is_singular(), "Should be singular"
+
+
+def test_is_singular_false():
+    """Test is_singular for non-singular S matrix."""
+    np.random.seed(220)
+    m, n, r = 15, 12, 4
+    U, _ = la.qr(np.random.randn(m, r), mode='economic')
+    V, _ = la.qr(np.random.randn(n, r), mode='economic')
+    
+    # Non-singular S
+    S = np.diag([10, 5, 2, 1])
+    X = QuasiSVD(U, S, V)
+    
+    assert not X.is_singular(), "Should not be singular"

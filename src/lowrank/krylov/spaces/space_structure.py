@@ -1,7 +1,6 @@
-"""
-Author: Benjamin Carrel, University of Geneva, 2022
+"""Base class for space structures.
 
-This module contains the definition of the SpaceStructure class.
+Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 # %% Imports
@@ -53,6 +52,9 @@ class SpaceStructure:
         self.n, self.r = X.shape
         self.m = 1
         self.k = self.m
+        
+        # Set max_iter from extra_args or default to n (max possible iterations)
+        self.max_iter = extra_args.get('max_iter', self.n)
 
         # Check for symmetry
         if 'is_symmetric' in extra_args:
@@ -69,47 +71,111 @@ class SpaceStructure:
     #%% PROPERTIES
     @property
     def size(self) -> int:
-        """The size of the space. Overload this method in the child class."""
+        """The size of the space.
+        
+        This property should be overloaded in child classes.
+        
+        Returns
+        -------
+        int
+            The size of the space.
+        """
         return NotImplementedError("The size method is not implemented in the parent class.")
 
     @property
     def reduced_A(self) -> ndarray:
-        """The reduced matrix A."""
+        """The reduced matrix A.
+        
+        Computes Q^T A Q where Q is the basis of the space.
+        
+        Returns
+        -------
+        ndarray
+            The reduced matrix of shape (size, size).
+        """
         return self.basis.T.dot(self.A.dot(self.basis))
 
     @property
     def Am(self) -> ndarray:
-        """Shortcut for the reduced matrix A."""
+        """Shortcut for the reduced matrix A.
+        
+        Returns
+        -------
+        ndarray
+            The reduced matrix (same as reduced_A).
+        """
         return self.reduced_A
     
     @property
     def Ak(self) -> ndarray:
-        """Shortcut for the reduced matrix A."""
+        """Shortcut for the reduced matrix A.
+        
+        Returns
+        -------
+        ndarray
+            The reduced matrix (same as reduced_A).
+        """
         return self.reduced_A
     
     # %% CLASS METHODS
     @classmethod
     def check_inputs(cls, A, X):
-        assert isinstance(A, spmatrix), "A must be a sparse matrix"
-        assert isinstance(X, ndarray), "X must be a numpy array"
+        """Validate input parameters.
+        
+        Parameters
+        ----------
+        A : spmatrix
+            The matrix to validate
+        X : ndarray
+            The vector/matrix to validate
+            
+        Raises
+        ------
+        TypeError
+            If A is not a sparse matrix or X is not a numpy array
+        ValueError
+            If A is not square, dimensions don't match, or data contains NaN/Inf
+        """
+        if not isinstance(A, spmatrix):
+            raise TypeError("A must be a sparse matrix")
+        if not isinstance(X, ndarray):
+            raise TypeError("X must be a numpy array")
         if A.shape[0] != A.shape[1]:
             raise ValueError("A must be a square matrix")
         if A.shape[0] != X.shape[0]:
             raise ValueError("A and X must have the same number of rows")
-        pass
+        if np.any(np.isnan(X)) or np.any(np.isinf(X)):
+            raise ValueError("X contains NaN or Inf values")
+        if np.any(np.isnan(A.data)) or np.any(np.isinf(A.data)):
+            raise ValueError("A contains NaN or Inf values")
 
     # %% Methods to be overloaded in the child class
     @property
     def basis(self) -> ndarray:
-        """The basis of the space. Overload this property in the child class."""
+        """The basis of the space.
+        
+        This property should be overloaded in child classes.
+        
+        Returns
+        -------
+        ndarray
+            The basis matrix of shape (n, size).
+        """
         return NotImplementedError("The basis property is not implemented in the parent class.")
 
     def augment_basis(self):
-        """Augment the space with a new basis. Overload this method in the child class."""
+        """Augment the space with a new basis vector.
+        
+        This method should be overloaded in child classes to add the next basis
+        vector to the space.
+        """
         return NotImplementedError("The augment method is not implemented in the parent class.")
     
     def compute_all(self):
-        """Compute all the basis vectors. Overload this method in the child class."""
+        """Compute all the basis vectors.
+        
+        Repeatedly calls augment_basis until max_iter iterations are reached.
+        """
         # Use the augment_basis method max_iter times
         for _ in range(self.max_iter):
             self.augment_basis()

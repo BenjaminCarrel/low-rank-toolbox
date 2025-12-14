@@ -1,7 +1,18 @@
+"""Gappy POD with Residual constraint (GPOD+R).
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import scipy.linalg as la
 
 
-def gpodr(U, oversampling_size:int = None, tol: float = None, max_iter: int = None, compute_M: bool = False, **extra_args):
+def gpodr(U, 
+          oversampling_size: int = None, 
+          tol: float = None, 
+          max_iter: int = None, 
+          return_projector: bool = False, 
+          return_inverse: bool = False,
+          **extra_args):
     """
     Gappy POD+R - QDEIM and randomized oversampling.
 
@@ -21,19 +32,29 @@ def gpodr(U, oversampling_size:int = None, tol: float = None, max_iter: int = No
         Oversampling size 
     tol: float
         Tolerance for the quantity sigma_{min}(U[p, :])^{-1}
-    compute_M: bool
+    return_projector: bool
         If True, return also the matrix U @ pinv(U[p, :])
-
+    return_inverse: bool
+        If True, return also the inverse of U[p, :]
+    extra_args: dict
+        Additional arguments: 
+            qr_kwargs: dict
+                Additional arguments for the QR factorization
+            lstsq_kwargs: dict
+                Additional arguments for the lstsq function
+    
     Returns
     -------
     p: list
         Selection of m row indices
-    M: ndarray (optional)
+    P_U: ndarray (n x k) (optional)
         Matrix U @ pinv(U[p, :])
+    inv_U: ndarray (k x k) (optional)
+        Inverse of U[p, :]
     """
     # QDEIM
     n, k = U.shape
-    _, _, P = la.qr(U.T.conj(), pivoting=True)
+    _, _, P = la.qr(U.T.conj(), pivoting=True, **extra_args.get('qr_kwargs', {}))
     p = P[0:k]
     # With tol
     if tol is not None:
@@ -53,8 +74,12 @@ def gpodr(U, oversampling_size:int = None, tol: float = None, max_iter: int = No
         if oversampling_size is None:
             oversampling_size = k # Default value
         p = P[0:k+oversampling_size]
-    if compute_M:
-        M = la.lstsq(U[p, :].T.conj(), U.T.conj())[0].T.conj()
-        return p, M
+    if return_projector:
+        P_U = la.lstsq(U[p, :].T.conj(), U.T.conj(), **extra_args.get('lstsq_kwargs', {}))[0].T.conj()
+        if return_inverse:
+            inv_U = U.T.conj().dot(P_U)
+            return p, P_U, inv_U
+        else:
+            return p, P_U
     else:
         return p

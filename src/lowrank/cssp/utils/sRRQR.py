@@ -23,7 +23,7 @@ from scipy.spatial.distance import cdist
 from .givens import givens
 
 
-def sRRQR_rank(A, f, k):
+def sRRQR_rank(A: np.ndarray, eta: float, k: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Strong Rank-Revealing QR factorization for real or complex matrices with a fixed rank 'k'.
 
@@ -38,22 +38,24 @@ def sRRQR_rank(A, f, k):
     $$
     A P = [Q_1, Q_2] \\begin{pmatrix} R_{11} & R_{12} \\\\ 0 & R_{22} \\end{pmatrix}
     $$
-    such that the entries of $R_{11}^{-1} R_{12}$ are bounded by a factor $f$.
+    such that the entries of $R_{11}^{-1} R_{12}$ are bounded by a factor $eta$.
 
-    Args:
+    Parameters
+    ----------
         A (np.ndarray): The input matrix (m x n), real or complex.
-        f (float): A constant (>= 1) that bounds the entries of $R_{11}^{-1} R_{12}$.
+        eta (float): A constant (>= 1) that bounds the entries of $R_{11}^{-1} R_{12}$.
         k (int): The prescribed rank, i.e., the dimension of the $R_{11}$ block.
 
-    Returns:
+    Returns
+    -------
         tuple[np.ndarray, np.ndarray, np.ndarray]:
             - Q (np.ndarray): Truncated orthogonal/unitary matrix $Q_1$ (m x k).
             - R (np.ndarray): Truncated upper triangular matrix $[R_{11}, R_{12}]$ (k x n).
             - p (np.ndarray): The column permutation vector.
     """
-    if f < 1:
-        print("Parameter f is less than 1. Automatically set f = 2.")
-        f = 2.0
+    if eta < 1:
+        print("Parameter eta is less than 1. Automatically set eta = 2.")
+        eta = 2.0
 
     m, n = A.shape
     k = min(k, m, n)
@@ -90,7 +92,7 @@ def sRRQR_rank(A, f, k):
     while True:
         # Identify columns to interchange
         tmp = (1.0 / omega[:, np.newaxis] * gamma[np.newaxis, :])**2 + np.abs(AB)**2
-        indices = np.argwhere(tmp > f**2)
+        indices = np.argwhere(tmp > eta**2)
 
         if indices.shape[0] == 0:
             break
@@ -183,7 +185,7 @@ def sRRQR_rank(A, f, k):
 
     return Q[:, :k], R[:k, :], p
 
-def sRRQR_tol(A, f, tol):
+def sRRQR_tol(A: np.ndarray, eta: float, tol: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Strong Rank-Revealing QR for real or complex matrices with a tolerance 'tol'.
 
@@ -191,20 +193,22 @@ def sRRQR_tol(A, f, tol):
     It determines the rank `k` such that the spectral norms of the columns of
     the $R_{22}$ block are all less than `tol`.
 
-    Args:
+    Parameters
+    ----------
         A (np.ndarray): The input matrix (m x n), real or complex.
-        f (float): A constant (>= 1) that bounds the entries of $R_{11}^{-1} R_{12}$.
+        eta (float): A constant (>= 1) that bounds the entries of $R_{11}^{-1} R_{12}$.
         tol (float): The error threshold for determining the rank.
 
-    Returns:
+    Returns
+    -------
         tuple[np.ndarray, np.ndarray, np.ndarray]:
             - Q (np.ndarray): Truncated orthogonal/unitary matrix $Q_1$ (m x k).
             - R (np.ndarray): Truncated upper triangular matrix $[R_{11}, R_{12}]$ (k x n).
             - p (np.ndarray): The column permutation vector.
     """
-    if f < 1:
+    if eta < 1:
         print("Parameter f is less than 1. Automatically set f = 2.")
-        f = 2.0
+        eta = 2.0
 
     m, n = A.shape
     Q, R, p = scipy.linalg.qr(A, mode='economic', pivoting=True)
@@ -244,7 +248,7 @@ def sRRQR_tol(A, f, tol):
             omega = 1.0 / np.linalg.norm(invR11, axis=1)
 
             tmp = (1.0 / omega[:, np.newaxis] * gamma[np.newaxis, :])**2 + np.abs(AB)**2
-            indices = np.argwhere(tmp > f**2)
+            indices = np.argwhere(tmp > eta**2)
 
             if indices.shape[0] == 0:
                 break
@@ -309,39 +313,36 @@ def sRRQR_tol(A, f, tol):
         if k == 0:
             break
 
-    # if not np.all(p == p_orig):
-    #     print("sRRQR_tol: Column interchange performed.")
-
     return Q[:, :k], R[:k, :], p
 
-def sRRQR(A, f, mode, param):
+def sRRQR(A: np.ndarray, eta: float, mode: str, param: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Dispatcher for Strong Rank-Revealing QR factorization.
 
     This function automatically detects if the input matrix A is real or complex
     and calls the appropriate implementation.
 
-    Args:
+    Parameters
+    ----------
         A (np.ndarray): The input matrix (m x n), real or complex.
-        f (float): Bounding factor for $R_{11}^{-1} R_{12}$, must be >= 1.
+        eta (float): Bounding factor for $R_{11}^{-1} R_{12}$, must be >= 1.
         mode (str): Specifies the truncation criterion. Must be 'rank' or 'tol'.
         param (int or float): The parameter for the chosen mode.
                            - If mode is 'rank', `param` is the desired rank `k`.
                            - If mode is 'tol', `param` is the error tolerance.
 
-    Returns:
+    Returns
+    -------
         tuple[np.ndarray, np.ndarray, np.ndarray]:
             - Q (np.ndarray): Truncated unitary/orthogonal matrix $Q_1$.
             - R (np.ndarray): Truncated upper triangular matrix $[R_{11}, R_{12}]$.
             - p (np.ndarray): The column permutation vector.
     """
-    # if np.iscomplexobj(A):
-    #     raise NotImplementedError("Complex matrix support is not implemented for sRRQR.")
 
     if mode.lower() == 'rank':
-        return sRRQR_rank(A, f, param)
+        return sRRQR_rank(A, eta, param)
     elif mode.lower() == 'tol':
-        return sRRQR_tol(A, f, param)
+        return sRRQR_tol(A, eta, param)
     else:
         raise ValueError(f"Unknown mode: {mode}. Must be 'rank' or 'tol'.")
 

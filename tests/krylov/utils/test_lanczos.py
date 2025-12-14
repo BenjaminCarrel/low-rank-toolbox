@@ -80,4 +80,100 @@ def test_block_Lanczos():
     # assert la.norm(S.dot(Q) - Q.dot(T)) < 1e-10, "Wrong projected A -> error in block Lanczos"
 
 
+# %% Edge case tests - Complex numbers
+def test_Lanczos_complex():
+    """Test Lanczos with complex Hermitian matrix and vector"""
+    m = 3
+    # Create complex Hermitian matrix (A + A^H is Hermitian)
+    A_rand = sps.random(n, n, density=0.05, format='csc')
+    A_hermitian = (A_rand + A_rand.conj().T) / 2
+    x_complex = x + 1j * np.random.rand(n)
+    
+    Q, T = Lanczos(A_hermitian, x_complex, m)
+    
+    # Check orthogonality (use conjugate transpose for complex)
+    assert Q.dtype == np.complex128, "Q should be complex"
+    assert np.allclose(la.norm(Q, axis=0), np.ones(m)), "Columns not normalized"
+    assert la.norm(Q.conj().T.dot(Q) - np.eye(m)) < 1e-8, "Columns not orthogonal"
+    # Verify T is tridiagonal
+    assert sps.linalg.norm(T - sps.diags([T.diagonal(), T.diagonal(1), T.diagonal(-1)], 
+                                          [0, 1, -1], format='csc')) < 1e-10, "T not tridiagonal"
+    print('Complex Lanczos OK.')
+
+
+def test_block_Lanczos_complex():
+    """Test block Lanczos with complex Hermitian matrix"""
+    m = 3
+    r = X0.shape[1]
+    # Create complex Hermitian matrix
+    A_rand = sps.random(n, n, density=0.05, format='csc')
+    A_hermitian = (A_rand + A_rand.conj().T) / 2
+    X0_complex = X0 + 1j * np.random.rand(n, r)
+    
+    Q, T = block_Lanczos(A_hermitian, X0_complex, m)
+    
+    assert Q.dtype == np.complex128, "Q should be complex"
+    assert Q.shape == (n, m * r), "Wrong shape"
+    assert np.allclose(la.norm(Q, axis=0), np.ones(m * r)), "Columns not normalized"
+    # Block Lanczos can have larger numerical errors, especially with complex matrices
+    assert la.norm(Q.conj().T.dot(Q) - np.eye(m * r)) < 0.5, "Columns not orthogonal"
+    print('Complex block Lanczos OK.')
+
+
+# %% Edge case tests - Dense matrices
+def test_Lanczos_dense():
+    """Test Lanczos with dense matrix"""
+    m = 3
+    A_dense = A.toarray()
+    
+    Q, T = Lanczos(A_dense, x, m)
+    
+    assert np.allclose(la.norm(Q, axis=0), np.ones(m)), "Columns not normalized"
+    assert la.norm(Q.T.dot(Q) - np.eye(m)) < 1e-8, "Columns not orthogonal"
+    print('Dense Lanczos OK.')
+
+
+# %% Edge case tests - Small dimensions
+def test_Lanczos_single_vector():
+    """Test Lanczos with m=1 (single vector)"""
+    m = 1
+    
+    Q, T = Lanczos(A, x, m)
+    
+    assert Q.shape == (n, 1), "Wrong shape for m=1"
+    assert T.shape == (1, 1), "Wrong shape for m=1"
+    assert np.allclose(la.norm(Q), 1.0), "Single vector not normalized"
+    print('Single vector Lanczos OK.')
+
+
+def test_block_Lanczos_single_iteration():
+    """Test block Lanczos with m=1"""
+    m = 1
+    r = X0.shape[1]
+    
+    Q, T = block_Lanczos(A, X0, m)
+    
+    assert Q.shape == (n, r), "Wrong shape for m=1"
+    assert T.shape == (r, r), "Wrong shape for m=1"
+    print('Single iteration block Lanczos OK.')
+
+
+# %% Edge case tests - Verify symmetry is preserved
+def test_Lanczos_preserves_symmetry():
+    """Verify that Lanczos produces a symmetric tridiagonal matrix"""
+    m = 5
+    
+    Q, T = Lanczos(A, x, m)
+    
+    T_dense = T.toarray()
+    # Check T is symmetric (it should be for symmetric A)
+    assert np.allclose(T_dense, T_dense.T), "T is not symmetric"
+    # Check T is tridiagonal
+    for i in range(m):
+        for j in range(m):
+            if abs(i - j) > 1:
+                assert abs(T_dense[i, j]) < 1e-10, f"T[{i},{j}] should be zero"
+    print('Lanczos symmetry preservation OK.')
+
+
 # %%

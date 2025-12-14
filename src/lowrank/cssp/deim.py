@@ -1,9 +1,17 @@
+"""Discrete Empirical Interpolation Method (DEIM).
+
+Author: Benjamin Carrel, University of Geneva, 2024
+"""
+
 import numpy as np
 from numpy import ndarray
 from scipy import linalg as la
 
 
-def DEIM(U: ndarray, compute_M: bool = False, **extra_args) -> ndarray:
+def DEIM(U: ndarray, 
+         return_projector: bool = False, 
+         return_inverse: bool = False, 
+         **extra_args) -> ndarray:
     """
     DEIM - Discrete empirical interpolation method
 
@@ -20,15 +28,23 @@ def DEIM(U: ndarray, compute_M: bool = False, **extra_args) -> ndarray:
     ----------
     U: ndarray
         Orthonormal matrix of size n x k
-    compute_M: bool
+    return_projector: bool
         If True, return also the matrix U @ inv(U[S, :])
+    return_inverse: bool
+        If True, return also the inverse matrix inv(U[S, :])
+    extra_args: dict
+        Additional arguments: 
+            solve_kwargs: dict
+                Additional arguments for the solve function
     
     Returns
     -------
     p: list
         List of indexes selected by DEIM
-    M: ndarray (optional)
-        Matrix U @ inv(U[S, :])
+    P_U: ndarray (n x k) (optional)
+        Projector matrix U @ inv(U[S, :])
+    inv_U: ndarray (k x k) (optional)
+        Inverse matrix inv(U[S, :])
     """
 
     # Initialisation
@@ -40,15 +56,19 @@ def DEIM(U: ndarray, compute_M: bool = False, **extra_args) -> ndarray:
     # Loop of DEIM
     for i in np.arange(1, k):
         # Solve linear system
-        c =  np.linalg.solve(U[p, :i], U[p, i])
+        c =  np.linalg.solve(U[p, :i], U[p, i], **extra_args.get('solve_kwargs', {}))
         # Compute the residual and extract new max
         r = U[:, i] - U[:, :i].dot(c)
         pi = np.argmax(np.abs(r))
         # Update the indexes
         p += [pi]
 
-    if compute_M:
-        M = la.solve(U[p, :].T.conj(), U.T.conj()).T.conj()
-        return p, M
+    if return_projector:
+        P_U = la.solve(U[p, :].T.conj(), U.T.conj()).T.conj()
+        if return_inverse:
+            inv_U = U.T.conj().dot(P_U)
+            return p, P_U, inv_U
+        else:
+            return p, P_U
     else:
         return p

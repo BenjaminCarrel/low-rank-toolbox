@@ -1,8 +1,8 @@
-# Authors: Benjamin Carrel and Rik Vorhaar
-#          University of Geneva, initiated in 2022
-# File for QuasiSVD low-rank matrix class and functions
-# Path: src/lowrank/matrices/quasi_svd.py
+"""QuasiSVD low-rank matrix class and functions.
 
+Authors: Benjamin Carrel and Rik Vorhaar
+         University of Geneva, 2022-2025
+"""
 
 #%% Imports
 from __future__ import annotations
@@ -80,6 +80,10 @@ class QuasiSVD(LowRankMatrix):
         Transpose of U (without conjugate)
     Uh : ndarray, shape (r, m)
         Hermitian conjugate of U (U.T.conj())
+    K : ndarray, shape (m, r)
+        Product U @ S, computed on demand and not cached
+    L : ndarray, shape (r, n)
+        Product V @ S.T, computed on demand and not cached
     
     Properties
     ----------
@@ -506,6 +510,28 @@ class QuasiSVD(LowRankMatrix):
         else:
             self._cache['is_symmetric'] = np.allclose(self.U, self.V)
         return self._cache['is_symmetric']
+    
+    @property
+    def K(self) -> ndarray:
+        """Compute and return the product U @ S on demand.
+        
+        Returns
+        -------
+        ndarray
+            Product U @ S, shape (m, r)
+        """
+        return self.U.dot(self.S)
+    
+    @property
+    def L(self) -> ndarray:
+        """Compute and return the product V @ S.T on demand.
+        
+        Returns
+        -------
+        ndarray
+            Product V @ S.T, shape (n, r)
+        """
+        return self.V.dot(self.S.T)
     
     def is_orthogonal(self) -> bool:
         """Check if U and V have orthonormal columns.
@@ -1041,13 +1067,13 @@ class QuasiSVD(LowRankMatrix):
             if dense_output:
                 return YV.dot(self.Vh)
             else:
-                return QR(self.V, YV.T.conj(), conjugate=True)
+                return QR(self.V, YV.T.conj(), tranposed=True)
         else:
             if dense_output:
                 return other.dot(self.V).dot(self.Vh)
             else:
                 YV = other.dot(self.V)
-                return QR(self.V, YV.T.conj(), conjugate=True)
+                return QR(self.V, YV.T.conj(), tranposed=True)
     
     def project_onto_tangent_space(self, other: LowRankMatrix | ndarray, dense_output: bool = False, auto_truncate: bool = AUTOMATIC_TRUNCATION) -> QuasiSVD:
         """
@@ -1105,8 +1131,8 @@ class QuasiSVD(LowRankMatrix):
                                                         Y_u: ndarray,
                                                         Y_v: ndarray,
                                                         Y_uv: ndarray,
-                                                        M_u: ndarray,
-                                                        M_v: ndarray,
+                                                        P_u: ndarray,
+                                                        P_v: ndarray,
                                                         auto_truncate: bool,
                                                         dense_output: bool
                                                         ) -> QuasiSVD:
@@ -1133,16 +1159,16 @@ class QuasiSVD(LowRankMatrix):
             raise ValueError(f"Y_uv must have shape ({r_u}, {r_v})")
         
         # M_u: (m, r_u)
-        if M_u.ndim != 2 or M_u.shape != (m, r_u):
+        if P_u.ndim != 2 or P_u.shape != (m, r_u):
             raise ValueError(f"M_u must have shape ({m}, {r_u})")
         
         # M_v: (n, r_v)
-        if M_v.ndim != 2 or M_v.shape != (n, r_v):
+        if P_v.ndim != 2 or P_v.shape != (n, r_v):
             raise ValueError(f"M_v must have shape ({n}, {r_v})")
         
         # Perform projection using double QR
-        M1 = np.column_stack([M_u, Y_v])
-        M2 = np.vstack([Y_u - Y_uv.dot(M_v.T.conj()), M_v.T.conj()])
+        M1 = np.column_stack([P_u, Y_v])
+        M2 = np.vstack([Y_u - Y_uv.dot(P_v.T.conj()), P_v.T.conj()])
         Q1, R1 = la.qr(M1, mode='economic')
         Q2, R2 = la.qr(M2.T.conj(), mode='economic')
         
@@ -1175,10 +1201,10 @@ class QuasiSVD(LowRankMatrix):
             raise ValueError(f"Shape mismatch: self has shape {self.shape}, Y has shape {Y.shape}")
         
         # Compute interpolation indices and matrices
-        p_u, M_u = cssp_method_u(self.U, compute_M=True, **cssp_kwargs_u)
+        p_u, M_u = cssp_method_u(self.U, return_projector=True, **cssp_kwargs_u)
         p_u = np.array(p_u)
         
-        p_v, M_v = cssp_method_v(self.V, compute_M=True, **cssp_kwargs_v)
+        p_v, M_v = cssp_method_v(self.V, return_projector=True, **cssp_kwargs_v)
         p_v = np.array(p_v)
         
         # Extract interpolated slices from Y
@@ -1245,8 +1271,8 @@ class QuasiSVD(LowRankMatrix):
         **Offline mode:**
         
         >>> # Pre-compute interpolatory matrices
-        >>> p_u, M_u = DEIM(X.U, compute_M=True)
-        >>> p_v, M_v = DEIM(X.V, compute_M=True)
+        >>> p_u, M_u = DEIM(X.U, return_projector=True)
+        >>> p_v, M_v = DEIM(X.V, return_projector=True)
         >>> Y_full = Y.full()
         >>> Y_u = Y_full[p_u, :]
         >>> Y_v = Y_full[:, p_v]
@@ -1283,8 +1309,8 @@ class QuasiSVD(LowRankMatrix):
             Y_u=kwargs['Y_u'],
             Y_v=kwargs['Y_v'],
             Y_uv=kwargs['Y_uv'],
-            M_u=kwargs['M_u'],
-            M_v=kwargs['M_v'],
+            P_u=kwargs['M_u'],
+            P_v=kwargs['M_v'],
             auto_truncate=auto_truncate,
             dense_output=dense_output
             )
@@ -1710,7 +1736,7 @@ class QuasiSVD(LowRankMatrix):
         # where Q = U (already orthogonal) and R = S @ V.T
         Q = self.U
         R = self.S @ self.Vh
-        return QR(Q, R, conjugate=False)
+        return QR(Q, R, tranposed=False)
     
     @classmethod
     def from_qr(cls, qr: QR) -> QuasiSVD:
@@ -1737,7 +1763,7 @@ class QuasiSVD(LowRankMatrix):
         # Use QR decomposition of R.T: R.T = V @ S.T
         # So R = S @ V.T where S = (R.T @ V).T
         
-        if qr._conjugate:
+        if qr._transposed:
             # X = R.H @ Q.H
             # Convert to standard form first
             Q, S = la.qr(qr.R.T.conj(), mode='economic')

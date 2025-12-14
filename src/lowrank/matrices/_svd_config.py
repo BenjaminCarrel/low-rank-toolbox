@@ -1,7 +1,8 @@
-## Authors: Benjamin Carrel and Rik Vorhaar
-#          University of Geneva, initiated in 2022
-# File for configurations related to SVD computations
-# Path: src/lowrank/matrices/_svd_config.py
+"""Configuration parameters for SVD computations.
+
+Authors: Benjamin Carrel and Rik Vorhaar
+         University of Geneva, 2022-2025
+"""
 
 import numpy as np
 
