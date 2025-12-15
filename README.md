@@ -1,7 +1,4 @@
 ![Tests](https://github.com/BenjaminCarrel/low-rank-toolbox/actions/workflows/tests.yml/badge.svg)
-![Documentation](https://github.com/BenjaminCarrel/low-rank-toolbox/actions/workflows/documentation.yml/badge.svg)
-![Code Quality](https://github.com/BenjaminCarrel/low-rank-toolbox/actions/workflows/code-quality.yml/badge.svg)
-[![codecov](https://codecov.io/gh/BenjaminCarrel/low-rank-toolbox/branch/main/graph/badge.svg)](https://codecov.io/gh/BenjaminCarrel/low-rank-toolbox)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)
 
 # **Low-Rank Toolbox**
