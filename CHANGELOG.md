@@ -5,6 +5,19 @@ All notable changes to the Low-Rank Toolbox will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-12-15
+
+### Fixed
+- Fixed mypy type errors in `low_rank_matrix.py` ("None" has no attribute "dot")
+- Fixed mypy type errors in `extended_krylov_space.py` (incompatible return value type)
+- Fixed duplicate test function names in `test_quasi_svd.py` (renamed `test_multi_add_with_truncation` and `test_multi_dot_chain`)
+- Fixed import ordering to comply with isort in test documentation files
+- Removed unused imports from test files (`pytest`, `DEIM`, `QDEIM`, `LowRankMatrix`)
+
+### Changed
+- Improved type annotations with `Optional` types for better static analysis
+- Added runtime assertions for type safety in critical code paths
+
 ## [1.0.0] - 2025-12-15
 
 ### Initial Release

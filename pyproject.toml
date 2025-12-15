@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "low-rank-toolbox" # The name used for `pip install`
-version = "1.0.0"
+version = "1.0.1"
 authors = [
     { name="Benjamin Carrel", email="benjamin.carrel@psi.ch" },
 ]
