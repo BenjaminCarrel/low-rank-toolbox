@@ -1,5 +1,6 @@
 ![Tests](https://github.com/BenjaminCarrel/low-rank-toolbox/actions/workflows/tests.yml/badge.svg)
 ![Documentation](https://github.com/BenjaminCarrel/low-rank-toolbox/actions/workflows/documentation.yml/badge.svg)
+![Code Quality](https://github.com/BenjaminCarrel/low-rank-toolbox/actions/workflows/code-quality.yml/badge.svg)
 ![Coverage](https://img.shields.io/badge/coverage-check%20actions-blue)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)
 
