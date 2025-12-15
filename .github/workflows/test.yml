@@ -1,30 +1,18 @@
-name: Test
+# This workflow has been deprecated in favor of tests.yml
+# Please use tests.yml which provides comprehensive testing across multiple platforms
+
+name: Test (Deprecated)
 
 on:
-  push:
-    branches: main
-  pull_request:
-    branches: main
+  workflow_dispatch:
 
 jobs:
-  test:
+  deprecated:
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        version: "latest"
-    
-    - name: Set up Python 3.12
-      run: uv python install 3.12
-    
-    - name: Install dependencies
+    - name: Deprecation Notice
       run: |
-        uv sync --dev
-    
-    - name: Run tests
-      run: |
-        uv run pytest tests/ -v 
+        echo "⚠️ This workflow is deprecated."
+        echo "Please use tests.yml instead for comprehensive testing."
+        exit 1
+ 

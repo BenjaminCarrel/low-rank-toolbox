@@ -8,7 +8,9 @@ This directory contains CI/CD workflows for the Low-Rank Toolbox project.
 - **Trigger:** Push to main/develop, pull requests
 - **Matrix:** Python 3.10, 3.11, 3.12 × Ubuntu, macOS, Windows
 - **Actions:**
-  - Runs full test suite (1000+ tests)
+  - Runs full test suite (1000+ tests) with pytest
+  - Generates code coverage reports
+  - Uploads coverage to Codecov
   - Uploads test results as artifacts
   - Ensures cross-platform compatibility
 
@@ -34,6 +36,10 @@ This directory contains CI/CD workflows for the Low-Rank Toolbox project.
 ### Test Results
 Check the **Actions** tab on GitHub for test results across all platforms.
 
+### Coverage Reports
+- Coverage reports are automatically uploaded to Codecov
+- View detailed coverage metrics and trends at your Codecov dashboard
+
 ### Documentation
 - **Preview:** Download the `documentation-html` artifact from any workflow run
 - **Live Docs:** Automatically published to GitHub Pages from main branch
@@ -47,7 +53,36 @@ Review code quality checks in the workflow summary.
 Before pushing, run these locally:
 
 ```bash
-# Run tests
+# Activate the conda environment
+conda activate low-rank-dev
+
+# Run tests with coverage
+pytest -v --cov=src/lowrank --cov-report=term
+
+# Check code formatting
+black --check src/ tests/
+
+# Check import sorting
+isort --check-only src/ tests/
+
+# Lint code
+flake8 src/
+
+# Type check
+mypy src/lowrank --ignore-missing-imports
+
+# Build documentation
+cd docs
+make html
+```
+
+## Setup Notes
+
+All workflows use:
+- **conda-incubator/setup-miniconda@v3** for Python environment management
+- **environment.yml** for consistent dependency installation
+- Python versions 3.10, 3.11, and 3.12 (matching pyproject.toml requirement)
+
 pytest -v
 
 # Build documentation
