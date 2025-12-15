@@ -6,17 +6,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lowrank" # The name used for `pip install`
-version = "0.1.0"
+version = "1.0.0"
 authors = [
     { name="Benjamin Carrel", email="benjamin.carrel@psi.ch" },
 ]
 description = "A Python library for efficient low-rank matrix and tensor operations."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { file="LICENSE" }
+license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License", # Or another license like BSD-3-Clause
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Mathematics",

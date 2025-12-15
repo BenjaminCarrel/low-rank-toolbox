@@ -1,0 +1,51 @@
+# Pre-commit hooks for Low-Rank Toolbox
+# See https://pre-commit.com for more information
+
+repos:
+  # Type checking with mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        name: Type checking with mypy
+        args: [--ignore-missing-imports]
+        additional_dependencies: [numpy, scipy]
+        files: ^src/
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end of files
+      - id: check-yaml
+        name: Check YAML syntax
+      - id: check-toml
+        name: Check TOML syntax
+      - id: check-added-large-files
+        name: Check for large files
+        args: [--maxkb=1000]
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: debug-statements
+        name: Check for debug statements
+
+  # Python code formatting (optional - uncomment if you want to use ruff)
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: v0.8.0
+  #   hooks:
+  #     - id: ruff
+  #       name: Lint with ruff
+  #       args: [--fix]
+  #     - id: ruff-format
+  #       name: Format with ruff
+
+  # Notebook checks (if you want to validate notebooks)
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      - id: nbqa-check-ast
+        name: Check notebook syntax
+        files: ^notebooks/
