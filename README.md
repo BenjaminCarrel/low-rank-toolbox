@@ -7,6 +7,12 @@
 
 `lowrank` is a Python library providing efficient data structures and algorithms for numerical linear algebra with low-rank matrices. The package is designed for researchers and practitioners who need performant and memory-conscious computations.
 
+## **Installation**
+
+```bash
+pip install low-rank-toolbox
+```
+
 ```python
 import lowrank
 ```
@@ -127,16 +133,15 @@ print(f"Approximation error: {error:.2e}")
 A_sym = A @ A.T
 X_nystrom = generalized_nystrom(A_sym, r=50, p=10)
 print(f"Generalized Nyström rank: {X_nystrom.rank}")
-print(f"Generalized Nyström error: {np.linalg.norm(A - X_nystrom.to_dense(), 'fro'):.2e}"
+print(f"Generalized Nyström error: {np.linalg.norm(A_sym - X_nystrom.to_dense(), 'fro'):.2e}")
 ```
 
 ## **Installation**
 
-### **For Users**
+### **Via pip (Recommended)**
 
 ```bash
-# Via pip
-pip install lowrank
+pip install low-rank-toolbox
 ```
 
 ### **For Developers**
