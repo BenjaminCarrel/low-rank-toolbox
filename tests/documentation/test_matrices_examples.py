@@ -23,10 +23,12 @@ documentation.
 import numpy as np
 import pytest
 from scipy.sparse import diags
-from scipy.sparse.linalg import gmres, LinearOperator, aslinearoperator
+from scipy.sparse.linalg import LinearOperator, aslinearoperator, gmres
 
 from lowrank import SVD
-from lowrank.matrices import QR, QuasiSVD, SVD as SVDMatrices
+from lowrank.matrices import QR
+from lowrank.matrices import SVD as SVDMatrices
+from lowrank.matrices import QuasiSVD
 from lowrank.matrices.low_rank_matrix import LowRankMatrix
 
 

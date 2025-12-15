@@ -26,11 +26,11 @@ from lowrank.cssp import (
     ARP,
     DEIM,
     QDEIM,
-    sQDEIM,
     Osinsky,
     gpode,
     gpodr,
     oversampling_sQDEIM,
+    sQDEIM,
 )
 
 
