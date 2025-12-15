@@ -5,39 +5,42 @@ Author: Benjamin Carrel, University of Geneva, 2022-2023
 
 # %% Imports
 from __future__ import annotations
+
+from typing import Callable, Optional
+
 import numpy as np
-from numpy import ndarray
 import scipy.linalg as la
 import scipy.sparse.linalg as spsla
+from numpy import ndarray
 from scipy.sparse import spmatrix
-from .space_structure import SpaceStructure
-from .krylov_space import KrylovSpace
-from .inverted_krylov_space import InvertedKrylovSpace
 
+from .inverted_krylov_space import InvertedKrylovSpace
+from .krylov_space import KrylovSpace
+from .space_structure import SpaceStructure
 
 
 # %% Class definition
 class ExtendedKrylovSpace(SpaceStructure):
     """Extended Krylov space.
-    
+
     Constructs the extended Krylov space by combining a standard Krylov space
     and an inverted Krylov space:
         EK_m(A, X) = span{X, AX, A^2X, ..., A^(m-1)X, A^(-1)X, A^(-2)X, ..., A^(-m)X}
-    
+
     This space is particularly useful for problems requiring information from both
     the range of A and its inverse.
-    
-    **Algorithm Selection:** When is_symmetric=True, both component Krylov spaces 
-    (standard and inverted) use the Lanczos algorithm, providing approximately 2x 
-    speedup over the non-symmetric case. The combined basis maintains orthogonality 
+
+    **Algorithm Selection:** When is_symmetric=True, both component Krylov spaces
+    (standard and inverted) use the Lanczos algorithm, providing approximately 2x
+    speedup over the non-symmetric case. The combined basis maintains orthogonality
     across both components.
-    
+
     How to use
     ----------
     1. Create an instance: EK = ExtendedKrylovSpace(A, X, invA=None)
     2. Augment the basis as needed: EK.augment_basis()
     3. Access the basis via EK.basis or EK.Q
-    
+
     Attributes
     ----------
     A : spmatrix
@@ -58,7 +61,7 @@ class ExtendedKrylovSpace(SpaceStructure):
         Basis of the inverted Krylov space
     basis : ndarray
         Pointer to Q
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -82,7 +85,7 @@ class ExtendedKrylovSpace(SpaceStructure):
     True
     """
 
-    def __init__(self, A: spmatrix, X: ndarray, invA: callable = None, **extra_args):
+    def __init__(self, A: spmatrix, X: ndarray, invA: Optional[Callable] = None, **extra_args):
         """
         Parameters
         ----------
@@ -96,11 +99,11 @@ class ExtendedKrylovSpace(SpaceStructure):
         # Validate inputs first (before accessing any attributes)
         if not isinstance(X, ndarray):
             raise TypeError("X must be a numpy array")
-        
+
         # Ensure X is 2D before calling parent constructor
         if X.ndim == 1:
             X = X.reshape(-1, 1)
-        
+
         # Call parent constructor
         super().__init__(A, X, **extra_args)
 
@@ -117,28 +120,30 @@ class ExtendedKrylovSpace(SpaceStructure):
         self.krylov_space = KrylovSpace(A, X, is_symmetric=self.is_symmetric)
 
         # Inverted Krylov space
-        self.inverted_krylov_space = InvertedKrylovSpace(A, X, invA=invA, is_symmetric=self.is_symmetric)
-        
+        self.inverted_krylov_space = InvertedKrylovSpace(
+            A, X, invA=invA, is_symmetric=self.is_symmetric
+        )
+
         # Cache for the combined basis
-        self._Q_cache = None
+        self._Q_cache: Optional[ndarray] = None
         self._cache_size = 0
 
     # %% Properties
     @property
     def Q1(self) -> ndarray:
         """Basis of the standard Krylov space component.
-        
+
         Returns
         -------
         ndarray
             Matrix of shape (n, m*r) containing the Krylov basis vectors.
         """
         return self.krylov_space.Q
-    
+
     @property
     def H1(self) -> ndarray:
         """Upper Hessenberg matrix from Arnoldi for the Krylov space.
-        
+
         Returns
         -------
         ndarray
@@ -149,32 +154,32 @@ class ExtendedKrylovSpace(SpaceStructure):
     @property
     def Q2(self) -> ndarray:
         """Basis of the inverted Krylov space component.
-        
+
         Returns
         -------
         ndarray
             Matrix of shape (n, m*r) containing the inverted Krylov basis vectors.
         """
         return self.inverted_krylov_space.Q
-    
+
     @property
     def H2(self) -> ndarray:
         """Upper Hessenberg matrix from Arnoldi for the inverted Krylov space.
-        
+
         Returns
         -------
         ndarray
             The Hessenberg matrix (non-symmetric case only).
         """
         return self.inverted_krylov_space.H
-    
+
     @property
     def Q(self) -> ndarray:
         """Combined orthonormal basis of the extended Krylov space.
-        
+
         Concatenates Q1 and Q2, then orthonormalizes the result. The result is
         cached and only recomputed when the space size changes.
-        
+
         Returns
         -------
         ndarray
@@ -191,7 +196,7 @@ class ExtendedKrylovSpace(SpaceStructure):
     @property
     def basis(self) -> ndarray:
         """The orthonormal basis of the extended Krylov space.
-        
+
         Returns
         -------
         ndarray
@@ -202,7 +207,7 @@ class ExtendedKrylovSpace(SpaceStructure):
     @property
     def size(self) -> int:
         """Total size of the extended Krylov space.
-        
+
         Returns
         -------
         int
@@ -213,19 +218,9 @@ class ExtendedKrylovSpace(SpaceStructure):
     # %% Methods
     def augment_basis(self):
         """Augment the basis of the extended Krylov space.
-        
+
         Augments both the standard Krylov space and the inverted Krylov space
         by adding the next block of basis vectors to each component.
         """
         self.krylov_space.augment_basis()
         self.inverted_krylov_space.augment_basis()
-        
-
-    
-
-
-        
-
-
-
-

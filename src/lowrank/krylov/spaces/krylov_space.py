@@ -3,24 +3,28 @@
 Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
-#%% Imports
+# %% Imports
 from __future__ import annotations
+
 import warnings
+
 import numpy as np
 import numpy.linalg as la
 import scipy.linalg as sla
 from numpy import ndarray
 from scipy.sparse import spmatrix
+
 from .space_structure import SpaceStructure
 
-#%% Class definition
+
+# %% Class definition
 class KrylovSpace(SpaceStructure):
     """
     Class for (block) Krylov spaces.
     The definition of a Krylov space of size $m$ is the following:
         K_m(A,x) = span{x, A x, A^2 x, ..., A^(m-1) x}
     where $A$ is a sparse matrix, and $x$ is a vector or a matrix.
-    
+
     **Algorithm Selection:**
     - If A is symmetric (is_symmetric=True): Uses Lanczos algorithm with 3-term recurrence
       - Stores tridiagonal coefficients (alpha, beta) in O(m) space
@@ -28,8 +32,8 @@ class KrylovSpace(SpaceStructure):
     - If A is non-symmetric (is_symmetric=False): Uses Arnoldi algorithm with full orthogonalization
       - Stores upper Hessenberg matrix H in O(m²) space
       - Orthogonalization cost: O(n*m*r) per iteration
-    
-    **Performance:** For symmetric problems, Lanczos is faster and uses significantly 
+
+    **Performance:** For symmetric problems, Lanczos is faster and uses significantly
     less memory than Arnoldi.
 
     How to use
@@ -58,7 +62,7 @@ class KrylovSpace(SpaceStructure):
         Lanczos off-diagonal coefficients
     H : ndarray (non-symmetric only)
         Upper Hessenberg matrix from Arnoldi
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -79,7 +83,7 @@ class KrylovSpace(SpaceStructure):
     (3, 2)
     """
 
-    #%% INITIALIZATION
+    # %% INITIALIZATION
     def __init__(self, A: spmatrix, X: ndarray, **extra_args) -> None:
         """
         Initialize a Krylov Space where X is a vector or a matrix
@@ -120,11 +124,11 @@ class KrylovSpace(SpaceStructure):
             self.Q, self.H = la.qr(X, mode="reduced")
         self.Q = np.array(self.Q, dtype=self.dtype)
 
-    #%% PROPERTIES
+    # %% PROPERTIES
     @property
     def basis(self):
         """The orthonormal basis of the Krylov space.
-        
+
         Returns
         -------
         ndarray
@@ -135,7 +139,7 @@ class KrylovSpace(SpaceStructure):
     @property
     def size(self):
         """The size of the Krylov space.
-        
+
         Returns
         -------
         int
@@ -143,17 +147,17 @@ class KrylovSpace(SpaceStructure):
         """
         return self.m * self.r
 
-    #%% AUGMENT BASIS
+    # %% AUGMENT BASIS
     def augment_basis(self) -> None:
         """Augment the basis of the Krylov space.
-        
+
         Adds the next block of r basis vectors to the Krylov space using:
         - Lanczos algorithm if A is symmetric
         - Arnoldi algorithm if A is non-symmetric
-        
+
         The new basis vectors are computed as A * Q[:, (m-1)*r:m*r] and then
         orthogonalized against the existing basis.
-        
+
         Notes
         -----
         If the next basis would exceed the dimension of the matrix, a warning
@@ -165,7 +169,7 @@ class KrylovSpace(SpaceStructure):
             warnings.warn("The next basis would exceed the dimension of the matrix.")
             return
 
-       # Initialize
+        # Initialize
         r = self.r
         self.m += 1
         m = self.m
@@ -175,15 +179,13 @@ class KrylovSpace(SpaceStructure):
         if self.is_symmetric:
             Q = np.zeros((self.n, m * r), dtype=self.Q.dtype)
             Q[:, : (m - 1) * r] = self.Q
-            self._alpha[m-1] = Q[:, (m - 2) * r : (m - 1) * r].T.dot(AQ)
-            AQ -= Q[:, (m - 2) * r : (m - 1) * r].dot(self._alpha[m-1])
+            self._alpha[m - 1] = Q[:, (m - 2) * r : (m - 1) * r].T.dot(AQ)
+            AQ -= Q[:, (m - 2) * r : (m - 1) * r].dot(self._alpha[m - 1])
             if m > 2:
-                AQ-= Q[:, (m - 3) * r : (m - 2) * r].dot(self._beta[m-2].T)
-            Q[:, (m - 1) * r : m * r], self._beta[m-1] = la.qr(AQ, mode="reduced")
+                AQ -= Q[:, (m - 3) * r : (m - 2) * r].dot(self._beta[m - 2].T)
+            Q[:, (m - 1) * r : m * r], self._beta[m - 1] = la.qr(AQ, mode="reduced")
             self.Q = Q
 
         # Non-symmetric case (scipy's qr_insert)
         else:
             self.Q, self.H = sla.qr_insert(self.Q, self.H, AQ, (m - 1) * r, which="col")
-    
-

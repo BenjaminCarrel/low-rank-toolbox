@@ -5,6 +5,7 @@ Author: Benjamin Carrel, University of Geneva, 2024
 
 import numpy as np
 
+
 def givens(x: complex, y: complex) -> np.ndarray:
     """
     Computes the complex Givens rotation matrix for a 2-element complex vector [x, y].
@@ -33,7 +34,7 @@ def givens(x: complex, y: complex) -> np.ndarray:
     # Ensure inputs are complex for subsequent calculations
     x = complex(x)
     y = complex(y)
-    
+
     if y == 0:
         if x == 0:
             c = 1.0 + 0j
@@ -45,40 +46,41 @@ def givens(x: complex, y: complex) -> np.ndarray:
     else:
         abs_x = np.abs(x)
         abs_y = np.abs(y)
-        
+
         # Use numerically stable calculations based on the larger component
         if abs_y >= abs_x:
             tau = x / y
             r_over_absy = np.hypot(np.abs(tau), 1.0)
-            
+
             # Phase term from y contributes to s
             s_phase = np.conj(y) / abs_y
-            
+
             s = s_phase / r_over_absy
             c = s * np.conj(tau)
         else:  # abs_x > abs_y
             tau = y / x
             r_over_absx = np.hypot(np.abs(tau), 1.0)
-            
+
             # Phase term from x contributes to c
             c_phase = np.conj(x) / abs_x
-            
+
             c = c_phase / r_over_absx
             s = c * np.conj(tau)
 
     # Construct the unitary Givens rotation matrix
     G = np.array([[c, s], [-np.conj(s), np.conj(c)]], dtype=np.complex128)
-    
+
     return G
 
+
 # Example of usage:
-if __name__ == '__main__':
+if __name__ == "__main__":
     # --- Real Vector Example ---
     x_real, y_real = 3.0, 4.0
     G_real = givens(x_real, y_real)
     v_real = np.array([x_real, y_real])
     result_real = G_real @ v_real
-    
+
     print("--- Real Example ---")
     print(f"Input vector: {v_real}")
     print("Givens matrix:\n", np.round(G_real, 5))
@@ -91,7 +93,7 @@ if __name__ == '__main__':
     G_complex = givens(x_complex, y_complex)
     v_complex = np.array([x_complex, y_complex])
     result_complex = G_complex @ v_complex
-    
+
     print("\n--- Complex Example ---")
     print(f"Input vector: {v_complex}")
     print("Givens matrix:\n", np.round(G_complex, 5))

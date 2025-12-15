@@ -3,23 +3,28 @@
 Author: Benjamin Carrel, University of Geneva, 2024
 """
 
+from typing import Union
+
 import numpy as np
-from numpy import ndarray
-from .utils import sRRQR
 import scipy.linalg as la
+from numpy import ndarray
+
+from .utils import sRRQR
 
 
-def sQDEIM(U: ndarray, 
-           eta: float = 2, 
-           return_projector: bool = False,
-           return_inverse: bool = False,
-           **extra_args) -> list:
+def sQDEIM(
+    U: ndarray,
+    eta: float = 2,
+    return_projector: bool = False,
+    return_inverse: bool = False,
+    **extra_args,
+) -> Union[ndarray, tuple]:
     """
     sQDEIM - Strong RRQR based DEIM of U (size n x k)
 
     Key advantage: the selection of the indexes is guaranteed to satisfy the condition:
     sigma_{min}(U[p, :])^{-1} <= sqrt(1 + eta * r (n-k))
-    
+
     By default, eta = 2
 
     Parameters

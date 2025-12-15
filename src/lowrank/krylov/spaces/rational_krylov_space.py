@@ -5,29 +5,30 @@ Author: Benjamin Carrel, University of Geneva, 2022-2023
 
 # %% Imports
 import numpy as np
-from numpy import ndarray
 import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
+from numpy import ndarray
 from scipy.sparse import spmatrix
+
 from .space_structure import SpaceStructure
 
 
 class RationalKrylovSpace(SpaceStructure):
     """Rational Krylov space.
-    
+
     Constructs the rational Krylov space:
         RK_m(A, X) = span{X, (A - p_1*I)^{-1}X, ..., prod_{i=1}^{m-1}(A - p_i*I)^{-1}X}
-    
+
     where p_1, ..., p_{m-1} are specified poles (shifts). This space generalizes the
     standard Krylov space by using rational functions of A instead of polynomials.
-    
+
     How to use
     ----------
     1. Initialize with matrix A, vector/matrix X, and list of poles.
     2. Augment the basis as needed with `augment_basis`.
     3. Access the basis via `basis` or `Q`.
-    
+
     Attributes
     ----------
     A : spmatrix
@@ -46,7 +47,7 @@ class RationalKrylovSpace(SpaceStructure):
         Upper triangular matrix from QR factorization
     basis : ndarray
         Pointer to Q
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -71,8 +72,15 @@ class RationalKrylovSpace(SpaceStructure):
     True
     """
 
-    #%% INITIALIZATION
-    def __init__(self, A: spmatrix, X: ndarray, poles: list, inverse_only: bool = False, **extra_args) -> None:
+    # %% INITIALIZATION
+    def __init__(
+        self,
+        A: spmatrix,
+        X: ndarray,
+        poles: list,
+        inverse_only: bool = False,
+        **extra_args,
+    ) -> None:
         """
         Initialize a rational Krylov space
 
@@ -119,13 +127,12 @@ class RationalKrylovSpace(SpaceStructure):
             self.small_matvec = lambda x: x
         else:
             self.small_matvec = lambda x: A.dot(x)
-       
 
-    #%% PROPERTIES
+    # %% PROPERTIES
     @property
     def basis(self) -> ndarray:
         """The orthonormal basis of the rational Krylov space.
-        
+
         Returns
         -------
         ndarray
@@ -136,7 +143,7 @@ class RationalKrylovSpace(SpaceStructure):
     @property
     def size(self) -> int:
         """The size of the rational Krylov space.
-        
+
         Returns
         -------
         int
@@ -144,16 +151,16 @@ class RationalKrylovSpace(SpaceStructure):
         """
         return self.m * self.r
 
-    #%% BASIS AUGMENTATION
+    # %% BASIS AUGMENTATION
     def augment_basis(self):
         """Augment the basis of the rational Krylov space.
-        
+
         Adds the next block of r basis vectors by solving:
             (A - p_{m-1}*I) * v_new = v_old
-        
+
         where p_{m-1} is the next pole in the sequence. The new vectors are then
         orthogonalized against the existing basis using QR factorization.
-        
+
         Raises
         ------
         ValueError
@@ -164,10 +171,10 @@ class RationalKrylovSpace(SpaceStructure):
         if self.m * self.r >= self.n:
             raise ValueError("The space is exceeding the dimension of the problem")
         # Check the poles
-        if self.m-1 >= len(self.poles):
+        if self.m - 1 >= len(self.poles):
             raise ValueError("Not enough poles specified for the requested space size")
-        
-         # Initialize
+
+        # Initialize
         A = self.A
         r = self.r
         self.m += 1
@@ -175,10 +182,12 @@ class RationalKrylovSpace(SpaceStructure):
         Q = np.zeros((self.n, m * r), dtype=self.dtype)
         Q[:, : (m - 1) * r] = self.Q
 
-        # Solve the next linear system
-        matvec = lambda x: spsla.spsolve((self.A - self.poles[self.m-2] * sps.eye(self.n, format='csc')), self.small_matvec(x)).reshape(x.shape)
+        # Solve the next linear system
+        matvec = lambda x: spsla.spsolve(
+            (self.A - self.poles[self.m - 2] * sps.eye(self.n, format="csc")),
+            self.small_matvec(x),
+        ).reshape(x.shape)
         Wm = matvec(Q[:, (m - 2) * r : (m - 1) * r])
 
         # Update-orthogonalization
-        self.Q, self.H = la.qr_insert(self.Q, self.H, Wm, (m-1)*r, 'col')
-        
+        self.Q, self.H = la.qr_insert(self.Q, self.H, Wm, (m - 1) * r, "col")

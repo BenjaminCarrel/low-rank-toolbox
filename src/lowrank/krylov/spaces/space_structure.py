@@ -5,6 +5,7 @@ Author: Benjamin Carrel, University of Geneva, 2022-2023
 
 # %% Imports
 from __future__ import annotations
+
 import numpy as np
 from numpy import ndarray
 from scipy.sparse import spmatrix
@@ -13,7 +14,7 @@ from scipy.sparse import spmatrix
 # %% Class definition
 class SpaceStructure:
     """Space structure.
-    
+
     General space structure class. This class is meant to be inherited by other classes that define specific space structures, like Krylov spaces, rational Krylov spaces, etc.
 
     In particular, this class defines the following attributes:
@@ -52,13 +53,13 @@ class SpaceStructure:
         self.n, self.r = X.shape
         self.m = 1
         self.k = self.m
-        
+
         # Set max_iter from extra_args or default to n (max possible iterations)
-        self.max_iter = extra_args.get('max_iter', self.n)
+        self.max_iter = extra_args.get("max_iter", self.n)
 
         # Check for symmetry
-        if 'is_symmetric' in extra_args:
-            self.is_symmetric = extra_args['is_symmetric']
+        if "is_symmetric" in extra_args:
+            self.is_symmetric = extra_args["is_symmetric"]
         else:
             if not abs(A - A.T).nnz:
                 self.is_symmetric = True
@@ -68,26 +69,28 @@ class SpaceStructure:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__} of size {self.size} with basis of shape {self.basis.shape}"
 
-    #%% PROPERTIES
+    # %% PROPERTIES
     @property
     def size(self) -> int:
         """The size of the space.
-        
+
         This property should be overloaded in child classes.
-        
+
         Returns
         -------
         int
             The size of the space.
         """
-        return NotImplementedError("The size method is not implemented in the parent class.")
+        raise NotImplementedError(
+            "The size method is not implemented in the parent class."
+        )
 
     @property
     def reduced_A(self) -> ndarray:
         """The reduced matrix A.
-        
+
         Computes Q^T A Q where Q is the basis of the space.
-        
+
         Returns
         -------
         ndarray
@@ -98,37 +101,37 @@ class SpaceStructure:
     @property
     def Am(self) -> ndarray:
         """Shortcut for the reduced matrix A.
-        
+
         Returns
         -------
         ndarray
             The reduced matrix (same as reduced_A).
         """
         return self.reduced_A
-    
+
     @property
     def Ak(self) -> ndarray:
         """Shortcut for the reduced matrix A.
-        
+
         Returns
         -------
         ndarray
             The reduced matrix (same as reduced_A).
         """
         return self.reduced_A
-    
+
     # %% CLASS METHODS
     @classmethod
     def check_inputs(cls, A, X):
         """Validate input parameters.
-        
+
         Parameters
         ----------
         A : spmatrix
             The matrix to validate
         X : ndarray
             The vector/matrix to validate
-            
+
         Raises
         ------
         TypeError
@@ -153,32 +156,33 @@ class SpaceStructure:
     @property
     def basis(self) -> ndarray:
         """The basis of the space.
-        
+
         This property should be overloaded in child classes.
-        
+
         Returns
         -------
         ndarray
             The basis matrix of shape (n, size).
         """
-        return NotImplementedError("The basis property is not implemented in the parent class.")
+        raise NotImplementedError(
+            "The basis property is not implemented in the parent class."
+        )
 
     def augment_basis(self):
         """Augment the space with a new basis vector.
-        
+
         This method should be overloaded in child classes to add the next basis
         vector to the space.
         """
-        return NotImplementedError("The augment method is not implemented in the parent class.")
-    
+        return NotImplementedError(
+            "The augment method is not implemented in the parent class."
+        )
+
     def compute_all(self):
         """Compute all the basis vectors.
-        
+
         Repeatedly calls augment_basis until max_iter iterations are reached.
         """
         # Use the augment_basis method max_iter times
         for _ in range(self.max_iter):
             self.augment_basis()
-
-
-

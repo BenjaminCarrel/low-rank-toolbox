@@ -3,50 +3,54 @@
 Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
-#%% Imports
-import numpy as np
-from numpy import ndarray
-import scipy.linalg as la
-from scipy.sparse import spmatrix, issparse
-import scipy.sparse as sps
-import scipy.sparse.linalg as spsla
-from lowrank import LowRankMatrix, QuasiSVD
-from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
-from lowrank.krylov import KrylovSpace, ExtendedKrylovSpace, RationalKrylovSpace
-
 # Warnings
+from typing import Optional, Union
 from warnings import warn
 
+# %% Imports
+import numpy as np
+import scipy.linalg as la
+import scipy.sparse as sps
+import scipy.sparse.linalg as spsla
+from numpy import ndarray
+from scipy.sparse import issparse, spmatrix
+
+from ...matrices import LowRankMatrix, QuasiSVD
+from ...matrices.low_rank_matrix import LowRankEfficiencyWarning
+from ..spaces import ExtendedKrylovSpace, KrylovSpace, RationalKrylovSpace
 
 machine_precision = np.finfo(float).eps
 Matrix = ndarray | spmatrix | LowRankMatrix
 
-#%% FUNCTIONS
+# %% FUNCTIONS
+
 
 def solve_small_lyapunov(A: ndarray | spmatrix, C: ndarray) -> ndarray:
     "Solve the Lyapunov equation AX + XA = C for small matrices."
     # Convert sparse A to dense for scipy.linalg.solve_lyapunov
-    A_dense = A.toarray() if issparse(A) else A
+    A_dense: ndarray = A.toarray() if issparse(A) else A  # type: ignore[assignment, union-attr]
     return la.solve_lyapunov(A_dense, C)
 
-def solve_sparse_low_rank_symmetric_lyapunov(A: spmatrix,
-                                             C: LowRankMatrix,
-                                             tol: float = 1e-12,
-                                             max_iter: int = None,
-                                             krylov_kwargs: dict = None,
-                                             ) -> QuasiSVD:
+
+def solve_sparse_low_rank_symmetric_lyapunov(
+    A: spmatrix,
+    C: LowRankMatrix,
+    tol: float = 1e-12,
+    max_iter: Optional[int] = None,
+    krylov_kwargs: Optional[dict] = None,
+) -> QuasiSVD:
     """
     Low-rank solver for the symmetric Lyapunov equation:
-    
+
     Find X such that A X + X A = C.
-    
+
     NOTE: Matrices A and C must be symmetric, which is exploited to halve the computational cost.
     Uses a single Krylov space since the solution X is also symmetric.
-    
-    **Performance:** Uses the Lanczos algorithm (3-term recurrence) instead of Arnoldi 
-    (full orthogonalization), reducing computational cost by approximately 2x and storage 
+
+    **Performance:** Uses the Lanczos algorithm (3-term recurrence) instead of Arnoldi
+    (full orthogonalization), reducing computational cost by approximately 2x and storage
     by O(m²) → O(m) for the recurrence coefficients.
-    
+
     Parameters
     ----------
     A : spmatrix
@@ -66,12 +70,12 @@ def solve_sparse_low_rank_symmetric_lyapunov(A: spmatrix,
         - 'poles' (array_like): Poles for rational Krylov space
           WARNING: Rational Krylov currently uses Arnoldi even for symmetric A
           (Lanczos not yet implemented for rational case).
-        
+
     Returns
     -------
     QuasiSVD
         Symmetric low-rank solution X
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -120,17 +124,19 @@ def solve_sparse_low_rank_symmetric_lyapunov(A: spmatrix,
     X0 = C._matrices[0]
     if X0.ndim == 1:
         X0 = X0.reshape(-1, 1)
-    
+
     if extended:
         if invA is None:
             invA = lambda x: spsla.spsolve(A, x)
-        krylov_space = ExtendedKrylovSpace(A, X0, invA, is_symmetric=True)
+        krylov_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = ExtendedKrylovSpace(A, X0, invA, is_symmetric=True)
     elif poles is not None:
         krylov_space = RationalKrylovSpace(A, X0, poles, is_symmetric=True)
     else:
         krylov_space = KrylovSpace(A, X0, is_symmetric=True)
-        warn('Warning: standard Krylov space may not converge. Consider using extended or rational Krylov space.')
-        
+        warn(
+            "Warning: standard Krylov space may not converge. Consider using extended or rational Krylov space."
+        )
+
     # Current basis
     Uk = krylov_space.Q
 
@@ -150,8 +156,9 @@ def solve_sparse_low_rank_symmetric_lyapunov(A: spmatrix,
         AXk = Xk.dot_sparse(A, side="opposite")
         XkA = Xk.dot_sparse(A)
         # Compute residual norm
-        crit = (C - AXk - XkA).norm() / (2 * normA * la.norm(Yk) + normC)
-        
+        residual = C - AXk - XkA
+        crit = residual.norm() / (2 * normA * la.norm(Yk) + normC)  # type: ignore[union-attr]
+
         if crit < tol:
             # Truncate up to machine precision since the criterion overestimates the error
             return Xk.to_svd().truncate()
@@ -159,7 +166,7 @@ def solve_sparse_low_rank_symmetric_lyapunov(A: spmatrix,
             krylov_space.augment_basis()
             Uk = krylov_space.Q
 
-    warn('No convergence before max_iter')
+    warn("No convergence before max_iter")
     # Need to solve with final basis
     Ak = Uk.T.dot(A.dot(Uk))
     CUk = C.dot(Uk)
@@ -171,22 +178,21 @@ def solve_sparse_low_rank_symmetric_lyapunov(A: spmatrix,
     return X
 
 
-
-
-def solve_sparse_low_rank_non_symmetric_lyapunov(A: spmatrix,
-                                   C: LowRankMatrix,
-                                   tol: float = 1e-12,
-                                   max_iter: int = None,
-                                   krylov_kwargs: dict = None
-                                   ) -> QuasiSVD:
+def solve_sparse_low_rank_non_symmetric_lyapunov(
+    A: spmatrix,
+    C: LowRankMatrix,
+    tol: float = 1e-12,
+    max_iter: Optional[int] = None,
+    krylov_kwargs: Optional[dict] = None,
+) -> QuasiSVD:
     """
     Low-rank solver for the general Lyapunov equation:
-    
+
     Find X such that A X + X A^H = C.
-    
+
     Uses two Krylov spaces (left for A, right for A^H). The projected problem is solved
     as a Sylvester equation: Ak Y + Y Bk^H = Ck.
-    
+
     Parameters
     ----------
     A : spmatrix
@@ -204,7 +210,7 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(A: spmatrix,
         - 'invAH' (callable): Custom inverse function for A^H
         - 'poles_A' (array_like): Poles for rational Krylov space for A
         - 'poles_AH' (array_like): Poles for rational Krylov space for A^H
-        
+
     Returns
     -------
     QuasiSVD
@@ -235,7 +241,7 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(A: spmatrix,
     normC = C.norm()
     AH = A.T.conj()  # Hermitian transpose (conjugate transpose)
     U, V = C._matrices[0], C._matrices[-1].T.conj()
-    
+
     # Ensure U and V are 2D
     if U.ndim == 1:
         U = U.reshape(-1, 1)
@@ -246,23 +252,25 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(A: spmatrix,
     if extended:
         if invA is None:
             invA = lambda x: spsla.spsolve(A, x)
-        left_space = ExtendedKrylovSpace(A, U, invA)
+        left_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = ExtendedKrylovSpace(A, U, invA)
     elif poles_A is not None:
         left_space = RationalKrylovSpace(A, U, poles_A)
     else:
-        warn('Warning: standard Krylov space may not converge. Consider using extended or rational Krylov space.')
+        warn(
+            "Warning: standard Krylov space may not converge. Consider using extended or rational Krylov space."
+        )
         left_space = KrylovSpace(A, U)
 
     # Define the right Krylov space (for A^H)
     if extended:
         if invAH is None:
             invAH = lambda x: spsla.spsolve(AH, x)
-        right_space = ExtendedKrylovSpace(AH, V, invAH)
+        right_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = ExtendedKrylovSpace(AH, V, invAH)
     elif poles_AH is not None:
         right_space = RationalKrylovSpace(AH, V, poles_AH)
     else:
         right_space = KrylovSpace(AH, V)
-    
+
     # Current basis
     Uk = left_space.Q
     Vk = right_space.Q
@@ -286,8 +294,9 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(A: spmatrix,
         AXk = Xk.dot_sparse(A, side="opposite")  # A @ Xk
         XkAH = Xk.dot_sparse(AH)  # Xk @ A^H
         # Compute residual norm
-        crit = (C - AXk - XkAH).norm() / (2 * normA * la.norm(Yk) + normC)
-        
+        residual = C - AXk - XkAH
+        crit = residual.norm() / (2 * normA * la.norm(Yk) + normC)  # type: ignore[union-attr]
+
         if crit < tol or k == max_iter - 1:
             # Truncate to machine precision since the criterion overestimates the error
             return Xk.to_svd().truncate()
@@ -297,7 +306,7 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(A: spmatrix,
             right_space.augment_basis()
             Vk = right_space.Q
 
-    warn('No convergence before max_iter')
+    warn("No convergence before max_iter")
     # Need to solve with final basis
     Ak = Uk.T.dot(A.dot(Uk))
     Bk = Vk.T.dot(AH.dot(Vk))
@@ -308,25 +317,26 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(A: spmatrix,
     Yk = la.solve_sylvester(Ak, Bk.conj().T, Ck)
     X = QuasiSVD(Uk, Yk, Vk)
     return X
-    
 
-def solve_lyapunov(A: ndarray | spmatrix,
-                   C: ndarray | LowRankMatrix,
-                   tol: float = 1e-12,
-                   max_iter: int = None,
-                   is_symmetric: bool = None,
-                   krylov_kwargs: dict = None,
-                   ) -> ndarray | LowRankMatrix:
+
+def solve_lyapunov(
+    A: ndarray | spmatrix,
+    C: ndarray | LowRankMatrix,
+    tol: float = 1e-12,
+    max_iter: Optional[int] = None,
+    is_symmetric: Optional[bool] = None,
+    krylov_kwargs: Optional[dict] = None,
+) -> ndarray | LowRankMatrix:
     """
     Efficient low-rank compatible solver for the Lyapunov equation.
-    
+
     Find X such that AX + XA^H = C.
-    
+
     This function is a wrapper that selects the appropriate solver based on the types of A and C.
-    
+
     For lower computational cost, if A and C are symmetric, set is_symmetric=True.
-    This enables the use of the Lanczos algorithm (3-term recurrence) instead of 
-    Arnoldi (full orthogonalization), approximately halving the computational cost 
+    This enables the use of the Lanczos algorithm (3-term recurrence) instead of
+    Arnoldi (full orthogonalization), approximately halving the computational cost
     and memory usage per iteration.
 
     Parameters
@@ -344,14 +354,14 @@ def solve_lyapunov(A: ndarray | spmatrix,
         Exploits symmetry using Lanczos algorithm for ~2x speedup.
         If None, symmetry is auto-detected (with efficiency warning).
     krylov_kwargs : dict, optional
-        Krylov space configuration (see solve_sparse_low_rank_symmetric_lyapunov 
+        Krylov space configuration (see solve_sparse_low_rank_symmetric_lyapunov
         or solve_sparse_low_rank_non_symmetric_lyapunov for details)
-        
+
     Returns
     -------
     ndarray | LowRankMatrix
         The solution X, either dense or low-rank and symmetric if and only if C is symmetric.
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -379,7 +389,7 @@ def solve_lyapunov(A: ndarray | spmatrix,
     # Check Krylov kwargs
     if krylov_kwargs is None:
         # Default parameters for Krylov solver
-        krylov_kwargs = {'extended': True}
+        krylov_kwargs = {"extended": True}
     # Check symmetry input
     if is_symmetric is None:
         # Check symmetry of low-rank matrix C
@@ -387,11 +397,17 @@ def solve_lyapunov(A: ndarray | spmatrix,
             is_symmetric = np.allclose(C, C.T.conj())
         else:
             try:
-                warn("Checking symmetry of low-rank matrix C. For better performance, please provide is_symmetric bool input.", LowRankEfficiencyWarning)
+                warn(
+                    "Checking symmetry of low-rank matrix C. For better performance, please provide is_symmetric bool input.",
+                    LowRankEfficiencyWarning,
+                )
                 is_symmetric = C.is_symmetric()
             except:
                 Cd = C.to_dense()
-                warn("Checking symmetry of low-rank C via dense conversion. For better performance, please provide is_symmetric bool input.", LowRankEfficiencyWarning)
+                warn(
+                    "Checking symmetry of low-rank C via dense conversion. For better performance, please provide is_symmetric bool input.",
+                    LowRankEfficiencyWarning,
+                )
                 is_symmetric = np.allclose(Cd, Cd.T.conj())
         # Check symmetry of A if needed
         if is_symmetric:
@@ -403,22 +419,24 @@ def solve_lyapunov(A: ndarray | spmatrix,
             elif isinstance(A, ndarray):
                 if not np.allclose(A, A.T.conj()):
                     is_symmetric = False
-                    
+
     # Low rank solver
+    X: Union[QuasiSVD, ndarray]
     if isinstance(C, LowRankMatrix):
         # Convert dense A to sparse if needed
         if isinstance(A, ndarray):
             A = sps.csc_matrix(A)
         if is_symmetric:
-            X = solve_sparse_low_rank_symmetric_lyapunov(A, C, tol, max_iter, krylov_kwargs)
+            X = solve_sparse_low_rank_symmetric_lyapunov(
+                A, C, tol, max_iter, krylov_kwargs
+            )
         else:
-            X = solve_sparse_low_rank_non_symmetric_lyapunov(A, C, tol, max_iter, krylov_kwargs)
-            
+            X = solve_sparse_low_rank_non_symmetric_lyapunov(
+                A, C, tol, max_iter, krylov_kwargs
+            )
+
     # Dense solver
     else:
-        X = solve_small_lyapunov(A, C)
-    return X
-
-
-
-
+        X_dense: Union[QuasiSVD, ndarray] = solve_small_lyapunov(A, C)  # type: ignore[assignment]
+        X = X_dense
+    return X  # type: ignore[return-value]

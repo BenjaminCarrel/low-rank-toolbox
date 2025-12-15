@@ -12,7 +12,7 @@ solve_lyapunov : Solve the Lyapunov equation AX + XA^T = C
 Author: Benjamin Carrel, University of Geneva
 """
 
-from .sylvester_solvers import solve_sylvester
 from .lyapunov_solvers import solve_lyapunov
+from .sylvester_solvers import solve_sylvester
 
-__all__ = ['solve_sylvester', 'solve_lyapunov']
+__all__ = ["solve_sylvester", "solve_lyapunov"]

@@ -3,15 +3,19 @@
 Author: Benjamin Carrel, University of Geneva, 2024
 """
 
+from typing import Union
+
 import numpy as np
 from numpy import ndarray
 from scipy import linalg as la
 
 
-def DEIM(U: ndarray, 
-         return_projector: bool = False, 
-         return_inverse: bool = False, 
-         **extra_args) -> ndarray:
+def DEIM(
+    U: ndarray,
+    return_projector: bool = False,
+    return_inverse: bool = False,
+    **extra_args,
+) -> Union[list, tuple]:
     """
     DEIM - Discrete empirical interpolation method
 
@@ -22,7 +26,7 @@ def DEIM(U: ndarray,
         Nonlinear Model Reduction via Discrete Empirical Interpolation
         Saifon Chaturantabut and Danny C. Sorensen
         SIAM Journal on Scientific Computing 2010 32:5, 2737-2764
-    
+
 
     Parameters
     ----------
@@ -33,10 +37,10 @@ def DEIM(U: ndarray,
     return_inverse: bool
         If True, return also the inverse matrix inv(U[S, :])
     extra_args: dict
-        Additional arguments: 
+        Additional arguments:
             solve_kwargs: dict
                 Additional arguments for the solve function
-    
+
     Returns
     -------
     p: list
@@ -56,7 +60,7 @@ def DEIM(U: ndarray,
     # Loop of DEIM
     for i in np.arange(1, k):
         # Solve linear system
-        c =  np.linalg.solve(U[p, :i], U[p, i], **extra_args.get('solve_kwargs', {}))
+        c = np.linalg.solve(U[p, :i], U[p, i], **extra_args.get("solve_kwargs", {}))
         # Compute the residual and extract new max
         r = U[:, i] - U[:, :i].dot(c)
         pi = np.argmax(np.abs(r))

@@ -4,28 +4,32 @@ Author: Benjamin Carrel, University of Geneva, 2022-2023
 """
 
 # %% Imports
+from typing import Callable, Optional
+
 import numpy as np
-from numpy import ndarray
 import scipy.sparse.linalg as spsla
+from numpy import ndarray
 from scipy.sparse import spmatrix
+
 from .krylov_space import KrylovSpace
+
 
 # %% Class definition
 class InvertedKrylovSpace(KrylovSpace):
     """Inverted Krylov space.
-    
+
     Constructs the inverted Krylov space:
         IK_m(A, X) = span{A^(-1)X, A^(-2)X, ..., A^(-m)X}
-    
+
     This class wraps the KrylovSpace class by providing a custom matvec function
     that computes A^(-1) * v instead of A * v.
-    
+
     How to use
     ----------
     1. Initialize the inverted Krylov space with matrix A and vector/matrix X.
     2. Augment the basis as needed with the `augment_basis` method.
     3. Access the basis via the `basis` or `Q` attribute.
-    
+
     Attributes
     ----------
     A : spmatrix
@@ -38,7 +42,7 @@ class InvertedKrylovSpace(KrylovSpace):
         Orthonormal basis of the inverted Krylov space
     basis : ndarray
         Pointer to Q
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -61,7 +65,9 @@ class InvertedKrylovSpace(KrylovSpace):
     True
     """
 
-    def __init__(self, A: spmatrix, X: ndarray, invA: callable = None, **extra_args) -> None:
+    def __init__(
+        self, A: spmatrix, X: ndarray, invA: Optional[Callable] = None, **extra_args
+    ) -> None:
         """
         Parameters
         ----------
@@ -85,11 +91,13 @@ class InvertedKrylovSpace(KrylovSpace):
             raise ValueError("X contains NaN or Inf values")
         if np.any(np.isnan(A.data)) or np.any(np.isinf(A.data)):
             raise ValueError("A contains NaN or Inf values")
-        
+
         # Check if invA is provided
         if invA is None:
             spluA = spsla.splu(A)
-            invA = lambda x: spluA.solve(x).reshape(x.shape) # the reshape is needed for the case where x is a vector (because of the QR)
+            invA = lambda x: spluA.solve(x).reshape(
+                x.shape
+            )  # the reshape is needed for the case where x is a vector (because of the QR)
 
         # Define the matvec function that ensures output is 2D
         def matvec(v):
@@ -99,7 +107,7 @@ class InvertedKrylovSpace(KrylovSpace):
             return result
 
         # Call the KrylovSpace class
-        X = invA(X) # the inverted Krylov space starts from A^(-1)X
+        X = invA(X)  # the inverted Krylov space starts from A^(-1)X
         # Ensure X is 2D
         if X.ndim == 1:
             X = X.reshape(-1, 1)

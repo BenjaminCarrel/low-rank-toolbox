@@ -23,7 +23,7 @@ Quick Start
 >>> print(X)
 (100, 80) low-rank matrix rank 10 and type SVD.
 """
-from .matrices import *
 from .cssp import *
 from .krylov import *
+from .matrices import *
 from .randomized import *

@@ -14,9 +14,9 @@ QR : QR factorization (Q @ R)
 Authors: Benjamin Carrel and Rik Vorhaar, University of Geneva, 2022
 """
 
+from .low_rank_matrix import LowRankMatrix
+from .qr import QR
 from .quasi_svd import QuasiSVD
 from .svd import SVD
-from .qr import QR
-from .low_rank_matrix import LowRankMatrix
 
-__all__ = ['QuasiSVD', 'SVD', 'QR', 'LowRankMatrix']
+__all__ = ["QuasiSVD", "SVD", "QR", "LowRankMatrix"]

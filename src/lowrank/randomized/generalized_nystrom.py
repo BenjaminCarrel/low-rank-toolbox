@@ -3,19 +3,24 @@
 Author: Benjamin Carrel, University of Geneva, 2024
 """
 
+from typing import Optional
+
 import numpy as np
 from scipy.sparse.linalg import LinearOperator
+
+from ..matrices.low_rank_matrix import LowRankMatrix
 from ..matrices.quasi_svd import QuasiSVD
 from ..matrices.svd import SVD
-from ..matrices.low_rank_matrix import LowRankMatrix
 
 
-def generalized_nystrom(X: LinearOperator, 
-                        r: int, 
-                        oversampling_params: tuple = (10, 15), 
-                        epsilon: float = None,
-                        seed: int = 1234,
-                        **extra_data) -> QuasiSVD:
+def generalized_nystrom(
+    X: LinearOperator,
+    r: int,
+    oversampling_params: tuple = (10, 15),
+    epsilon: Optional[float] = None,
+    seed: int = 1234,
+    **extra_data,
+) -> QuasiSVD:
     """
     Generalized Nyström method
 
@@ -45,7 +50,7 @@ def generalized_nystrom(X: LinearOperator,
     -------
     QuasiSVD
         Near optimal best rank r approximation of X in QuasiSVD format
-        
+
     Notes
     -----
     This method returns a QuasiSVD (not SVD) because the middle matrix S
@@ -54,31 +59,33 @@ def generalized_nystrom(X: LinearOperator,
     """
     # Input validation
     if r < 1:
-        raise ValueError(f'Rank must be at least 1, got r={r}.')
+        raise ValueError(f"Rank must be at least 1, got r={r}.")
     if epsilon is not None and epsilon <= 0:
-        raise ValueError(f'Epsilon must be positive when provided, got epsilon={epsilon}.')
-    
+        raise ValueError(
+            f"Epsilon must be positive when provided, got epsilon={epsilon}."
+        )
+
     m, n = X.shape
     p1, p2 = oversampling_params
-    
+
     if r + p1 > n:
-        raise ValueError(f'Rank + p1 ({r + p1}) exceeds number of columns ({n}).')
+        raise ValueError(f"Rank + p1 ({r + p1}) exceeds number of columns ({n}).")
     if r + p2 > m:
-        raise ValueError(f'Rank + p2 ({r + p2}) exceeds number of rows ({m}).')
+        raise ValueError(f"Rank + p2 ({r + p2}) exceeds number of rows ({m}).")
     # Draw the two random matrices
     np.random.seed(seed)
-    J= np.random.randn(n, r + p1)
+    J = np.random.randn(n, r + p1)
     K = np.random.randn(m, r + p2)
 
     # Compute the factors
     if isinstance(X, LowRankMatrix):
         XJ = X.dot(J, dense_output=True)
-        KtX = X.dot(K.T, side='left', dense_output=True)
+        KtX = X.dot(K.T, side="left", dense_output=True)
     else:
         XJ = X.dot(J)
         KtX = K.T.dot(X)
     KtXJ = KtX.dot(J)
-    
+
     # Compute SVD of middle term and truncate for stable version
     if epsilon is None:
         C = SVD.truncated_svd(KtXJ, r=r)

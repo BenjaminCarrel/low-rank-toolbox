@@ -18,4 +18,4 @@ DEFAULT_ATOL = 100 * np.finfo(float).eps  # ~2.22e-14 for float64
 
 # Default relative tolerance for truncation (when used)
 # Singular values below max(sing_vals) * DEFAULT_RTOL are truncated
-DEFAULT_RTOL = None # Disable by default, can be set to a float value like 1e-8
+DEFAULT_RTOL = None  # Disable by default, can be set to a float value like 1e-8

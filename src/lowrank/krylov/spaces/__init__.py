@@ -12,14 +12,14 @@ ExtendedKrylovSpace : Extended Krylov subspace EK_m(A, b)
 RationalKrylovSpace : Rational Krylov subspace with arbitrary poles
 """
 
-from .krylov_space import KrylovSpace
-from .inverted_krylov_space import InvertedKrylovSpace
 from .extended_krylov_space import ExtendedKrylovSpace
+from .inverted_krylov_space import InvertedKrylovSpace
+from .krylov_space import KrylovSpace
 from .rational_krylov_space import RationalKrylovSpace
 
 __all__ = [
-    'KrylovSpace',
-    'InvertedKrylovSpace',
-    'ExtendedKrylovSpace',
-    'RationalKrylovSpace',
+    "KrylovSpace",
+    "InvertedKrylovSpace",
+    "ExtendedKrylovSpace",
+    "RationalKrylovSpace",
 ]

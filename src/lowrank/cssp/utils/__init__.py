@@ -16,4 +16,4 @@ Author: Benjamin Carrel, University of Geneva
 from .givens import givens
 from .sRRQR import sRRQR, sRRQR_rank, sRRQR_tol
 
-__all__ = ['givens', 'sRRQR', 'sRRQR_rank', 'sRRQR_tol']
+__all__ = ["givens", "sRRQR", "sRRQR_rank", "sRRQR_tol"]

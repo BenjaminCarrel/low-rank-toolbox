@@ -1,4 +1,3 @@
-
 """Arnoldi iteration algorithms for Krylov subspaces.
 
 Author: Benjamin Carrel, University of Geneva, 2022-2023
@@ -6,17 +5,20 @@ Author: Benjamin Carrel, University of Geneva, 2022-2023
 
 # %% Imports
 from __future__ import annotations
+
+from typing import Callable, Optional
+
 import numpy as np
-from numpy import ndarray
 import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
+from numpy import ndarray
 from scipy.sparse import spmatrix
 
 
 # %% Functions
 def Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int) -> tuple[ndarray, ndarray]:
-    """Arnoldi algorithm. 
+    """Arnoldi algorithm.
     Computes orthogonal basis of a Krylov space:
         PK_m(A,x) = span{x, A x, A^2 x, ..., A^(m-1) x}
     where A is a non-symmetric matrix, and x is a vector.
@@ -37,7 +39,7 @@ def Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int) -> tuple[ndarray, ndarray
         Orthogonal Matrix of shape (n,m) containing the basis of the Krylov space
     H : ndarray
         Hessenberg Matrix of shape (m,m) containing the projection of A on the Krylov space
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -55,10 +57,12 @@ def Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int) -> tuple[ndarray, ndarray
     True
     """
     # Check inputs
-    assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
+    assert isinstance(
+        A, (np.ndarray, spmatrix)
+    ), "A must be a numpy array or a scipy sparse matrix"
     assert isinstance(x, np.ndarray), "x must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
-    
+
     # Sanity check
     x = x.reshape(-1)
     if len(x) != A.shape[0]:
@@ -80,18 +84,21 @@ def Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int) -> tuple[ndarray, ndarray
     # Arnoldi algorithm
     for j in np.arange(m):
         u = A.dot(Q[:, j])
-        for i in np.arange(j+1):
+        for i in np.arange(j + 1):
             H[i, j] = Q[:, i].conj().T.dot(u)
             u = u - H[i, j] * Q[:, i]
-        if j < m-1:
-            H[j+1, j] = la.norm(u)
-            if H[j+1, j] < 1e-15:
-                print('Lucky breakdown.')
+        if j < m - 1:
+            H[j + 1, j] = la.norm(u)
+            if H[j + 1, j] < 1e-15:
+                print("Lucky breakdown.")
                 break
-            Q[:, j+1] = u/H[j+1, j]
+            Q[:, j + 1] = u / H[j + 1, j]
     return Q, H
 
-def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: float = 0) -> tuple[ndarray, ndarray]:
+
+def shift_and_invert_Arnoldi(
+    A: ndarray | spmatrix, x: ndarray, m: int, shift: float = 0
+) -> tuple[ndarray, ndarray]:
     """Arnoldi algorithm with shift and invert.
     Computes orthogonal basis of a Krylov space:
         SK_m(A,x) = span{x, (A - sI)^(-1) x, ..., (A - sI)^(-m+1) x}
@@ -115,7 +122,7 @@ def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: f
         Orthogonal Matrix of shape (n, m) containing the basis of the Krylov space
     H : ndarray
         Hessenberg Matrix of shape (m, m) containing the projection of A on the Krylov space
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -131,7 +138,9 @@ def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: f
     (3, 2)
     """
     # Check inputs
-    assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
+    assert isinstance(
+        A, (np.ndarray, spmatrix)
+    ), "A must be a numpy array or a scipy sparse matrix"
     assert isinstance(x, np.ndarray), "x must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
     assert isinstance(shift, (int, float, complex)), "shift must be a number"
@@ -143,7 +152,7 @@ def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: f
         raise ValueError("x must have the same size as A")
     if m > A.shape[0]:
         raise ValueError("m must be smaller than the dimension of the matrix")
-    
+
     # dtype depends on the type of A, X and shift
     dtype = A.dtype
     if x.dtype != dtype:
@@ -158,20 +167,26 @@ def shift_and_invert_Arnoldi(A: ndarray | spmatrix, x: ndarray, m: int, shift: f
     Q[:, 0] = x / la.norm(x)
 
     # Arnoldi algorithm
-    for j in np.arange(m-1):
-        u = spsla.spsolve(A - shift*sps.eye(n, format='csc'), Q[:, j])
-        for i in np.arange(j+1):
+    for j in np.arange(m - 1):
+        u = spsla.spsolve(A - shift * sps.eye(n, format="csc"), Q[:, j])
+        for i in np.arange(j + 1):
             H[i, j] = Q[:, i].conj().T.dot(u)
             u = u - H[i, j] * Q[:, i]
-        H[j+1, j] = la.norm(u)
-        if H[j+1, j] < 1e-15:
-            print('Lucky breakdown.')
+        H[j + 1, j] = la.norm(u)
+        if H[j + 1, j] < 1e-15:
+            print("Lucky breakdown.")
             break
-        Q[:, j+1] = u/H[j+1, j]
+        Q[:, j + 1] = u / H[j + 1, j]
     return Q, H
 
 
-def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = False, inverses: list = None) -> tuple[ndarray, ndarray]:
+def rational_Arnoldi(
+    A: spmatrix,
+    x: ndarray,
+    poles: list,
+    invert_only: bool = False,
+    inverses: Optional[list] = None,
+) -> tuple[ndarray, ndarray]:
     """Arnoldi algorithm with rational Krylov space.
     Computes orthogonal basis of a Krylov space:
         RK_m(A,x) = q_m(A) PK_m(A,x)
@@ -198,7 +213,7 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
         Orthogonal Matrix of shape (n, m) containing the basis of the Krylov space
     H : ndarray
         Hessenberg Matrix of shape (m, m) containing the projection of A on the Krylov space
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -222,18 +237,20 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
     # infty poles are not supported yet.
     assert np.inf not in poles, "infty poles are not supported yet"
-    if not invert_only: # check that 0 in not in the list of poles
-        assert 0 not in poles, "rational krylov does not work with 0 in the list of poles (the basis is not orthogonal)"
+    if not invert_only:  # check that 0 in not in the list of poles
+        assert (
+            0 not in poles
+        ), "rational krylov does not work with 0 in the list of poles (the basis is not orthogonal)"
 
     # Sanity check
-    m = len(poles)+1
+    m = len(poles) + 1
     n = A.shape[0]
     x = x.reshape(-1)
     if len(x) != A.shape[0]:
         raise ValueError("x must have the same size as A")
     if m > A.shape[0]:
         raise ValueError("m must be smaller than the dimension of the matrix")
-    
+
     # dtype depends on the type of A, X and poles
     dtype = A.dtype
     if x.dtype != dtype:
@@ -252,8 +269,10 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
     for i, pole in enumerate(poles):
         if inverses[i] is None:
             # Use default argument to capture pole value (avoid lambda closure bug)
-            inverses[i] = lambda v, p=pole: spsla.spsolve(A - p*sps.eye(n, format='csc'), small_matvec(v))
-            
+            inverses[i] = lambda v, p=pole: spsla.spsolve(
+                A - p * sps.eye(n, format="csc"), small_matvec(v)
+            )
+
     # Initialize
     Q = np.zeros((n, m), dtype=dtype)
     H = np.zeros((m, m), dtype=dtype)
@@ -262,19 +281,20 @@ def rational_Arnoldi(A: spmatrix, x: ndarray, poles: list, invert_only: bool = F
     # Arnoldi algorithm
     for j in np.arange(len(poles)):
         u = inverses[j](Q[:, j])
-        for i in np.arange(j+1):
+        for i in np.arange(j + 1):
             H[i, j] = Q[:, i].conj().T.dot(u)
             u = u - H[i, j] * Q[:, i]
-        if j < m-1:
-            H[j+1, j] = la.norm(u)
-            if H[j+1, j] < 1e-15:
-                print('Lucky breakdown.')
+        if j < m - 1:
+            H[j + 1, j] = la.norm(u)
+            if H[j + 1, j] < 1e-15:
+                print("Lucky breakdown.")
                 break
-            Q[:, j+1] = u/H[j+1, j]
+            Q[:, j + 1] = u / H[j + 1, j]
     return Q, H
 
+
 def block_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, ndarray]:
-    """ Block Arnoldi algorithm.
+    """Block Arnoldi algorithm.
     Compute orthogonal basis of a Krylov space:
         PK_m(A,X) = span{X, A X, A^2 X, ..., A^(m-1) X}
     where A is a (non-symmetric) matrix, and X is a (tall) matrix.
@@ -296,7 +316,7 @@ def block_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, n
         Matrix of shape (n,m*r) containing the basis of the Krylov space
     H : ndarray
         Matrix of shape (m*r,m*r) containing the Hessenberg matrix
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -314,33 +334,45 @@ def block_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, n
     True
     """
     # Check inputs
-    assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
+    assert isinstance(
+        A, (np.ndarray, spmatrix)
+    ), "A must be a numpy array or a scipy sparse matrix"
     assert isinstance(X, np.ndarray), "X must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
     # Sanity check
     if X.ndim != 2:
         raise ValueError("X must be a vector or a matrix")
     (n, r) = X.shape
-    if m*r > A.shape[0]:
+    if m * r > A.shape[0]:
         raise ValueError("The size of the Krylov space is too large")
 
     # Initialize
-    Q = np.zeros((n, m*r), dtype=A.dtype)
-    H = np.zeros((m*r, m*r), dtype=A.dtype)
-    Q[:, :r], _ = la.qr(X, mode='economic')
+    Q = np.zeros((n, m * r), dtype=A.dtype)
+    H = np.zeros((m * r, m * r), dtype=A.dtype)
+    Q[:, :r], _ = la.qr(X, mode="economic")
 
     # Arnoldi algorithm
     for j in np.arange(m):
-        Wj = A.dot(Q[:, j*r:(j+1)*r])
-        for i in np.arange(j+1):
-            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].conj().T.dot(Wj)
-            Wj = Wj - Q[:, i*r:(i+1)*r].dot(H[i*r:(i+1)*r, j*r:(j+1)*r])
-        if j < m-1:
-            Q[:, (j+1)*r:(j+2)*r], H[(j+1)*r:(j+2)*r, j*r:(j+1)*r] = la.qr(Wj, mode='economic')
+        Wj = A.dot(Q[:, j * r : (j + 1) * r])
+        for i in np.arange(j + 1):
+            H[i * r : (i + 1) * r, j * r : (j + 1) * r] = (
+                Q[:, i * r : (i + 1) * r].conj().T.dot(Wj)
+            )
+            Wj = Wj - Q[:, i * r : (i + 1) * r].dot(
+                H[i * r : (i + 1) * r, j * r : (j + 1) * r]
+            )
+        if j < m - 1:
+            (
+                Q[:, (j + 1) * r : (j + 2) * r],
+                H[(j + 1) * r : (j + 2) * r, j * r : (j + 1) * r],
+            ) = la.qr(Wj, mode="economic")
     return Q, H
 
-def block_shift_and_invert_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int, shift: float = 0, invA: callable = None) -> tuple[ndarray, ndarray]:
-    """ Block Arnoldi algorithm with shift and invert.
+
+def block_shift_and_invert_Arnoldi(
+    A: ndarray | spmatrix, X: ndarray, m: int, shift: float = 0, invA: Optional[Callable] = None
+) -> tuple[ndarray, ndarray]:
+    """Block Arnoldi algorithm with shift and invert.
     Compute orthogonal basis of a Krylov space:
         SK_m(A,X) = span{X, (A - sI)^(-1) X, ..., (A - sI)^(-m+1) X}
     where A is a matrix, and X is a (tall) matrix.
@@ -363,11 +395,13 @@ def block_shift_and_invert_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int, sh
     -------
     Q : ndarray
         Matrix of shape (n,m*r) containing the basis of the Krylov space
-    H : ndarray 
+    H : ndarray
         Matrix of shape (m*r,m*r) containing the Hessenberg matrix
     """
     # Check inputs
-    assert isinstance(A, (np.ndarray, spmatrix)), "A must be a numpy array or a scipy sparse matrix"
+    assert isinstance(
+        A, (np.ndarray, spmatrix)
+    ), "A must be a numpy array or a scipy sparse matrix"
     assert isinstance(X, np.ndarray), "X must be a numpy array"
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
     assert isinstance(shift, (int, float, complex)), "shift must be a number"
@@ -377,9 +411,9 @@ def block_shift_and_invert_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int, sh
     if X.ndim != 2:
         raise ValueError("X must be a vector or a matrix")
     (n, r) = X.shape
-    if m*r > A.shape[0]:
+    if m * r > A.shape[0]:
         raise ValueError("The size of the Krylov space is too large")
-    
+
     # dtype depends on the type of A, X and shift
     dtype = A.dtype
     if X.dtype != dtype:
@@ -388,27 +422,40 @@ def block_shift_and_invert_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int, sh
         dtype = np.promote_types(dtype, np.complex128)
 
     if invA is None:
-        spluA = spsla.splu(A - shift*sps.eye(n, format='csc'))
+        spluA = spsla.splu(A - shift * sps.eye(n, format="csc"))
         invA = lambda v: spluA.solve(v)
 
     # Initialize
-    Q = np.zeros((n, m*r), dtype=dtype)
-    H = np.zeros((m*r, m*r), dtype=dtype)
-    Q[:, :r], _ = la.qr(X, mode='economic')
+    Q = np.zeros((n, m * r), dtype=dtype)
+    H = np.zeros((m * r, m * r), dtype=dtype)
+    Q[:, :r], _ = la.qr(X, mode="economic")
 
     # Block Arnoldi algorithm
     for j in np.arange(m):
-        Wj = invA(Q[:, j*r:(j+1)*r])
-        for i in np.arange(j+1):
-            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].conj().T.dot(Wj)
-            Wj = Wj - Q[:, i*r:(i+1)*r].dot(H[i*r:(i+1)*r, j*r:(j+1)*r])
-        if j < m-1:
-            Q[:, (j+1)*r:(j+2)*r], H[(j+1)*r:(j+2)*r, j*r:(j+1)*r] = la.qr(Wj, mode='economic')
+        Wj = invA(Q[:, j * r : (j + 1) * r])
+        for i in np.arange(j + 1):
+            H[i * r : (i + 1) * r, j * r : (j + 1) * r] = (
+                Q[:, i * r : (i + 1) * r].conj().T.dot(Wj)
+            )
+            Wj = Wj - Q[:, i * r : (i + 1) * r].dot(
+                H[i * r : (i + 1) * r, j * r : (j + 1) * r]
+            )
+        if j < m - 1:
+            (
+                Q[:, (j + 1) * r : (j + 2) * r],
+                H[(j + 1) * r : (j + 2) * r, j * r : (j + 1) * r],
+            ) = la.qr(Wj, mode="economic")
     return Q, H
 
 
-def block_rational_Arnoldi(A: ndarray | spmatrix, X: ndarray, poles: list, inverse_only: bool = False, inverses: list = None) -> tuple[ndarray, ndarray]:
-    """ Block Arnoldi algorithm with rational Krylov space.
+def block_rational_Arnoldi(
+    A: ndarray | spmatrix,
+    X: ndarray,
+    poles: list,
+    inverse_only: bool = False,
+    inverses: Optional[list] = None,
+) -> tuple[ndarray, ndarray]:
+    """Block Arnoldi algorithm with rational Krylov space.
     Compute orthogonal basis of a Krylov space:
         RK_m(A,X) = q_m(A) PK_m(A,X)
         q_m(A) = (A - p_1 I)^(-1) ... (A - p_m I)^(-1)
@@ -441,17 +488,19 @@ def block_rational_Arnoldi(A: ndarray | spmatrix, X: ndarray, poles: list, inver
     assert A.shape[0] == A.shape[1], "A must be a square matrix"
     # infty poles are not supported yet.
     assert np.inf not in poles, "infty poles are not supported yet"
-    if not inverse_only: # check that 0 in not in the list of poles
-        assert 0 not in poles, "rational krylov does not work with 0 in the list of poles (the basis is not orthogonal)"
+    if not inverse_only:  # check that 0 in not in the list of poles
+        assert (
+            0 not in poles
+        ), "rational krylov does not work with 0 in the list of poles (the basis is not orthogonal)"
 
     # Sanity check
-    m = len(poles)+1
+    m = len(poles) + 1
     if X.ndim != 2:
         raise ValueError("X must be a vector or a matrix")
     (n, r) = X.shape
-    if m*r > A.shape[0]:
+    if m * r > A.shape[0]:
         raise ValueError("The size of the Krylov space is too large")
-    
+
     # dtype depends on the type of A, X and poles
     dtype = A.dtype
     if X.dtype != dtype:
@@ -465,27 +514,36 @@ def block_rational_Arnoldi(A: ndarray | spmatrix, X: ndarray, poles: list, inver
     for i in range(len(poles)):
         if inverses[i] is None:
             # Use default argument to capture pole value (avoid lambda closure bug)
-            inverses[i] = lambda v, p=poles[i]: spsla.spsolve(A - p*sps.eye(n, format='csc'), v)
-    
+            inverses[i] = lambda v, p=poles[i]: spsla.spsolve(
+                A - p * sps.eye(n, format="csc"), v
+            )
+
     if inverse_only:
         small_matvec = lambda v: v
     else:
         small_matvec = lambda v: A.dot(v)
 
     # Initialize
-    Q = np.zeros((n, m*r), dtype=dtype)
-    H = np.zeros((m*r, m*r), dtype=dtype)
-    Q[:, :r], _ = la.qr(X, mode='economic')
+    Q = np.zeros((n, m * r), dtype=dtype)
+    H = np.zeros((m * r, m * r), dtype=dtype)
+    Q[:, :r], _ = la.qr(X, mode="economic")
 
     # Block Arnoldi algorithm
     for j in np.arange(len(poles)):
         current_matvec = lambda v: inverses[j](small_matvec(v))
 
         # Arnoldi procedure
-        Wj = current_matvec(Q[:, j*r:(j+1)*r])
-        for i in np.arange(j+1):
-            H[i*r:(i+1)*r, j*r:(j+1)*r] = Q[:, i*r:(i+1)*r].conj().T.dot(Wj)
-            Wj = Wj - Q[:, i*r:(i+1)*r].dot(H[i*r:(i+1)*r, j*r:(j+1)*r])
-        if j < m-1:
-            Q[:, (j+1)*r:(j+2)*r], H[(j+1)*r:(j+2)*r, j*r:(j+1)*r] = la.qr(Wj, mode='economic')
+        Wj = current_matvec(Q[:, j * r : (j + 1) * r])
+        for i in np.arange(j + 1):
+            H[i * r : (i + 1) * r, j * r : (j + 1) * r] = (
+                Q[:, i * r : (i + 1) * r].conj().T.dot(Wj)
+            )
+            Wj = Wj - Q[:, i * r : (i + 1) * r].dot(
+                H[i * r : (i + 1) * r, j * r : (j + 1) * r]
+            )
+        if j < m - 1:
+            (
+                Q[:, (j + 1) * r : (j + 2) * r],
+                H[(j + 1) * r : (j + 2) * r, j * r : (j + 1) * r],
+            ) = la.qr(Wj, mode="economic")
     return Q, H

@@ -3,22 +3,27 @@
 Author: Benjamin Carrel, University of Geneva, 2024
 """
 
-import numpy as np
-from numpy import ndarray
-from .utils import sRRQR
-import scipy.linalg as la
+from typing import Optional, Union
 
-    
-def oversampling_sQDEIM(U: ndarray, 
-                        oversampling_size: int, 
-                        tol: float = None, 
-                        return_projection: bool = False,
-                        return_inverse: bool = False) -> list:
+import numpy as np
+import scipy.linalg as la
+from numpy import ndarray
+
+from .utils import sRRQR
+
+
+def oversampling_sQDEIM(
+    U: ndarray,
+    oversampling_size: int,
+    tol: Optional[float] = None,
+    return_projection: bool = False,
+    return_inverse: bool = False,
+) -> Union[tuple, list]:
     """
     Oversampling sQDEIM - Oversampled version of sQDEIM
 
     Reference:
-    ACCURACY AND STABILITY OF CUR DECOMPOSITIONS WITH OVERSAMPLING 
+    ACCURACY AND STABILITY OF CUR DECOMPOSITIONS WITH OVERSAMPLING
     (Taejun Park and Yuji Nakatsukasa)
 
     Parameters
@@ -50,7 +55,9 @@ def oversampling_sQDEIM(U: ndarray,
     if oversampling_size < 0:
         raise ValueError("Oversampling size must be positive")
     if oversampling_size > U.shape[1]:
-        raise ValueError("Oversampling size must be smaller than the number of columns of U")
+        raise ValueError(
+            "Oversampling size must be smaller than the number of columns of U"
+        )
     # sQDEIM
     _, k = U.shape
     m = k + oversampling_size
@@ -64,14 +71,16 @@ def oversampling_sQDEIM(U: ndarray,
 
     ## Algorithm 4.2 in reference
     _, _, vt = la.svd(U[p1, :], full_matrices=False)
-    Vp = vt.T.conj()[:, k-oversampling_size:]
+    Vp = vt.T.conj()[:, k - oversampling_size :]
 
     # Apply again SQDEIM on the unchosen rows
     # Store the first permutation for mapping back indices
     P_first = P
     P_U_temp = U[P_first[k:], :].dot(Vp)
     if tol is None:
-        Q, _, P_second = sRRQR(P_U_temp.T.conj(), eta=2, mode="rank", param=oversampling_size)
+        Q, _, P_second = sRRQR(
+            P_U_temp.T.conj(), eta=2, mode="rank", param=oversampling_size
+        )
         # Map back to original indices
         p2 = P_first[k:][P_second[:oversampling_size]]
     else:

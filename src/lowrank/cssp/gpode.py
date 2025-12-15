@@ -3,15 +3,19 @@
 Author: Benjamin Carrel, University of Geneva, 2024
 """
 
+from typing import Union
+
 import numpy as np
 import scipy.linalg as la
 
 
-def gpode(U, 
-          oversampling_size: int, 
-          return_projector: bool = False, 
-          return_inverse: bool = False, 
-          **extra_args) -> list:
+def gpode(
+    U,
+    oversampling_size: int,
+    return_projector: bool = False,
+    return_inverse: bool = False,
+    **extra_args,
+) -> Union[tuple, list]:
     """
     Gappy POD+E - Greedy algorithm for the selection of m rows of U
     Minimize the norm of the pseudoinverse of U[S, :]
@@ -33,7 +37,7 @@ def gpode(U,
     return_inverse: bool
         If True, return also the inverse of U[p, :]
     extra_args: dict
-        Additional arguments: 
+        Additional arguments:
             qr_kwargs: dict
                 Additional arguments for the QR factorization
             lstsq_kwargs: dict
@@ -50,17 +54,17 @@ def gpode(U,
     # QDEIM
     _, k = U.shape
     m = k + oversampling_size
-    _, _, P = la.qr(U.T.conj(), pivoting=True, **extra_args.get('qr_kwargs', {}))
+    _, _, P = la.qr(U.T.conj(), pivoting=True, **extra_args.get("qr_kwargs", {}))
     p = P[0:k]
     for _ in np.arange(k, m):
         # Compute SVD
         _, s, Wh = la.svd(U[p, :], full_matrices=False)
         # Compute the last gap
-        g = s[-2]**2 - s[-1]**2
+        g = s[-2] ** 2 - s[-1] ** 2
         Ub = Wh.dot(U.T.conj())
-        su = np.sum(np.abs(Ub)**2, axis=0)
+        su = np.sum(np.abs(Ub) ** 2, axis=0)
         r = g + su
-        r = r - np.sqrt((g + su)**2 - 4 * g * Ub[-1, :]**2)
+        r = r - np.sqrt((g + su) ** 2 - 4 * g * Ub[-1, :] ** 2)
         # Descending sort indexes
         I = np.argsort(r)[::-1]
         e = 0
@@ -69,7 +73,9 @@ def gpode(U,
             e += 1
         p = np.append(p, I[e])
     if return_projector:
-        P_U = la.lstsq(U[p, :].T.conj(), U.T.conj(), **extra_args.get('lstsq_kwargs', {}))[0].T.conj()
+        P_U = la.lstsq(
+            U[p, :].T.conj(), U.T.conj(), **extra_args.get("lstsq_kwargs", {})
+        )[0].T.conj()
         if return_inverse:
             inv_U = U.T.conj().dot(P_U)
             return p, P_U, inv_U

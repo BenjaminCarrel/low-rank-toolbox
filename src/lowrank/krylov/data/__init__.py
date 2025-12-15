@@ -11,4 +11,4 @@ extract_optimal_poles : Extract optimal poles for rational Krylov methods
 
 from .optimal_poles import extract_optimal_poles
 
-__all__ = ['extract_optimal_poles']
+__all__ = ["extract_optimal_poles"]

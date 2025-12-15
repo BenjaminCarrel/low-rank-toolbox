@@ -27,15 +27,13 @@ Author: Benjamin Carrel, University of Geneva
 """
 
 from .generalized_nystrom import generalized_nystrom
-from .randomized_svd import randomized_svd, adaptive_randomized_svd
-from .rangefinder import rangefinder, adaptive_rangefinder
+from .randomized_svd import adaptive_randomized_svd, randomized_svd
+from .rangefinder import adaptive_rangefinder, rangefinder
 
 __all__ = [
-    'generalized_nystrom',
-    'randomized_svd',
-    'adaptive_randomized_svd',
-    'rangefinder',
-    'adaptive_rangefinder',
+    "generalized_nystrom",
+    "randomized_svd",
+    "adaptive_randomized_svd",
+    "rangefinder",
+    "adaptive_rangefinder",
 ]
-
-

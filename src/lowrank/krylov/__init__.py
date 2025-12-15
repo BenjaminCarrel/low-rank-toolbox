@@ -14,7 +14,7 @@ data : Optimal pole selection and precomputed data
 Author: Benjamin Carrel, University of Geneva
 """
 
-from .spaces import *
-from .solvers import *
-from .utils import *
 from .data import *
+from .solvers import *
+from .spaces import *
+from .utils import *
