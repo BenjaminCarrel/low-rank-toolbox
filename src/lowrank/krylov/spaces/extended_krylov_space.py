@@ -85,7 +85,9 @@ class ExtendedKrylovSpace(SpaceStructure):
     True
     """
 
-    def __init__(self, A: spmatrix, X: ndarray, invA: Optional[Callable] = None, **extra_args):
+    def __init__(
+        self, A: spmatrix, X: ndarray, invA: Optional[Callable] = None, **extra_args
+    ):
         """
         Parameters
         ----------

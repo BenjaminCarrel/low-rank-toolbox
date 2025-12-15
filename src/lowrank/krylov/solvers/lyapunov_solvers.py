@@ -128,7 +128,9 @@ def solve_sparse_low_rank_symmetric_lyapunov(
     if extended:
         if invA is None:
             invA = lambda x: spsla.spsolve(A, x)
-        krylov_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = ExtendedKrylovSpace(A, X0, invA, is_symmetric=True)
+        krylov_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = (
+            ExtendedKrylovSpace(A, X0, invA, is_symmetric=True)
+        )
     elif poles is not None:
         krylov_space = RationalKrylovSpace(A, X0, poles, is_symmetric=True)
     else:
@@ -252,7 +254,9 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(
     if extended:
         if invA is None:
             invA = lambda x: spsla.spsolve(A, x)
-        left_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = ExtendedKrylovSpace(A, U, invA)
+        left_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = (
+            ExtendedKrylovSpace(A, U, invA)
+        )
     elif poles_A is not None:
         left_space = RationalKrylovSpace(A, U, poles_A)
     else:
@@ -265,7 +269,9 @@ def solve_sparse_low_rank_non_symmetric_lyapunov(
     if extended:
         if invAH is None:
             invAH = lambda x: spsla.spsolve(AH, x)
-        right_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = ExtendedKrylovSpace(AH, V, invAH)
+        right_space: Union[ExtendedKrylovSpace, RationalKrylovSpace, KrylovSpace] = (
+            ExtendedKrylovSpace(AH, V, invAH)
+        )
     elif poles_AH is not None:
         right_space = RationalKrylovSpace(AH, V, poles_AH)
     else:

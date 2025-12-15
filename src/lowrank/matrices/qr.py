@@ -1219,7 +1219,11 @@ class QR(LowRankMatrix):
 
     @classmethod
     def generate_random(
-        cls, shape: tuple, transposed: bool = False, seed: Optional[int] = None, **extra_data
+        cls,
+        shape: tuple,
+        transposed: bool = False,
+        seed: Optional[int] = None,
+        **extra_data,
     ) -> QR:
         """Generate a random QR decomposition.
 

@@ -1881,7 +1881,9 @@ class QuasiSVD(LowRankMatrix):
         return cls(Q, S, V)
 
     ## ADVANCED LINEAR ALGEBRA FEATURES
-    def pseudoinverse(self, rtol: Optional[float] = None, atol: float = DEFAULT_ATOL) -> QuasiSVD:
+    def pseudoinverse(
+        self, rtol: Optional[float] = None, atol: float = DEFAULT_ATOL
+    ) -> QuasiSVD:
         """
         Compute the Moore-Penrose pseudoinverse X⁺ efficiently.
 

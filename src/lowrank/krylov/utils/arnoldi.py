@@ -370,7 +370,11 @@ def block_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, n
 
 
 def block_shift_and_invert_Arnoldi(
-    A: ndarray | spmatrix, X: ndarray, m: int, shift: float = 0, invA: Optional[Callable] = None
+    A: ndarray | spmatrix,
+    X: ndarray,
+    m: int,
+    shift: float = 0,
+    invA: Optional[Callable] = None,
 ) -> tuple[ndarray, ndarray]:
     """Block Arnoldi algorithm with shift and invert.
     Compute orthogonal basis of a Krylov space:
