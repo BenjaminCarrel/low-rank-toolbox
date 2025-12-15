@@ -134,17 +134,10 @@ print(f"Generalized Nyström error: {np.linalg.norm(A - X_nystrom.to_dense(), 'f
 
 ### **For Users**
 
-Once the package is published, installation will be straightforward:
-
 ```bash
-# Via pip (when available on PyPI)
+# Via pip
 pip install lowrank
-
-# Via conda (when available on conda-forge)
-conda install -c conda-forge lowrank
 ```
-
-**Note:** The package is currently under development. For now, please use the developer installation method below.
 
 ### **For Developers**
 
