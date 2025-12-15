@@ -5,7 +5,7 @@
 
 # **Low-Rank Toolbox**
 
-`lowrank` is a Python library providing efficient data structures and algorithms for numerical linear algebra with low-rank matrices. The package is designed for researchers and practitioners who need performant and memory-conscious computations.
+`low-rank-toolbox` is a Python library providing efficient data structures and algorithms for numerical linear algebra with low-rank matrices. The package is designed for researchers and practitioners who need performant and memory-conscious computations.
 
 ## **Installation**
 
