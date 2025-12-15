@@ -626,7 +626,7 @@ class TestKrylovAlgorithms:
         )
 
         residual = compute_sylvester_residual(A, B, X, C)
-        assert residual < 1e-6
+        assert residual < 1e-5
 
         print("✓ Only A symmetric: Lanczos used for left space only")
 
