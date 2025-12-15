@@ -982,11 +982,12 @@ class SVD(QuasiSVD):
             output = SVD(new_U, s_m, new_V)
             if auto_truncate:
                 output = output.truncate(atol=DEFAULT_ATOL)
+            if dense_output:
+                return output.full()
+            else:
+                return output
         else:
-            output = super().dot(other)  # type: ignore[assignment]
-        if dense_output:
-            return output.todense()
-        else:
+            output = super().dot(other, dense_output=dense_output)  # type: ignore[assignment]
             return output
 
     def hadamard(
@@ -1103,12 +1104,17 @@ class SVD(QuasiSVD):
 
         Examples
         --------
-        >>> X = SVD.generate_random((100, 100), np.ones(20))
+        >>> X = SVD.generate_random((100, 100), np.ones(100))  # Full rank
         >>> b = np.random.randn(100)
         >>> x = X.solve(b)
         >>> # Check: X @ x ≈ b
         >>> np.allclose(X @ x, b)
         True
+
+        >>> # For rank-deficient systems, may have larger residual:
+        >>> X_deficient = SVD.generate_random((100, 100), np.ones(20))  # Rank 20
+        >>> x_deficient = X_deficient.solve(b, method='lstsq')
+        >>> # Residual may be non-zero for rank-deficient case
 
         See Also
         --------

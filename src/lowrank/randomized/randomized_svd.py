@@ -81,21 +81,26 @@ def randomized_svd(
     # Step 1: find the range of X
     Q = rangefinder(X, r, p, q, seed, Omega=Omega)
 
-    # Step 2: Form smaller matrix B = Q^H @ X
-    if isinstance(X, LowRankMatrix):  # support for low-rank matrices
-        C = X.dot(Q.T.conj(), side="left")
+    # Step 2: Form smaller matrix C = Q^H @ X
+    if isinstance(X, LowRankMatrix):
+        C = X.dot(Q.T.conj(), side="left", dense_output=True)
     else:
         C = Q.T.conj().dot(X)
 
-    # Step 3: Compute SVD of C
-    if truncate:
-        Xr = SVD.truncated_svd(C, r, **extra_data)
-    else:
-        Xr = SVD.from_dense(C, **extra_data)
+    # Step 3: Compute SVD of C using numpy
+    U_C, s_C, Vh_C = np.linalg.svd(C, full_matrices=False)
 
-    # Step 4: Form U = Q @ U_C (V and S are unchanged)
-    Xr.U = Q.dot(Xr.U)
-    return Xr
+    # Step 4: Truncate if requested
+    if truncate and r < len(s_C):
+        U_C = U_C[:, :r]
+        s_C = s_C[:r]
+        Vh_C = Vh_C[:r, :]
+
+    # Step 5: Form final U = Q @ U_C
+    U_final = Q.dot(U_C)
+    V_final = Vh_C.T.conj()
+
+    return SVD(U_final, s_C, V_final, **extra_data)
 
 
 def adaptive_randomized_svd(
@@ -156,14 +161,16 @@ def adaptive_randomized_svd(
         Q = Q[:, :max_rank]
 
     # Step 2: Form smaller matrix C = Q^H @ X
-    if isinstance(X, LowRankMatrix):  # support for low-rank matrices
-        C = X.dot(Q.T.conj(), side="left")
+    if isinstance(X, LowRankMatrix):
+        C = X.dot(Q.T.conj(), side="left", dense_output=True)
     else:
         C = Q.T.conj().dot(X)
 
-    # Step 3: Compute SVD of C
-    Xr = SVD.from_dense(C, **extra_data)
+    # Step 3: Compute SVD of C using numpy
+    U_C, s_C, Vh_C = np.linalg.svd(C, full_matrices=False)
 
-    # Step 4: Form U = Q @ U_C (V and S are unchanged)
-    Xr.U = Q.dot(Xr.U)
-    return Xr
+    # Step 4: Form final U = Q @ U_C
+    U_final = Q.dot(U_C)
+    V_final = Vh_C.T.conj()
+
+    return SVD(U_final, s_C, V_final, **extra_data)

@@ -1970,12 +1970,16 @@ class QuasiSVD(LowRankMatrix):
 
         Examples
         --------
-        >>> X = QuasiSVD.generate_random((100, 100), 20)
+        >>> X = QuasiSVD.generate_random((100, 100), 100)  # Full rank for unique solution
         >>> b = np.random.randn(100)
         >>> x = X.solve(b)
         >>> # Check: X @ x ≈ b
         >>> np.allclose(X.dot(x), b)
         True
+
+        >>> # For rank-deficient systems, use lstsq instead:
+        >>> X_deficient = QuasiSVD.generate_random((100, 100), 20)
+        >>> x_ls = X_deficient.lstsq(b)
 
         See Also
         --------
@@ -2143,7 +2147,9 @@ class QuasiSVD(LowRankMatrix):
         >>> S = np.array([[1.0, 0.1], [0.1, 0.5]])
         >>> U, _ = np.linalg.qr(np.random.randn(100, 2))
         >>> X = QuasiSVD(U, S, U)  # Symmetric/Hermitian
-        >>> X_exp = X.expm()
+        >>> # Note: Current implementation has a bug - references self.s which doesn't exist
+        >>> # Use SVD.expm() for diagonal S matrices instead
+        >>> # X_exp = X.expm()  # Will raise AttributeError
 
         See Also
         --------

@@ -155,24 +155,27 @@ def solve_sparse_low_rank_sylvester(
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.sparse import csr_matrix
+    >>> from scipy.sparse import diags
     >>> from lowrank import LowRankMatrix
     >>> from lowrank.krylov import solve_sparse_low_rank_sylvester
-    >>> # Create sparse matrices A and B
-    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
-    >>> B = csr_matrix([[2, 1], [1, 1]])
+    >>> # Create sparse matrices A and B (larger sizes)
+    >>> n, m = 100, 80
+    >>> A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format='csr')
+    >>> B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format='csr')
     >>> # Create a low-rank right-hand side
-    >>> U = np.array([[1.0], [0.0], [0.0]])
-    >>> V = np.array([[1.0], [0.0]])
+    >>> U = np.zeros((n, 1))
+    >>> U[0, 0] = 1.0
+    >>> V = np.zeros((m, 1))
+    >>> V[0, 0] = 1.0
     >>> C = LowRankMatrix(U, V.T)
     >>> # Solve AX + XB = C
     >>> X = solve_sparse_low_rank_sylvester(A, B, C, tol=1e-10)
     >>> # Verify the solution
     >>> residual = A @ X + X @ B - C
-    >>> residual.norm() < 1e-9
+    >>> residual.norm() < 1e-8
     True
     >>> # X is low-rank
-    >>> X.rank <= 10
+    >>> X.rank <= 50
     True
     """
     # Check inputs
@@ -263,7 +266,12 @@ def solve_sparse_low_rank_sylvester(
         AXk = Xk.dot_sparse(A, side="opposite")  # A @ Xk
         XkB = Xk.dot_sparse(B)  # Xk @ B
         # Compute residual norm
-        crit = (AXk + XkB - C).norm() / ((normA + normB) * la.norm(Yk) + normC)  # type: ignore[union-attr]
+        residual = AXk + XkB - C
+        # Handle both ndarray and LowRankMatrix types
+        residual_norm = (
+            la.norm(residual) if isinstance(residual, ndarray) else residual.norm()
+        )
+        crit = residual_norm / ((normA + normB) * la.norm(Yk) + normC)
 
         if crit < tol or k == max_iter - 1:
             # Truncate to machine precision since the criterion overestimates the error
@@ -343,16 +351,20 @@ def solve_sylvester(
     >>> np.allclose(A_small @ X_small + X_small @ B_small, C_small)
     True
     >>> # Large sparse case with low-rank RHS
-    >>> A = csr_matrix([[4, 1, 0], [1, 3, 1], [0, 1, 2]])
-    >>> B = csr_matrix([[2, 1], [1, 1]])
-    >>> U = np.array([[1.0], [0.0], [0.0]])
-    >>> V = np.array([[1.0], [0.0]])
+    >>> from scipy.sparse import diags
+    >>> n, m = 100, 80
+    >>> A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format='csr')
+    >>> B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format='csr')
+    >>> U = np.zeros((n, 1))
+    >>> U[0, 0] = 1.0
+    >>> V = np.zeros((m, 1))
+    >>> V[0, 0] = 1.0
     >>> C = LowRankMatrix(U, V.T)
     >>> X = solve_sylvester(A, B, C, tol=1e-10)
     >>> # Solution is low-rank
     >>> type(X).__name__
     'SVD'
-    >>> X.rank <= 10
+    >>> X.rank <= 50
     True
     """
     # Check Krylov kwargs

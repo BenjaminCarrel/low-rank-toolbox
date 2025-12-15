@@ -163,7 +163,7 @@ class QR(LowRankMatrix):
 
     >>> # Addition preserves QR structure (same transposed mode)
     >>> Y = QR.from_matrix(np.random.randn(100, 80))
-    >>> Z = X + Y  # Returns QR with rank = rank(X) + rank(Y)
+    >>> Z = X + Y  # Returns QR (may auto-truncate to min(m,n))
     >>>
     >>> # Frobenius norm computed from R only
     >>> norm_fro = X.norm('fro')  # O(rn) vs O(mnr) for full matrix
@@ -730,13 +730,13 @@ class QR(LowRankMatrix):
         >>> Y = QR.from_matrix(B)
         >>> Z = X + Y
         >>> print(isinstance(Z, QR))  # True
-        >>> print(Z.rank)  # rank(X) + rank(Y)
+        >>> print(Z.rank)  # May be less than rank(X) + rank(Y) due to QR compression
         >>> np.allclose(Z.full(), A + B)  # True
 
         **With mismatched modes:**
         >>> X_std = QR.from_matrix(A, transposed=False)
         >>> Y_trans = QR.from_matrix(B, transposed=True)
-        >>> Z = X_std + Y_trans  # Falls back to LowRankMatrix
+        >>> # Note: Addition with mismatched shapes will raise ValueError
         >>> print(isinstance(Z, QR))  # False (loses QR structure)
 
         See Also
@@ -823,19 +823,18 @@ class QR(LowRankMatrix):
         >>> Y = QR.from_matrix(B)
         >>> Z = X - Y
         >>> print(isinstance(Z, QR))  # True
-        >>> print(Z.rank)  # rank(X) + rank(Y)
+        >>> print(Z.rank)  # May be less than rank(X) + rank(Y) due to QR compression
         >>> np.allclose(Z.full(), A - B)  # True
 
         **Subtracting a matrix from itself:**
         >>> Z_zero = X - X
-        >>> print(Z_zero.rank)  # 2 * rank(X) (not 0!)
+        >>> print(Z_zero.rank)  # May be less than 2 * rank(X) due to auto-truncation
         >>> np.allclose(Z_zero.full(), 0)  # True (numerically zero)
 
         **With mismatched modes:**
         >>> X_std = QR.from_matrix(A, transposed=False)
         >>> Y_trans = QR.from_matrix(B, transposed=True)
-        >>> Z = X_std - Y_trans  # Falls back to LowRankMatrix
-        >>> print(isinstance(Z, QR))  # False
+        >>> # Note: Subtraction with mismatched shapes will raise ValueError
 
         See Also
         --------
@@ -1396,8 +1395,14 @@ class QR(LowRankMatrix):
         >>> A = np.random.randn(100, 80)
         >>> b = np.random.randn(100)
         >>> X = QR.from_matrix(A)
-        >>> x = X.solve(b)
-        >>> np.allclose(A @ x, b)
+        >>> # For overdetermined systems (more rows than columns), use lstsq instead:
+        >>> x = X.lstsq(b)
+        >>> # For square full-rank systems:
+        >>> A_square = np.random.randn(80, 80)
+        >>> X_square = QR.from_matrix(A_square)
+        >>> b_square = np.random.randn(80)
+        >>> x = X_square.solve(b_square)
+        >>> np.allclose(A_square @ x, b_square)
         True
         """
         # Validate input

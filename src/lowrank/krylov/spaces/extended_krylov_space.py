@@ -193,6 +193,7 @@ class ExtendedKrylovSpace(SpaceStructure):
             # Recompute and cache
             self._Q_cache = la.qr(np.hstack((self.Q1, self.Q2)), mode="economic")[0]
             self._cache_size = current_size
+        assert self._Q_cache is not None, "Q cache should be initialized"
         return self._Q_cache
 
     @property

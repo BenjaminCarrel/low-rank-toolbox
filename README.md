@@ -38,7 +38,7 @@ import numpy as np
 from lowrank import SVD
 
 # Create orthonormal matrices
-m, n, r = 1000, 800, 20
+m, n, r = 1000, 1000, 20
 U, _ = np.linalg.qr(np.random.randn(m, r))
 V, _ = np.linalg.qr(np.random.randn(n, r))
 s = np.logspace(0, -3, r)  # Singular values with exponential decay
@@ -46,7 +46,7 @@ s = np.logspace(0, -3, r)  # Singular values with exponential decay
 # Create SVD representation (only stores U, s, V - not the full matrix!)
 X = SVD(U, s, V)
 print(f"Matrix shape: {X.shape}, Rank: {X.rank}")
-print(f"Memory savings: {X.compression_ratio():.1%}")
+print(f"Memory savings factor: x{1/X.compression_ratio():.2f}")
 
 # Efficient operations exploiting low-rank structure
 norm = X.norm('fro')      # Frobenius norm: O(r) instead of O(mn)
@@ -57,11 +57,12 @@ Y = X @ X.T              # Matrix multiplication returns SVD
 ### **Computing SVD from Matrices**
 
 ```python
+import numpy as np
 from lowrank.matrices import SVD
 
 # Full SVD
-A = np.random.randn(500, 400)
-X_full = SVD.reduced_svd(A)
+s_vals = np.logspace(0, -15, 30)
+A = SVD.generate_random(shape=(1000, 1000), sing_vals=s_vals)
 
 # Truncated SVD (keep top 10 singular values)
 X_trunc = SVD.truncated_svd(A, r=10)
@@ -96,20 +97,21 @@ print(f"Interpolation error: {error:.2e}")
 Solve large-scale Lyapunov equations:
 
 ```python
+import numpy as np
 from scipy.sparse import diags
-from lowrank import solve_lyapunov, LowRankMatrix
+from lowrank import solve_lyapunov
+from lowrank.matrices import SVD
 
 # Large sparse matrix
 n = 10000
 A = diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format='csc')
 
 # Low-rank right-hand side: AX + XA^T = C
-C_left = np.random.randn(n, 5)
-C_right = np.random.randn(n, 5)
-C = LowRankMatrix(C_left, C_right.T)
+s_vals = np.logspace(0, -15, 5)
+C = SVD.generate_random(shape=(n, n), sing_vals=s_vals, is_symmetric=True)
 
 # Solve using Krylov methods (never forms full n×n solution!)
-X = solve_lyapunov(A, C, tol=1e-8)
+X = solve_lyapunov(A, C, tol=1e-8, is_symmetric=True)
 print(f"Solution rank: {X.rank}")
 print(f"Solution shape: {X.shape}")
 ```
@@ -120,18 +122,21 @@ Fast approximation for large matrices:
 
 ```python
 from lowrank.randomized import randomized_svd, generalized_nystrom
+from lowrank.matrices import SVD
+import numpy as np
 
 # Large matrix
-A = np.random.randn(5000, 4000)
+s_vals = np.logspace(0, -15, 50)
+A = SVD.generate_random(shape=(1000, 1000), sing_vals=s_vals).todense()
 
 # Randomized SVD (much faster than full SVD)
-X_approx = randomized_svd(A, r=50, p=10, q=2)
+X_approx = randomized_svd(A, r=20, p=10, q=2)
 error = np.linalg.norm(A - X_approx.to_dense(), 'fro')
 print(f"Approximation error: {error:.2e}")
 
 # Generalized Nyström method (for symmetric/positive-semidefinite matrices)
 A_sym = A @ A.T
-X_nystrom = generalized_nystrom(A_sym, r=50, p=10)
+X_nystrom = generalized_nystrom(A_sym, r=20, oversampling_params=(10, 15))
 print(f"Generalized Nyström rank: {X_nystrom.rank}")
 print(f"Generalized Nyström error: {np.linalg.norm(A_sym - X_nystrom.to_dense(), 'fro'):.2e}")
 ```

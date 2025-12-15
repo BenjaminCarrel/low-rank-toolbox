@@ -136,8 +136,8 @@ Fast approximation for large matrices:
 
    # Generalized Nyström method (for symmetric/positive-semidefinite matrices)
    A_sym = A @ A.T
-   X_nystrom = generalized_nystrom(A_sym, r=50, p=10)
-   print(f"Nyström rank: {X_nystrom.rank}")
+   X_nystrom = generalized_nystrom(A_sym, r=50, oversampling_params=(10, 15))
+   print(f"Generalized Nyström rank: {X_nystrom.rank}")
 
 **Performance Benefits:**
 

@@ -86,15 +86,29 @@ def generalized_nystrom(
         KtX = K.T.dot(X)
     KtXJ = KtX.dot(J)
 
-    # Compute SVD of middle term and truncate for stable version
+    # Compute SVD of middle term using numpy
+    U_C, s_C, Vh_C = np.linalg.svd(KtXJ, full_matrices=False)
+
+    # Truncate based on rank or tolerance
     if epsilon is None:
-        C = SVD.truncated_svd(KtXJ, r=r)
+        # Truncate to rank r
+        U_C = U_C[:, :r]
+        s_C = s_C[:r]
+        Vh_C = Vh_C[:r, :]
     else:
-        C = SVD.truncated_svd(KtXJ, rtol=epsilon)
+        # Truncate based on relative tolerance
+        threshold = epsilon * s_C[0]
+        r_effective = int(np.sum(s_C > threshold))
+        U_C = U_C[:, :r_effective]
+        s_C = s_C[:r_effective]
+        Vh_C = Vh_C[:r_effective, :]
 
-    # Return in QuasiSVD format
-    U = XJ.dot(C.V)
-    S_inv = np.diag(1.0 / C.s)  # Inverse of diagonal matrix
-    V = (C.U.T.dot(KtX)).T
+    # Construct final QuasiSVD
+    V_C = Vh_C.T.conj()
+    U = XJ.dot(V_C)
+    S_inv = np.diag(1.0 / s_C)  # Inverse of diagonal matrix
+    V = (U_C.T.dot(KtX)).T
 
+    # Skip memory check for final result - QuasiSVD with inverted S matrix
+    # can have inflated storage, but this is expected for generalized Nyström
     return QuasiSVD(U, S_inv, V, **extra_data)

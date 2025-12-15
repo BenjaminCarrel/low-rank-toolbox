@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import warnings
 from copy import deepcopy
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 
 import numpy as np
 import scipy.sparse.linalg as spala
@@ -69,31 +69,34 @@ class LowRankMatrix(LinearOperator):
     >>> from lowrank import SVD
     >>> import numpy as np
     >>>
-    >>> # Create a low-rank matrix
-    >>> U = np.random.randn(1000, 10)
-    >>> s = np.logspace(0, -2, 10)
-    >>> V = np.random.randn(1000, 10)
+    >>> # Create a well-conditioned low-rank matrix
+    >>> U, _ = np.linalg.qr(np.random.randn(1000, 10))
+    >>> s = np.logspace(0, -1, 10)  # Better conditioned
+    >>> V, _ = np.linalg.qr(np.random.randn(1000, 10))
+    >>> # Add diagonal regularization for better conditioning
     >>> A = SVD(U, s, V)
+    >>> A_reg = A + 0.1 * LinearOperator((1000, 1000), matvec=lambda x: x)
     >>>
     >>> # Solve Ax = b using GMRES (never forms the full matrix)
     >>> b = np.random.randn(1000)
-    >>> x, info = gmres(A, b, rtol=1e-6)
-    >>> print(f"GMRES converged: {info == 0}")
+    >>> x, info = gmres(A_reg, b, rtol=1e-6, atol=1e-6, maxiter=100)
+    >>> assert info == 0  # Verify convergence
 
     Lazy composition with other operators:
 
     >>> from scipy.sparse import diags
     >>> from scipy.sparse.linalg import aslinearoperator
     >>>
-    >>> # Create a diagonal preconditioner
-    >>> D = diags([1.0 / (i + 1) for i in range(1000)])
+    >>> # Create a diagonal operator for better conditioning
+    >>> D = diags([0.5 for i in range(1000)])
     >>> D_op = aslinearoperator(D)
     >>>
     >>> # Lazy sum - doesn't form full matrix
     >>> B = A + D_op  # Returns _SumLinearOperator
     >>>
     >>> # Use in iterative solver
-    >>> x2, info2 = gmres(B, b, rtol=1e-6)
+    >>> x2, info2 = gmres(B, b, rtol=1e-6, atol=1e-6, maxiter=100)
+    >>> assert info2 == 0  # Verify convergence
 
     Matrix-vector products (efficient, no dense formation):
 
@@ -105,15 +108,17 @@ class LowRankMatrix(LinearOperator):
 
     Custom preconditioners:
 
+    >>> # Use the regularized matrix from above
     >>> def precondition(v):
-    ...     # Custom preconditioning function
-    ...     return v / (1 + np.arange(len(v)))
+    ...     # Simple diagonal preconditioner
+    ...     return v
     >>>
     >>> # Create LinearOperator from function
     >>> M = LinearOperator((1000, 1000), matvec=precondition)
     >>>
     >>> # Use as preconditioner
-    >>> x3, info3 = gmres(A, b, M=M, rtol=1e-6)
+    >>> x3, info3 = gmres(A_reg, b, M=M, rtol=1e-6, atol=1e-6, maxiter=100)
+    >>> assert info3 == 0  # Verify convergence
 
     Notes
     -----
@@ -992,7 +997,7 @@ class LowRankMatrix(LinearOperator):
             return self.copy()
 
         # Binary exponentiation
-        result = None
+        result: Optional[LowRankMatrix | ndarray] = None
         base = self.copy()
 
         while n > 0:
@@ -1002,7 +1007,9 @@ class LowRankMatrix(LinearOperator):
             if n > 0:
                 base = base.dot(base)
 
-        return result  # type: ignore[return-value]
+        assert result is not None, "Result should not be None for n > 0"
+        assert isinstance(result, LowRankMatrix), "Result should be LowRankMatrix"
+        return result
 
     ## SLICING SUPPORT
     def __getitem__(self, key) -> float | ndarray:
@@ -1033,6 +1040,9 @@ class LowRankMatrix(LinearOperator):
         --------
         >>> X = LowRankMatrix(A, B)
         >>> x_ij = X[2, 3]  # Single element (efficient via gather)
+        >>> row = X[2, :]   # Row slice (forms full matrix)
+        >>> block = X[0:5, 0:10]  # Block submatrix
+        >>> fancy = X[[0, 2, 4], [1, 3, 5]]  # Fancy indexing (returns 1D array of selected elements)
         >>> row = X[2, :]   # Row slice (forms full matrix)
         >>> block = X[0:5, 0:10]  # Block submatrix
         >>> fancy = X[[0, 2, 4], [1, 3, 5]]  # Fancy indexing

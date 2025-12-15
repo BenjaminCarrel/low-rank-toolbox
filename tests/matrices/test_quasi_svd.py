@@ -14,9 +14,6 @@ from numpy import ndarray
 
 from lowrank import LowRankMatrix, QuasiSVD
 
-# Configure pytest to ignore all warnings in this test file
-pytestmark = pytest.mark.filterwarnings("ignore")
-
 
 # %% Fixtures for creating test matrices
 @pytest.fixture
@@ -733,14 +730,35 @@ def test_memory_efficiency_warning():
     from lowrank.matrices.low_rank_matrix import MemoryEfficiencyWarning
 
     np.random.seed(9999)
-    # Create a "low-rank" matrix where rank is too high
-    m, n, r = 10, 8, 7  # r is very close to min(m, n)
+    # Create a "low-rank" matrix where rank is too high relative to dimensions
+    m, n, r = 10, 8, 7  # r is very close to min(m, n) - should trigger warning
     Q1, _ = la.qr(np.random.randn(m, r), mode="economic")
     Q2, _ = la.qr(np.random.randn(n, r), mode="economic")
     S = np.random.randn(r, r)
 
     with pytest.warns(MemoryEfficiencyWarning, match="Memory inefficiency"):
         X = QuasiSVD(Q1, S, Q2)
+
+    # Test that normal dimensions don't trigger warning
+    m, n, r = 100, 120, 10  # r is much smaller than min(m, n)
+    Q1, _ = la.qr(np.random.randn(m, r), mode="economic")
+    Q2, _ = la.qr(np.random.randn(n, r), mode="economic")
+    S = np.random.randn(r, r)
+
+    # This should NOT raise a warning
+    import warnings
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        X = QuasiSVD(Q1, S, Q2)
+        memory_warnings = [
+            warning
+            for warning in w
+            if issubclass(warning.category, MemoryEfficiencyWarning)
+        ]
+        assert (
+            len(memory_warnings) == 0
+        ), f"Should not trigger MemoryEfficiencyWarning for m={m}, n={n}, r={r}"
 
 
 # %% ===========================
@@ -2136,8 +2154,8 @@ def test_hadamard_with_quasisvd():
     ), "Hadamard between QuasiSVDs failed"
 
 
-def test_multi_add_basic():
-    """Test QuasiSVD.multi_add class method."""
+def test_multi_add_with_truncation():
+    """Test QuasiSVD.multi_add with automatic truncation."""
     np.random.seed(205)
     m, n, r = 12, 10, 3
 
@@ -2211,8 +2229,8 @@ def test_multi_add_auto_truncate():
     assert result.rank < 2 * r, f"Truncation didn't reduce rank: {result.rank}"
 
 
-def test_multi_dot_basic():
-    """Test QuasiSVD.multi_dot class method."""
+def test_multi_dot_chain():
+    """Test QuasiSVD.multi_dot with a chain of matrix multiplications."""
     np.random.seed(208)
 
     # Create chain of matrices for multiplication
