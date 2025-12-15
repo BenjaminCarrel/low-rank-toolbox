@@ -68,3 +68,11 @@ exclude_lines = [
 ]
 precision = 2
 show_missing = true
+
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311', 'py312']
+
+[tool.isort]
+profile = "black"
+line_length = 88
