@@ -190,7 +190,7 @@ If you use this package in your research, please cite:
 
 ```bibtex
 @software{lowrank2025,
-  author = {Carrel, Benjamin and Vorhaar, Rik},
+  author = {Carrel, Benjamin and Voorhaar, Rik},
   title = {Low-Rank Toolbox: Efficient Low-Rank Matrix Computations in Python},
   year = {2025},
   url = {https://github.com/BenjaminCarrel/low-rank-toolbox}
@@ -204,7 +204,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ## **Authors**
 
 - **Benjamin Carrel** - Paul Scherrer Institute / University of Geneva
-- **Rik Vorhaar** - University of Geneva
+- **Rik Voorhaar** - University of Geneva
 
 ## **Acknowledgments**
 
