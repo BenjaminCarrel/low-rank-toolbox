@@ -52,7 +52,7 @@ def QDEIM(
     """
     # Initialisation
     _, k = U.shape
-    (_, R, P) = la.qr(U.T.conj(), pivoting=True, **extra_args.get("qr_kwargs", {}))
+    _, R, P = la.qr(U.T.conj(), pivoting=True, **extra_args.get("qr_kwargs", {}))
     p = P[0:k]
     if return_projector:
         L = la.solve(R[:, :k], R[:, k:], **extra_args.get("solve_kwargs", {})).T.conj()

@@ -1347,7 +1347,7 @@ class LowRankMatrix(LinearOperator):
         """
         low_rank_size = self._compute_storage_size()
         dense_size = np.prod(self.shape)
-        return low_rank_size / dense_size
+        return float(low_rank_size / dense_size)
 
     @property
     def is_memory_efficient(self) -> bool:

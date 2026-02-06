@@ -157,7 +157,7 @@ def block_Lanczos(
     # Sanity check
     if X.ndim != 2:
         raise ValueError("X must be a matrix")
-    (n, r) = X.shape
+    n, r = X.shape
     if m * r > A.shape[0]:
         raise ValueError("The size of the Krylov space is too large")
 

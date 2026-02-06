@@ -342,7 +342,7 @@ def block_Arnoldi(A: ndarray | spmatrix, X: ndarray, m: int) -> tuple[ndarray, n
     # Sanity check
     if X.ndim != 2:
         raise ValueError("X must be a vector or a matrix")
-    (n, r) = X.shape
+    n, r = X.shape
     if m * r > A.shape[0]:
         raise ValueError("The size of the Krylov space is too large")
 
@@ -414,7 +414,7 @@ def block_shift_and_invert_Arnoldi(
     # Sanity check
     if X.ndim != 2:
         raise ValueError("X must be a vector or a matrix")
-    (n, r) = X.shape
+    n, r = X.shape
     if m * r > A.shape[0]:
         raise ValueError("The size of the Krylov space is too large")
 
@@ -501,7 +501,7 @@ def block_rational_Arnoldi(
     m = len(poles) + 1
     if X.ndim != 2:
         raise ValueError("X must be a vector or a matrix")
-    (n, r) = X.shape
+    n, r = X.shape
     if m * r > A.shape[0]:
         raise ValueError("The size of the Krylov space is too large")
 

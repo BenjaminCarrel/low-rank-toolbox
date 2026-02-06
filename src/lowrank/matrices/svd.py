@@ -749,7 +749,7 @@ class SVD(QuasiSVD):
             SVD matrix generated randomly
         """
         np.random.seed(seed)  # for reproducibility
-        (m, n) = shape
+        m, n = shape
         r = len(sing_vals)
         if is_symmetric:
             A = np.random.rand(m, r)
@@ -800,7 +800,7 @@ class SVD(QuasiSVD):
                 r = int(np.sum(self.sing_vals() > atol))
 
         # Truncate
-        (m, n) = self.shape
+        m, n = self.shape
         if r == 0:  # trivial case
             U = np.zeros((m, 0))
             s = np.zeros(0)
@@ -857,7 +857,7 @@ class SVD(QuasiSVD):
                 r = int(np.sum(self.sing_vals() > atol))
 
         # Truncate perpendicular
-        (m, n) = self.shape
+        m, n = self.shape
         if r == min(m, n):  # matrix is full rank -> perpendicular truncation is trivial
             U = np.zeros((m, 0))
             s = np.zeros(0)

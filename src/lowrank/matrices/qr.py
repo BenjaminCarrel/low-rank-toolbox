@@ -1329,7 +1329,7 @@ class QR(LowRankMatrix):
                 r = np.sum(R_diag > atol)
 
         # Truncate
-        (m, n) = self.shape
+        m, n = self.shape
         if r == 0:  # trivial case
             Q_new = np.zeros((m, 0), dtype=self.Q.dtype)
             R_new = np.zeros((0, n), dtype=self.R.dtype)
@@ -1529,15 +1529,18 @@ class QR(LowRankMatrix):
         >>> np.allclose(X_pinv @ A @ X_pinv, X_pinv)  # Property 2
         True
         """
+        # Determine rcond value (use numpy default if None)
+        pinv_rcond = rcond if rcond is not None else 1e-15
+
         if not self._transposed:
             # Standard mode: X = Q @ R
             # X^+ = R^+ @ Q.H
-            R_pinv = np.linalg.pinv(self.R, rcond=rcond)
+            R_pinv = np.linalg.pinv(self.R, rcond=pinv_rcond)
             X_pinv = R_pinv @ self.Q.T.conj()
         else:
             # Transposed mode: X = R.H @ Q.H
             # X^+ = (R.H @ Q.H)^+ = Q @ R^{-H}
-            R_pinv = np.linalg.pinv(self.R, rcond=rcond)
+            R_pinv = np.linalg.pinv(self.R, rcond=pinv_rcond)
             X_pinv = self.Q @ R_pinv.T.conj()
 
         return X_pinv
