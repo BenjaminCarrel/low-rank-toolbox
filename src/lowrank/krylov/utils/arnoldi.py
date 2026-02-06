@@ -279,9 +279,9 @@ def rational_Arnoldi(
     Q[:, 0] = x / la.norm(x)
 
     # Arnoldi algorithm
-    for j in np.arange(len(poles)):
+    for j in range(len(poles)):
         u = inverses[j](Q[:, j])
-        for i in np.arange(j + 1):
+        for i in range(j + 1):
             H[i, j] = Q[:, i].conj().T.dot(u)
             u = u - H[i, j] * Q[:, i]
         if j < m - 1:
@@ -533,12 +533,12 @@ def block_rational_Arnoldi(
     Q[:, :r], _ = la.qr(X, mode="economic")
 
     # Block Arnoldi algorithm
-    for j in np.arange(len(poles)):
+    for j in range(len(poles)):
         current_matvec = lambda v: inverses[j](small_matvec(v))
 
         # Arnoldi procedure
         Wj = current_matvec(Q[:, j * r : (j + 1) * r])
-        for i in np.arange(j + 1):
+        for i in range(j + 1):
             H[i * r : (i + 1) * r, j * r : (j + 1) * r] = (
                 Q[:, i * r : (i + 1) * r].conj().T.dot(Wj)
             )

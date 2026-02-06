@@ -3,7 +3,7 @@
 Author: Benjamin Carrel, University of Geneva, 2024
 """
 
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import scipy.linalg as la
@@ -18,7 +18,7 @@ def oversampling_sQDEIM(
     tol: Optional[float] = None,
     return_projection: bool = False,
     return_inverse: bool = False,
-) -> Union[tuple, list]:
+) -> Union[ndarray, Tuple[ndarray, ndarray], Tuple[ndarray, ndarray, ndarray]]:
     """
     Oversampling sQDEIM - Oversampled version of sQDEIM
 

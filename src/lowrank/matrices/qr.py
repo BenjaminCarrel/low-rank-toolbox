@@ -1323,10 +1323,10 @@ class QR(LowRankMatrix):
 
             if rtol is not None:
                 # Relative tolerance: compare to max diagonal element
-                r = np.sum(R_diag > R_diag[0] * rtol) if len(R_diag) > 0 else 0
+                r = int(np.sum(R_diag > R_diag[0] * rtol)) if len(R_diag) > 0 else 0
             else:
                 # Absolute tolerance
-                r = np.sum(R_diag > atol)
+                r = int(np.sum(R_diag > atol))
 
         # Truncate
         m, n = self.shape
