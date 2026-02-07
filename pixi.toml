@@ -31,3 +31,6 @@ black = "*"
 flake8 = "*"
 isort = "*"
 mypy = "*"
+
+[pypi-dependencies]
+low-rank-toolbox = { path = ".", editable = true }
