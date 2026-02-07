@@ -21,7 +21,9 @@ from lowrank.krylov.utils.arnoldi import (
 
 # %% Matrix to use: non-symmetric laplacian (artificial)
 n = 100
-A = -(n**2) * sps.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc", dtype=float)
+A = -(n**2) * sps.diags(
+    [-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc", dtype=float
+)
 
 # %% Vector case
 np.random.seed(1234)

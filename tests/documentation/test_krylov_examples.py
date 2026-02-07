@@ -325,8 +325,12 @@ class TestKrylovSolverIntegration:
         from scipy.sparse import diags
 
         n, m = 120, 80
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)  # 120x120
-        B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr", dtype=None)  # 80x80
+        A = diags(
+            [1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None
+        )  # 120x120
+        B = diags(
+            [1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr", dtype=None
+        )  # 80x80
 
         # C should be 120x80 (compatible with A @ X + X @ B)
         U = np.zeros((n, 1))  # 120x1
