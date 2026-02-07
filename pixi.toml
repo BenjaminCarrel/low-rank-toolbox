@@ -10,6 +10,8 @@ lint = "black --check src/ tests/ && isort --check-only src/ tests/"
 typecheck = "mypy src/lowrank --ignore-missing-imports"
 test = "pytest"
 quality = { depends-on = ["lint", "typecheck"] }
+docs = "cd docs && make html"
+ci = { depends-on = ["quality", "test"] }
 
 [dependencies]
 python = ">=3.10"
