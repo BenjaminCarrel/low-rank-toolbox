@@ -128,7 +128,7 @@ class TestKrylovSubspaceMethods:
         """Test solving large-scale Lyapunov equations."""
         # Large sparse matrix
         n = 10000
-        A = diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc")
+        A = diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc", dtype=None)
 
         # Low-rank right-hand side: AX + XA^T = C
         s_vals = np.logspace(0, -15, 5)

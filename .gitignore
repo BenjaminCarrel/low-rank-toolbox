@@ -28,4 +28,6 @@ docs/_build/
 docs/build/
 docs/source/_autosummary/
 docs/source/_templates
-docs/source/_static
+docs/source/_static# pixi environments
+.pixi/*
+!.pixi/config.toml

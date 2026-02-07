@@ -46,7 +46,7 @@ class TestLyapunovSolverExamples:
         from scipy.sparse import diags
 
         n = 100
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
         # Create a symmetric low-rank right-hand side
         U = np.zeros((n, 1))
         U[0, 0] = 1.0
@@ -80,7 +80,7 @@ class TestLyapunovSolverExamples:
         from scipy.sparse import diags
 
         n = 100
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
         U = np.zeros((n, 1))
         U[0, 0] = 1.0
         C = LowRankMatrix(U, U.T)
@@ -108,8 +108,8 @@ class TestSylvesterSolverExamples:
         from scipy.sparse import diags
 
         n, m = 100, 80
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
-        B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr")
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
+        B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr", dtype=None)
         # Create a low-rank right-hand side
         U = np.zeros((n, 1))
         U[0, 0] = 1.0
@@ -146,8 +146,8 @@ class TestSylvesterSolverExamples:
         from scipy.sparse import diags
 
         n, m = 100, 80
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
-        B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr")
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
+        B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr", dtype=None)
         U = np.zeros((n, 1))
         U[0, 0] = 1.0
         V = np.zeros((m, 1))
@@ -250,7 +250,7 @@ class TestKrylovSolverIntegration:
         from scipy.sparse import diags
 
         n = 100
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
         U = np.zeros((n, 1))
         U[0, 0] = 1.0
         C = LowRankMatrix(U, U.T)
@@ -286,7 +286,7 @@ class TestKrylovSolverIntegration:
         from scipy.sparse import diags
 
         n = 100
-        A_sym = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
+        A_sym = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
         U = np.zeros((n, 1))
         U[0, 0] = 1.0
         C = LowRankMatrix(U, U.T)
@@ -325,8 +325,8 @@ class TestKrylovSolverIntegration:
         from scipy.sparse import diags
 
         n, m = 120, 80
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")  # 120x120
-        B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr")  # 80x80
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)  # 120x120
+        B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format="csr", dtype=None)  # 80x80
 
         # C should be 120x80 (compatible with A @ X + X @ B)
         U = np.zeros((n, 1))  # 120x1
@@ -370,7 +370,7 @@ class TestKrylovExamplesEdgeCases:
         from scipy.sparse import diags
 
         n = 100
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
 
         # Create a rank-1 symmetric matrix
         u = np.zeros((n, 1))
@@ -398,7 +398,7 @@ class TestKrylovExamplesEdgeCases:
         from scipy.sparse import diags
 
         n = 100
-        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr")
+        A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format="csr", dtype=None)
 
         # Create symmetric low-rank C
         u = np.zeros((n, 1))

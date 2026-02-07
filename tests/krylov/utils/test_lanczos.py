@@ -13,7 +13,7 @@ from lowrank.krylov.utils.lanczos import Lanczos, block_Lanczos
 
 # %% Matrix to use: discretized laplacian
 n = 100
-A = sps.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc")
+A = sps.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc", dtype=None)
 
 # %% Vector case
 np.random.seed(1234)

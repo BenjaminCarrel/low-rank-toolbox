@@ -1,0 +1,31 @@
+[workspace]
+authors = ["BenjaminCarrel <benjamin.carrel@outlook.com>"]
+channels = ["conda-forge"]
+name = "low-rank-dev"
+platforms = ["osx-arm64", "linux-64", "win-64", "osx-64"]
+version = "0.1.0"
+
+[tasks]
+lint = "black --check src/ tests/ && isort --check-only src/ tests/"
+typecheck = "mypy src/lowrank --ignore-missing-imports"
+test = "pytest"
+quality = { depends-on = ["lint", "typecheck"] }
+
+[dependencies]
+python = ">=3.10"
+numpy = ">=1.21"
+scipy = ">=1.7"
+pip = "*"
+python-build = "*"
+twine = "*"
+pytest = "*"
+pytest-cov = "*"
+ipykernel = "*"
+sphinx = ">=7.0"
+sphinx_rtd_theme = "*"
+sphinx-autodoc-typehints = "*"
+myst-parser = "*"
+black = "*"
+flake8 = "*"
+isort = "*"
+mypy = "*"

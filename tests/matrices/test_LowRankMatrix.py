@@ -830,7 +830,7 @@ def test_expm_multiply():
 
     # Create a sparse matrix
     n = 10
-    A_sparse = sp.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc")
+    A_sparse = sp.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format="csc", dtype=None)
     h = 0.1
 
     # Test left multiplication: exp(h*A) @ X
@@ -1145,7 +1145,7 @@ def test_expm_multiply_invalid_side():
     import pytest
     import scipy.sparse as sp
 
-    A_sparse = sp.diags([1, 2, 1], [-1, 0, 1], shape=(10, 10), format="csc")
+    A_sparse = sp.diags([1, 2, 1], [-1, 0, 1], shape=(10, 10), format="csc", dtype=None)
     X_small = LowRankMatrix(np.random.randn(10, 5), np.random.randn(5, 6))
 
     with pytest.raises(ValueError, match="incorrect side"):
@@ -1159,7 +1159,7 @@ def test_expm_multiply_invalid_h():
     import pytest
     import scipy.sparse as sp
 
-    A_sparse = sp.diags([1, 2, 1], [-1, 0, 1], shape=(10, 10), format="csc")
+    A_sparse = sp.diags([1, 2, 1], [-1, 0, 1], shape=(10, 10), format="csc", dtype=None)
     X_small = LowRankMatrix(np.random.randn(10, 5), np.random.randn(5, 6))
 
     # Test h=0

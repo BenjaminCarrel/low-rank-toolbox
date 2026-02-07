@@ -159,15 +159,21 @@ To contribute or modify the package:
    cd low-rank-toolbox
    ```
 
-2. **Create the conda environment:**
+2. **Install pixi** (if not already installed):
    ```bash
-   conda env create -f environment.yml
-   conda activate low-rank-dev
+   curl -fsSL https://pixi.sh/install.sh | bash
    ```
 
-3. **Install in editable mode:**
+3. **Install the development environment:**
    ```bash
-   pip install -e .
+   pixi install
+   ```
+
+4. **Run commands in the environment:**
+   ```bash
+   pixi run test          # Run tests
+   pixi run quality       # Run linting + type checking
+   pixi run pytest -v     # Run any command
    ```
 
 ## **Verifying the Installation**
@@ -175,7 +181,7 @@ To contribute or modify the package:
 Run the comprehensive test suite (1000+ tests):
 
 ```bash
-pytest
+pixi run test
 ```
 
 All tests should pass. If you encounter any issues, please [open an issue](https://github.com/BenjaminCarrel/low-rank-toolbox/issues).
