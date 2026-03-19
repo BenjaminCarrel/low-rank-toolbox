@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank import QR, LowRankMatrix
+from low_rank_toolbox import QR, LowRankMatrix
 
 
 @pytest.fixture
@@ -1991,7 +1991,7 @@ def test_QR_to_svd_basic():
     X_svd = X_qr.to_svd()
 
     # Check type
-    from lowrank.matrices import SVD
+    from low_rank_toolbox.matrices import SVD
 
     assert isinstance(X_svd, SVD), "Should return SVD object"
 
@@ -2010,7 +2010,7 @@ def test_QR_from_svd_basic():
     np.random.seed(2001)
     A = np.random.randn(100, 80)
 
-    from lowrank.matrices import SVD
+    from low_rank_toolbox.matrices import SVD
 
     X_svd = SVD.from_matrix(A)
     X_qr = QR.from_svd(X_svd)
@@ -2054,7 +2054,7 @@ def test_QR_svd_roundtrip_reverse():
     np.random.seed(2003)
     A = np.random.randn(100, 80)
 
-    from lowrank.matrices import SVD
+    from low_rank_toolbox.matrices import SVD
 
     X_svd1 = SVD.from_matrix(A)
     X_qr = QR.from_svd(X_svd1)
@@ -2099,7 +2099,7 @@ def test_QR_from_svd_transposed():
     np.random.seed(2005)
     A = np.random.randn(100, 80)
 
-    from lowrank.matrices import SVD
+    from low_rank_toolbox.matrices import SVD
 
     X_svd = SVD.from_matrix(A)
 
@@ -2138,7 +2138,7 @@ def test_QR_from_svd_complex():
     A_imag = np.random.randn(80, 60)
     A = A_real + 1j * A_imag
 
-    from lowrank.matrices import SVD
+    from low_rank_toolbox.matrices import SVD
 
     X_svd = SVD.from_matrix(A)
     X_qr = QR.from_svd(X_svd)
@@ -2211,7 +2211,7 @@ def test_QR_from_svd_extra_data():
     np.random.seed(2012)
     A = np.random.randn(80, 60)
 
-    from lowrank.matrices import SVD
+    from low_rank_toolbox.matrices import SVD
 
     X_svd = SVD.from_matrix(A, poles=[1, 2, 3])
     X_qr = QR.from_svd(X_svd)
@@ -2239,7 +2239,7 @@ def test_QR_from_svd_override_extra_data():
     np.random.seed(2014)
     A = np.random.randn(80, 60)
 
-    from lowrank.matrices import SVD
+    from low_rank_toolbox.matrices import SVD
 
     X_svd = SVD.from_matrix(A, data1="original")
     X_qr = QR.from_svd(X_svd, data1="overridden", data2="new")

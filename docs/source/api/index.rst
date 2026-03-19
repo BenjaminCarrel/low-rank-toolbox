@@ -16,7 +16,7 @@ Core Modules
    :toctree: _autosummary
    :recursive:
 
-   lowrank.matrices
-   lowrank.cssp
-   lowrank.krylov
-   lowrank.randomized
+   low_rank_toolbox.matrices
+   low_rank_toolbox.cssp
+   low_rank_toolbox.krylov
+   low_rank_toolbox.randomized

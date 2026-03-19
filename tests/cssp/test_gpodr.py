@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank import gpodr
+from low_rank_toolbox import gpodr
 
 # ===========================
 # FIXTURES
@@ -239,7 +239,7 @@ def test_gpodr_large_oversampling(orthonormal_matrix):
 
 def test_gpodr_starts_with_qdeim(orthonormal_matrix):
     """Test that gpodr uses QDEIM ordering from QR pivoting."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     Q = orthonormal_matrix
     k = Q.shape[1]
@@ -261,7 +261,7 @@ def test_gpodr_starts_with_qdeim(orthonormal_matrix):
 
 def test_gpodr_extends_qdeim_ordering(orthonormal_matrix):
     """Test that gpodr extends QDEIM with more indices from pivoting order."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     Q = orthonormal_matrix
     k = Q.shape[1]
@@ -564,7 +564,7 @@ def test_gpodr_reproducibility():
 
 def test_gpodr_vs_qdeim_comparison():
     """Test that gpodr with oversampling=0 matches QDEIM."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     np.random.seed(52)
     A = np.random.randn(40, 6)
@@ -583,7 +583,7 @@ def test_gpodr_vs_qdeim_comparison():
 
 def test_gpodr_vs_gpode_both_work():
     """Test that both gpodr and gpode work on the same input."""
-    from lowrank import gpode
+    from low_rank_toolbox import gpode
 
     np.random.seed(53)
     A = np.random.randn(40, 5)

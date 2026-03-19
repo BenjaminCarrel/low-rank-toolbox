@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank import sQDEIM
+from low_rank_toolbox import sQDEIM
 
 # ===========================
 # FIXTURES
@@ -477,7 +477,7 @@ def test_sqdeim_reconstruction_accuracy(orthonormal_matrix):
 
 def test_sqdeim_vs_qdeim_both_work():
     """Test that both sQDEIM and QDEIM work on same input."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     np.random.seed(50)
     A = np.random.randn(30, 6)
@@ -504,7 +504,7 @@ def test_sqdeim_vs_qdeim_both_work():
 
 def test_sqdeim_better_conditioning():
     """Test that sQDEIM typically produces better conditioning than QDEIM."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     np.random.seed(51)
     # Create a matrix where conditioning matters

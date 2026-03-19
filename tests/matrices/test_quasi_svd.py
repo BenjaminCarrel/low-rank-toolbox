@@ -12,7 +12,7 @@ import pytest
 import scipy.linalg as la
 from numpy import ndarray
 
-from lowrank import LowRankMatrix, QuasiSVD
+from low_rank_toolbox import LowRankMatrix, QuasiSVD
 
 
 # %% Fixtures for creating test matrices
@@ -727,7 +727,7 @@ def test_very_small_matrix():
 
 def test_memory_efficiency_warning():
     """Test that memory efficiency warning is raised when appropriate."""
-    from lowrank.matrices.low_rank_matrix import MemoryEfficiencyWarning
+    from low_rank_toolbox.matrices.low_rank_matrix import MemoryEfficiencyWarning
 
     np.random.seed(9999)
     # Create a "low-rank" matrix where rank is too high relative to dimensions
@@ -768,7 +768,7 @@ def test_memory_efficiency_warning():
 
 def test_to_svd(simple_quasisvd):
     """Test conversion to SVD format."""
-    from lowrank.matrices.svd import SVD
+    from low_rank_toolbox.matrices.svd import SVD
 
     X, X_full = simple_quasisvd
 
@@ -791,7 +791,7 @@ def test_to_svd(simple_quasisvd):
 
 def test_truncate(simple_quasisvd):
     """Test truncation method."""
-    from lowrank.matrices.svd import SVD
+    from low_rank_toolbox.matrices.svd import SVD
 
     X, X_full = simple_quasisvd
 
@@ -848,7 +848,7 @@ def test_project_onto_column_space(simple_quasisvd):
     Y = np.random.randn(20, 10)
     result = X.project_onto_column_space(Y, dense_output=False)
 
-    from lowrank.matrices.qr import QR
+    from low_rank_toolbox.matrices.qr import QR
 
     assert isinstance(result, QR), "Should return QR object"
 
@@ -872,7 +872,7 @@ def test_project_onto_row_space(simple_quasisvd):
     Y = np.random.randn(20, 18)
     result = X.project_onto_row_space(Y, dense_output=False)
 
-    from lowrank.matrices.qr import QR
+    from low_rank_toolbox.matrices.qr import QR
 
     assert isinstance(result, QR), "Should return QR object"
 
@@ -902,7 +902,7 @@ def test_project_onto_tangent_space(simple_quasisvd):
     assert result.shape == X.shape, "Shape should match"
 
     # With truncation
-    from lowrank.matrices.svd import SVD
+    from low_rank_toolbox.matrices.svd import SVD
 
     result_trunc = X.project_onto_tangent_space(Y, auto_truncate=True)
     assert isinstance(result_trunc, SVD), "Should return SVD with truncation"
@@ -911,7 +911,7 @@ def test_project_onto_tangent_space(simple_quasisvd):
 
 def test_project_onto_interpolated_tangent_space():
     """Test interpolated tangent space projection (both modes)."""
-    from lowrank.cssp import DEIM, QDEIM
+    from low_rank_toolbox.cssp import DEIM, QDEIM
 
     np.random.seed(44444)
 
@@ -957,7 +957,7 @@ def test_project_onto_interpolated_tangent_space():
     assert diff < 1e-10, "Online and offline modes should give same result"
 
     # TEST: Auto-truncation
-    from lowrank.matrices.svd import SVD
+    from low_rank_toolbox.matrices.svd import SVD
 
     result_with_trunc = X.project_onto_interpolated_tangent_space(
         mode="online", auto_truncate=True, **kwargs_online
@@ -1107,7 +1107,7 @@ def test_reorthogonalize():
 
     # Re-orthogonalize with SVD
     X_reorth_svd = X_corrupt.reorthogonalize(method="svd")
-    from lowrank.matrices.svd import SVD
+    from low_rank_toolbox.matrices.svd import SVD
 
     assert isinstance(X_reorth_svd, SVD), "SVD method should return SVD"
     assert np.allclose(
@@ -1176,7 +1176,7 @@ def test_numerical_health_check_with_issues():
 
 def test_to_qr_conversion(simple_quasisvd):
     """Test conversion to QR format."""
-    from lowrank.matrices.qr import QR
+    from low_rank_toolbox.matrices.qr import QR
 
     X, X_full = simple_quasisvd
 
@@ -1189,7 +1189,7 @@ def test_to_qr_conversion(simple_quasisvd):
 
 def test_from_qr_conversion():
     """Test conversion from QR format."""
-    from lowrank.matrices.qr import QR
+    from low_rank_toolbox.matrices.qr import QR
 
     np.random.seed(88888)
 
@@ -1617,7 +1617,7 @@ def test_sqrtm_extra_data():
 
 def test_from_matrix():
     """Test creating QuasiSVD from dense matrix using truncated_svd."""
-    from lowrank.matrices.svd import SVD
+    from low_rank_toolbox.matrices.svd import SVD
 
     np.random.seed(800)
 
@@ -1994,7 +1994,7 @@ def test_complex_trace():
 
 def test_complex_to_svd_conversion():
     """Test conversion to SVD for complex matrices."""
-    from lowrank.matrices.svd import SVD
+    from low_rank_toolbox.matrices.svd import SVD
 
     np.random.seed(58)
     m, n, r = 10, 8, 5
@@ -2290,7 +2290,7 @@ def test_generalized_nystroem():
 
     # generalized_nystroem is in randomized module
     try:
-        from lowrank.randomized import generalized_nystrom
+        from low_rank_toolbox.randomized import generalized_nystrom
 
         r = 8
         X_approx = generalized_nystrom(A, r)
@@ -2417,7 +2417,7 @@ def test_truncate_with_fixed_rank():
     assert X_trunc.rank == 3, f"Expected rank 3, got {X_trunc.rank}"
 
     # Verify it keeps the largest singular values (converted to SVD)
-    from lowrank import SVD
+    from low_rank_toolbox import SVD
 
     if isinstance(X_trunc, SVD):
         assert np.allclose(X_trunc.s, [10, 5, 3], atol=1e-10)

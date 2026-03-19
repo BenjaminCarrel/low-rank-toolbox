@@ -23,17 +23,19 @@ documentation.
 import numpy as np
 from scipy.sparse import csr_matrix
 
-from lowrank import LowRankMatrix
-from lowrank.krylov import (
+from low_rank_toolbox import LowRankMatrix
+from low_rank_toolbox.krylov import (
     KrylovSpace,
     RationalKrylovSpace,
     solve_lyapunov,
     solve_sylvester,
 )
-from lowrank.krylov.solvers.lyapunov_solvers import (
+from low_rank_toolbox.krylov.solvers.lyapunov_solvers import (
     solve_sparse_low_rank_symmetric_lyapunov,
 )
-from lowrank.krylov.solvers.sylvester_solvers import solve_sparse_low_rank_sylvester
+from low_rank_toolbox.krylov.solvers.sylvester_solvers import (
+    solve_sparse_low_rank_sylvester,
+)
 
 
 class TestLyapunovSolverExamples:

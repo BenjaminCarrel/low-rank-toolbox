@@ -22,7 +22,7 @@ and contains tests for the examples shown in that algorithm's documentation.
 import numpy as np
 import scipy.linalg as la
 
-from lowrank.cssp import (
+from low_rank_toolbox.cssp import (
     ARP,
     DEIM,
     QDEIM,

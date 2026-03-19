@@ -13,15 +13,15 @@ import pytest
 import scipy.linalg as la
 import scipy.sparse as sps
 
-from lowrank.krylov.solvers.lyapunov_solvers import (
+from low_rank_toolbox.krylov.solvers.lyapunov_solvers import (
     solve_lyapunov,
     solve_small_lyapunov,
     solve_sparse_low_rank_non_symmetric_lyapunov,
     solve_sparse_low_rank_symmetric_lyapunov,
 )
-from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
-from lowrank.matrices.quasi_svd import QuasiSVD
-from lowrank.matrices.svd import SVD
+from low_rank_toolbox.matrices.low_rank_matrix import LowRankEfficiencyWarning
+from low_rank_toolbox.matrices.quasi_svd import QuasiSVD
+from low_rank_toolbox.matrices.svd import SVD
 
 
 # %% Helper functions
@@ -665,7 +665,7 @@ class TestLanczosUsage:
 
     def test_lanczos_used_for_symmetric_krylov_space(self):
         """Verify Lanczos is used in symmetric KrylovSpace."""
-        from lowrank.krylov.spaces import KrylovSpace
+        from low_rank_toolbox.krylov.spaces import KrylovSpace
 
         n = 100
         A = create_1d_laplacian(n)
@@ -698,7 +698,7 @@ class TestLanczosUsage:
 
     def test_arnoldi_used_for_nonsymmetric_krylov_space(self):
         """Verify Arnoldi is used in non-symmetric KrylovSpace."""
-        from lowrank.krylov.spaces import KrylovSpace
+        from low_rank_toolbox.krylov.spaces import KrylovSpace
 
         n = 100
         A = create_1d_laplacian(n)
@@ -724,7 +724,7 @@ class TestLanczosUsage:
 
     def test_lanczos_in_extended_krylov_space(self):
         """Verify Lanczos is used in symmetric ExtendedKrylovSpace."""
-        from lowrank.krylov.spaces import ExtendedKrylovSpace
+        from low_rank_toolbox.krylov.spaces import ExtendedKrylovSpace
 
         n = 100
         A = create_1d_laplacian(n)
@@ -767,7 +767,7 @@ class TestLanczosUsage:
 
     def test_rational_krylov_no_lanczos(self):
         """Document that RationalKrylovSpace doesn't currently use Lanczos."""
-        from lowrank.krylov.spaces import RationalKrylovSpace
+        from low_rank_toolbox.krylov.spaces import RationalKrylovSpace
 
         n = 100
         A = create_1d_laplacian(n)
@@ -787,7 +787,7 @@ class TestLanczosUsage:
 
     def test_lanczos_efficiency_symmetric_vs_nonsymmetric(self):
         """Compare storage requirements for Lanczos vs Arnoldi."""
-        from lowrank.krylov.spaces import KrylovSpace
+        from low_rank_toolbox.krylov.spaces import KrylovSpace
 
         n = 200
         A = create_1d_laplacian(n)

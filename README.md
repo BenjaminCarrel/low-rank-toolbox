@@ -14,7 +14,7 @@ pip install low-rank-toolbox
 ```
 
 ```python
-import lowrank
+import low_rank_toolbox
 ```
 
 ## **Features**
@@ -35,7 +35,7 @@ Create and manipulate matrices in SVD format:
 
 ```python
 import numpy as np
-from lowrank import SVD
+from low_rank_toolbox import SVD
 
 # Create orthonormal matrices
 m, n, r = 1000, 1000, 20
@@ -58,7 +58,7 @@ Y = X @ X.T              # Matrix multiplication returns SVD
 
 ```python
 import numpy as np
-from lowrank.matrices import SVD
+from low_rank_toolbox.matrices import SVD
 
 # Full SVD
 s_vals = np.logspace(0, -15, 30)
@@ -77,7 +77,7 @@ print(f"Adaptive rank: {X_adaptive.rank}")
 Select representative columns for interpolation:
 
 ```python
-from lowrank import QDEIM
+from low_rank_toolbox import QDEIM
 
 # Create basis matrix (e.g., POD modes, eigenvectors, etc.)
 U, _ = np.linalg.qr(np.random.randn(1000, 10))
@@ -99,8 +99,8 @@ Solve large-scale Lyapunov equations:
 ```python
 import numpy as np
 from scipy.sparse import diags
-from lowrank import solve_lyapunov
-from lowrank.matrices import SVD
+from low_rank_toolbox import solve_lyapunov
+from low_rank_toolbox.matrices import SVD
 
 # Large sparse matrix
 n = 10000
@@ -121,8 +121,8 @@ print(f"Solution shape: {X.shape}")
 Fast approximation for large matrices:
 
 ```python
-from lowrank.randomized import randomized_svd, generalized_nystrom
-from lowrank.matrices import SVD
+from low_rank_toolbox.randomized import randomized_svd, generalized_nystrom
+from low_rank_toolbox.matrices import SVD
 import numpy as np
 
 # Large matrix
@@ -195,7 +195,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 If you use this package in your research, please cite:
 
 ```bibtex
-@software{lowrank2025,
+@software{low_rank_toolbox2025,
   author = {Carrel, Benjamin and Voorhaar, Rik},
   title = {Low-Rank Toolbox: Efficient Low-Rank Matrix Computations in Python},
   year = {2025},

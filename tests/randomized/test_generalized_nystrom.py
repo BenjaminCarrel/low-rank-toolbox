@@ -9,8 +9,8 @@ import pytest
 from numpy.testing import assert_allclose
 from scipy.sparse.linalg import aslinearoperator
 
-from lowrank import SVD, LowRankMatrix, QuasiSVD
-from lowrank.randomized import generalized_nystrom
+from low_rank_toolbox import SVD, LowRankMatrix, QuasiSVD
+from low_rank_toolbox.randomized import generalized_nystrom
 
 
 @pytest.fixture

@@ -11,8 +11,8 @@ import scipy.linalg as la
 import scipy.sparse as sp
 from scipy.sparse.linalg import LinearOperator
 
-from lowrank import LowRankMatrix
-from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
+from low_rank_toolbox import LowRankMatrix
+from low_rank_toolbox.matrices.low_rank_matrix import LowRankEfficiencyWarning
 
 # %% Setup
 np.random.seed(1234)
@@ -557,7 +557,7 @@ def test_multiplication_operators():
     """Test *, *=, and __rmul__ for both scalar and Hadamard multiplication."""
     import pytest
 
-    from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
+    from low_rank_toolbox.matrices.low_rank_matrix import LowRankEfficiencyWarning
 
     # Test scalar multiplication
     X_copy = X.copy()
@@ -1276,7 +1276,7 @@ def test_inefficiency_warning():
     """Test that LowRankEfficiencyWarning is raised for inefficient operations."""
     import warnings
 
-    from lowrank.matrices.low_rank_matrix import LowRankEfficiencyWarning
+    from low_rank_toolbox.matrices.low_rank_matrix import LowRankEfficiencyWarning
 
     X_test = X.copy()
     Y = np.random.randn(10, 8)

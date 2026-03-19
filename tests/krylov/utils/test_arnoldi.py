@@ -10,7 +10,7 @@ import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
 
-from lowrank.krylov.utils.arnoldi import (
+from low_rank_toolbox.krylov.utils.arnoldi import (
     Arnoldi,
     block_Arnoldi,
     block_rational_Arnoldi,

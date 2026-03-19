@@ -23,8 +23,8 @@ for the examples shown in that algorithm's documentation.
 import numpy as np
 import pytest
 
-from lowrank import SVD
-from lowrank.randomized import (
+from low_rank_toolbox import SVD
+from low_rank_toolbox.randomized import (
     adaptive_randomized_svd,
     adaptive_rangefinder,
     generalized_nystrom,
@@ -113,7 +113,7 @@ class TestGeneralizedNystromExamples:
         X_nystrom = generalized_nystrom(A_sym, r=50, oversampling_params=(10, 15))
 
         # Verify it returns QuasiSVD (not SVD)
-        from lowrank.matrices.quasi_svd import QuasiSVD
+        from low_rank_toolbox.matrices.quasi_svd import QuasiSVD
 
         assert isinstance(X_nystrom, QuasiSVD)
 
@@ -151,7 +151,7 @@ class TestGeneralizedNystromExamples:
             A_sym, r=30, epsilon=1e-6, oversampling_params=(5, 5)
         )
 
-        from lowrank.matrices.quasi_svd import QuasiSVD
+        from low_rank_toolbox.matrices.quasi_svd import QuasiSVD
 
         assert isinstance(result, QuasiSVD)
         # With epsilon truncation, rank is determined by tolerance,

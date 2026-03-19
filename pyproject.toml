@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "low-rank-toolbox" # The name used for `pip install`
-version = "1.0.1"
+version = "2.0.0"
 authors = [
     { name="Benjamin Carrel", email="benjamin.carrel@psi.ch" },
 ]
@@ -43,12 +43,12 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 filterwarnings = [
-    "ignore::lowrank.matrices.low_rank_matrix.LowRankEfficiencyWarning",
-    "ignore::lowrank.matrices.low_rank_matrix.MemoryEfficiencyWarning",
+    "ignore::low_rank_toolbox.matrices.low_rank_matrix.LowRankEfficiencyWarning",
+    "ignore::low_rank_toolbox.matrices.low_rank_matrix.MemoryEfficiencyWarning",
 ]
 
 [tool.coverage.run]
-source = ["src/lowrank"]
+source = ["src/low_rank_toolbox"]
 omit = [
     "*/tests/*",
     "*/__pycache__/*",

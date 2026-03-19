@@ -25,11 +25,11 @@ import pytest
 from scipy.sparse import diags
 from scipy.sparse.linalg import LinearOperator, aslinearoperator, gmres
 
-from lowrank import SVD
-from lowrank.matrices import QR
-from lowrank.matrices import SVD as SVDMatrices
-from lowrank.matrices import QuasiSVD
-from lowrank.matrices.low_rank_matrix import LowRankMatrix
+from low_rank_toolbox import SVD
+from low_rank_toolbox.matrices import QR
+from low_rank_toolbox.matrices import SVD as SVDMatrices
+from low_rank_toolbox.matrices import QuasiSVD
+from low_rank_toolbox.matrices.low_rank_matrix import LowRankMatrix
 
 
 class TestLowRankMatrixExamples:

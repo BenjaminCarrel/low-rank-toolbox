@@ -10,7 +10,7 @@ import pytest
 import scipy.linalg as la
 import scipy.sparse as sps
 
-from lowrank.krylov.spaces.krylov_space import KrylovSpace
+from low_rank_toolbox.krylov.spaces.krylov_space import KrylovSpace
 
 # %% Vector case
 np.random.seed(1234)

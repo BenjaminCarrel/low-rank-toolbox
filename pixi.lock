@@ -2781,8 +2781,8 @@ packages:
   timestamp: 1765964942856
 - pypi: ./
   name: low-rank-toolbox
-  version: 1.0.1
-  sha256: f9786d12c1120a90fef8bf60c990bc55139bfed8894f532863075f6db2fb0357
+  version: 2.0.0
+  sha256: 7dc37d3d3a9d3fd6f32b2eaa09361c8401820f4c9faaceb52d5b70455bc21291
   requires_dist:
   - numpy>=1.21
   - scipy>=1.7

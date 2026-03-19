@@ -1,7 +1,7 @@
 Quick Start
 ===========
 
-This guide provides quick examples to get you started with the ``lowrank`` package.
+This guide provides quick examples to get you started with the ``low_rank_toolbox`` package.
 
 Basic Import
 ------------
@@ -9,10 +9,10 @@ Basic Import
 .. code-block:: python
 
    import numpy as np
-   from lowrank import SVD, QR, LowRankMatrix
-   from lowrank import QDEIM, DEIM
-   from lowrank import solve_lyapunov, solve_sylvester
-   from lowrank.randomized import randomized_svd, generalized_nystrom
+   from low_rank_toolbox import SVD, QR, LowRankMatrix
+   from low_rank_toolbox import QDEIM, DEIM
+   from low_rank_toolbox import solve_lyapunov, solve_sylvester
+   from low_rank_toolbox.randomized import randomized_svd, generalized_nystrom
 
 Low-Rank Matrix Representations
 --------------------------------
@@ -242,7 +242,7 @@ Advanced Topics
 
 .. code-block:: python
 
-   from lowrank.krylov import KrylovSpace, ExtendedKrylovSpace
+   from low_rank_toolbox.krylov import KrylovSpace, ExtendedKrylovSpace
 
    # Standard Krylov space
    K = KrylovSpace(A, b, is_symmetric=True)

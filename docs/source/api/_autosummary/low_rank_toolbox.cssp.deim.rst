@@ -1,0 +1,12 @@
+low_rank_toolbox.cssp.deim
+=================
+
+.. automodule:: low_rank_toolbox.cssp.deim
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      DEIM
+   

@@ -11,14 +11,14 @@ import pytest
 import scipy.linalg as la
 import scipy.sparse as sps
 
-from lowrank.krylov.solvers.sylvester_solvers import (
+from low_rank_toolbox.krylov.solvers.sylvester_solvers import (
     solve_small_sylvester,
     solve_sparse_low_rank_sylvester,
     solve_sylvester,
     solve_sylvester_large_A_small_B,
 )
-from lowrank.matrices.quasi_svd import QuasiSVD
-from lowrank.matrices.svd import SVD
+from low_rank_toolbox.matrices.quasi_svd import QuasiSVD
+from low_rank_toolbox.matrices.svd import SVD
 
 
 # %% Helper functions
@@ -541,7 +541,7 @@ class TestKrylovAlgorithms:
 
     def test_krylov_spaces_created_for_sylvester(self):
         """Verify that Sylvester solver creates appropriate Krylov spaces."""
-        from lowrank.krylov.spaces import ExtendedKrylovSpace, KrylovSpace
+        from low_rank_toolbox.krylov.spaces import ExtendedKrylovSpace, KrylovSpace
 
         m, n = 100, 100
         A, B, C, X_true = generate_sylvester_problem(m, n, rank_C=3)
@@ -574,7 +574,7 @@ class TestKrylovAlgorithms:
 
     def test_lanczos_used_for_symmetric_A_and_B(self):
         """Verify Lanczos is used when A and B are symmetric."""
-        from lowrank.krylov.spaces import ExtendedKrylovSpace
+        from low_rank_toolbox.krylov.spaces import ExtendedKrylovSpace
 
         m, n = 100, 100
         A = create_1d_laplacian(m)

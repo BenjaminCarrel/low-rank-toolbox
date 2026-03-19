@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank.cssp import Osinsky
+from low_rank_toolbox.cssp import Osinsky
 
 # ============================================================================
 # Fixtures

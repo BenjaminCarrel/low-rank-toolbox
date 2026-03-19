@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank import DEIM
+from low_rank_toolbox import DEIM
 
 # ===========================
 # FIXTURES
@@ -431,7 +431,7 @@ def test_deim_indices_differ_from_first_k():
 
 def test_deim_vs_qdeim_both_work():
     """Test that both DEIM and QDEIM work on the same input."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     np.random.seed(52)
     A = np.random.randn(40, 6)

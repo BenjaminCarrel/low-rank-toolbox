@@ -10,8 +10,8 @@ import pytest
 import scipy.linalg as la
 from numpy import ndarray
 
-from lowrank import SVD, LowRankMatrix, QuasiSVD
-from lowrank.matrices._svd_config import AUTOMATIC_TRUNCATION
+from low_rank_toolbox import SVD, LowRankMatrix, QuasiSVD
+from low_rank_toolbox.matrices._svd_config import AUTOMATIC_TRUNCATION
 
 
 @pytest.fixture

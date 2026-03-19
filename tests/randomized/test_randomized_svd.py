@@ -9,8 +9,8 @@ import pytest
 from numpy.testing import assert_allclose, assert_array_less
 from scipy.sparse.linalg import aslinearoperator
 
-from lowrank import SVD, LowRankMatrix
-from lowrank.randomized import adaptive_randomized_svd, randomized_svd
+from low_rank_toolbox import SVD, LowRankMatrix
+from low_rank_toolbox.randomized import adaptive_randomized_svd, randomized_svd
 
 
 @pytest.fixture

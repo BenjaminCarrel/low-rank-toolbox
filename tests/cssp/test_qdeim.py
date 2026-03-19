@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank import QDEIM
+from low_rank_toolbox import QDEIM
 
 # ===========================
 # FIXTURES
@@ -340,7 +340,7 @@ def test_qdeim_reconstruction_accuracy(orthonormal_matrix):
 
 def test_qdeim_vs_deim_comparison(orthonormal_matrix):
     """Compare QDEIM with standard DEIM (if available)."""
-    from lowrank import DEIM
+    from low_rank_toolbox import DEIM
 
     Q = orthonormal_matrix
     k = Q.shape[1]

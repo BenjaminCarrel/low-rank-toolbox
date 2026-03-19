@@ -29,4 +29,4 @@ jobs:
         pixi run flake8 src/ --count --exit-zero --max-complexity=15 --max-line-length=88 --statistics
 
     - name: Type check with mypy
-      run: pixi run mypy src/lowrank --ignore-missing-imports
+      run: pixi run mypy src/low_rank_toolbox --ignore-missing-imports

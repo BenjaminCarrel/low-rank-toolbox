@@ -3,7 +3,7 @@ Matrices Module
 
 Low-rank matrix representations.
 
-.. currentmodule:: lowrank.matrices
+.. currentmodule:: low_rank_toolbox.matrices
 
 Classes Overview
 ----------------

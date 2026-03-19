@@ -23,10 +23,10 @@ shown in that section.
 import numpy as np
 from scipy.sparse import diags
 
-from lowrank import QDEIM, SVD, solve_lyapunov
-from lowrank.matrices import SVD as SVDMatrices
-from lowrank.matrices.low_rank_matrix import LowRankMatrix
-from lowrank.randomized import generalized_nystrom, randomized_svd
+from low_rank_toolbox import QDEIM, SVD, solve_lyapunov
+from low_rank_toolbox.matrices import SVD as SVDMatrices
+from low_rank_toolbox.matrices.low_rank_matrix import LowRankMatrix
+from low_rank_toolbox.randomized import generalized_nystrom, randomized_svd
 
 
 class TestLowRankMatrixRepresentations:

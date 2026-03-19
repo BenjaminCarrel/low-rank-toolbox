@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank import gpode
+from low_rank_toolbox import gpode
 
 # ===========================
 # FIXTURES
@@ -138,7 +138,7 @@ def test_gpode_oversampling_sizes(orthonormal_matrix):
 
 def test_gpode_starts_with_qdeim(orthonormal_matrix):
     """Test that gpode starts with QDEIM indices."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     Q = orthonormal_matrix
     k = Q.shape[1]
@@ -496,7 +496,7 @@ def test_gpode_reproducibility():
 
 def test_gpode_vs_qdeim_comparison():
     """Test that gpode with oversampling=0 is similar to QDEIM."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     np.random.seed(52)
     A = np.random.randn(40, 6)
@@ -515,7 +515,7 @@ def test_gpode_vs_qdeim_comparison():
 
 def test_gpode_improves_over_qdeim():
     """Test that gpode with oversampling can improve conditioning over QDEIM."""
-    from lowrank import QDEIM
+    from low_rank_toolbox import QDEIM
 
     np.random.seed(53)
     A = np.random.randn(50, 5)

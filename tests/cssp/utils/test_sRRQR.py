@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank.cssp.utils import sRRQR, sRRQR_rank, sRRQR_tol
+from low_rank_toolbox.cssp.utils import sRRQR, sRRQR_rank, sRRQR_tol
 
 # ===========================
 # FIXTURES

@@ -6,7 +6,7 @@
 Low-Rank Toolbox Documentation
 ================================
 
-``lowrank`` is a Python library for efficient numerical linear algebra with low-rank matrices.
+``low_rank_toolbox`` is a Python library for efficient numerical linear algebra with low-rank matrices.
 
 .. toctree::
    :maxdepth: 2

@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [tasks]
 lint = "black --check src/ tests/ && isort --check-only src/ tests/"
-typecheck = "mypy src/lowrank --ignore-missing-imports"
+typecheck = "mypy src/low_rank_toolbox --ignore-missing-imports"
 test = "pytest"
 quality = { depends-on = ["lint", "typecheck"] }
 docs = "cd docs && make html"

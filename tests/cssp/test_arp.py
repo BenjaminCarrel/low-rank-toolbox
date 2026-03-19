@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank.cssp import ARP
+from low_rank_toolbox.cssp import ARP
 
 # ============================================================================
 # Fixtures
@@ -516,7 +516,7 @@ def test_arp_near_collinear_columns():
 
 def test_householder_vector_real():
     """Test _householder_vector with real input."""
-    from lowrank.cssp.arp import _householder_vector
+    from low_rank_toolbox.cssp.arp import _householder_vector
 
     x = np.array([3.0, 4.0, 0.0])
     v, beta = _householder_vector(x)
@@ -534,7 +534,7 @@ def test_householder_vector_real():
 
 def test_householder_vector_complex():
     """Test _householder_vector with complex input."""
-    from lowrank.cssp.arp import _householder_vector
+    from low_rank_toolbox.cssp.arp import _householder_vector
 
     x = np.array([1 + 2j, 3 - 1j, 2 + 2j])
     v, beta = _householder_vector(x)
@@ -552,7 +552,7 @@ def test_householder_vector_complex():
 
 def test_householder_vector_zero_input():
     """Test _householder_vector with zero input."""
-    from lowrank.cssp.arp import _householder_vector
+    from low_rank_toolbox.cssp.arp import _householder_vector
 
     x = np.array([0.0, 0.0, 0.0])
     v, beta = _householder_vector(x)
@@ -563,7 +563,7 @@ def test_householder_vector_zero_input():
 
 def test_apply_householder_right():
     """Test _apply_householder_right."""
-    from lowrank.cssp.arp import _apply_householder_right, _householder_vector
+    from low_rank_toolbox.cssp.arp import _apply_householder_right, _householder_vector
 
     A = np.random.randn(5, 3)
     x = np.array([3.0, 4.0, 1.0])

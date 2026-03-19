@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank.cssp.utils import givens
+from low_rank_toolbox.cssp.utils import givens
 
 # ============================================================================
 # Fixtures

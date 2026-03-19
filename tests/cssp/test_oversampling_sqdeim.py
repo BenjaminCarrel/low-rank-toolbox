@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 import scipy.linalg as la
 
-from lowrank.cssp import oversampling_sQDEIM
+from low_rank_toolbox.cssp import oversampling_sQDEIM
 
 # ===========================
 # FIXTURES
@@ -229,7 +229,7 @@ def test_oversampling_sqdeim_well_conditioned(orthonormal_matrix):
 
 def test_oversampling_sqdeim_better_than_standard(orthonormal_matrix):
     """Test that oversampling improves conditioning."""
-    from lowrank import sQDEIM
+    from low_rank_toolbox import sQDEIM
 
     Q = orthonormal_matrix
 
@@ -527,7 +527,7 @@ def test_oversampling_sqdeim_indices_validity(orthonormal_matrix):
 
 def test_oversampling_sqdeim_vs_sqdeim():
     """Test that oversampling extends sQDEIM selection."""
-    from lowrank import sQDEIM
+    from low_rank_toolbox import sQDEIM
 
     np.random.seed(51)
     A = np.random.randn(35, 7)

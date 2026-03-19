@@ -1,0 +1,12 @@
+low_rank_toolbox.cssp.osinsky
+====================
+
+.. automodule:: low_rank_toolbox.cssp.osinsky
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      Osinsky
+   

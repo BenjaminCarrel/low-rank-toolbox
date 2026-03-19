@@ -11,7 +11,7 @@ import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsla
 
-from lowrank.krylov.spaces.inverted_krylov_space import InvertedKrylovSpace
+from low_rank_toolbox.krylov.spaces.inverted_krylov_space import InvertedKrylovSpace
 
 # %% Vector case
 np.random.seed(1234)

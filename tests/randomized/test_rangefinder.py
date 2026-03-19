@@ -9,7 +9,7 @@ import pytest
 from numpy.testing import assert_allclose, assert_array_less
 from scipy.sparse.linalg import aslinearoperator
 
-from lowrank.randomized import adaptive_rangefinder, rangefinder
+from low_rank_toolbox.randomized import adaptive_rangefinder, rangefinder
 
 
 @pytest.fixture

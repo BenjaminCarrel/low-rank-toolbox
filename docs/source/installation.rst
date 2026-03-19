@@ -10,13 +10,13 @@ Once the package is published, installation will be straightforward:
 
 .. code-block:: bash
 
-   pip install lowrank
+   pip install low-rank-toolbox
 
 **Via conda** (when available on conda-forge):
 
 .. code-block:: bash
 
-   conda install -c conda-forge lowrank
+   conda install -c conda-forge low-rank-toolbox
 
 .. note::
    The package is currently under development. For now, please use the developer installation method below.

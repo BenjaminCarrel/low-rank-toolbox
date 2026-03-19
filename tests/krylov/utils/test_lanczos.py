@@ -9,7 +9,7 @@ import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
 
-from lowrank.krylov.utils.lanczos import Lanczos, block_Lanczos
+from low_rank_toolbox.krylov.utils.lanczos import Lanczos, block_Lanczos
 
 # %% Matrix to use: discretized laplacian
 n = 100
