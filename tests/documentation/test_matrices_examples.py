@@ -854,8 +854,8 @@ class TestQuasiSVDExamples:
         assert Z.rank == 2 * X.rank
         assert np.allclose(Z.full(), 0)
 
-        # Memory efficient (removes near-zero singular values)
-        Z = QuasiSVD.multi_add([X, -X], auto_truncate=True)  # rank ≈ 0
+        # Truncate to reduce rank
+        Z = QuasiSVD.multi_add([X, -X]).truncate(atol=1e-14)  # rank ~ 0
         assert Z.rank < 2 * X.rank
 
     def test_rank_one_update_method(self):

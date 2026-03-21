@@ -562,8 +562,8 @@ def test_multi_add_basic():
         matrices.append(X)
         fulls.append(X.full())
 
-    # Multi-add without truncation
-    result = QuasiSVD.multi_add(matrices, auto_truncate=False)
+    # Multi-add
+    result = QuasiSVD.multi_add(matrices)
     assert isinstance(result, QuasiSVD), "multi_add should return QuasiSVD"
     assert result.rank == sum(
         m.rank for m in matrices
@@ -580,8 +580,8 @@ def test_multi_add_subtraction():
     S = np.random.randn(3, 3)
     X = QuasiSVD(Q1, S, Q2)
 
-    # Without auto-truncation: X - X should have rank 6 but represent zero
-    result = QuasiSVD.multi_add([X, -X], auto_truncate=False)
+    # X - X should have rank 6 but represent zero
+    result = QuasiSVD.multi_add([X, -X])
     assert isinstance(result, QuasiSVD), "Should return QuasiSVD without truncation"
     assert result.rank == 2 * X.rank, "Rank should be 2*rank(X) without truncation"
     assert np.allclose(result.full(), np.zeros(X.shape)), "X - X should be zero"
@@ -895,18 +895,10 @@ def test_project_onto_tangent_space(simple_quasisvd):
     # Create another matrix to project
     Y = np.random.randn(20, 18)
 
-    # Without truncation
-    result = X.project_onto_tangent_space(Y, auto_truncate=False)
+    result = X.project_onto_tangent_space(Y)
     assert isinstance(result, QuasiSVD), "Should return QuasiSVD"
     assert result.rank == 2 * X.rank, "Rank should be 2*rank(X)"
     assert result.shape == X.shape, "Shape should match"
-
-    # With truncation
-    from low_rank_toolbox.matrices.svd import SVD
-
-    result_trunc = X.project_onto_tangent_space(Y, auto_truncate=True)
-    assert isinstance(result_trunc, SVD), "Should return SVD with truncation"
-    assert result_trunc.rank <= 2 * X.rank, "Rank should be reduced"
 
 
 def test_project_onto_interpolated_tangent_space():
@@ -955,14 +947,6 @@ def test_project_onto_interpolated_tangent_space():
     )
     diff = np.linalg.norm((result_online - result_offline).full())
     assert diff < 1e-10, "Online and offline modes should give same result"
-
-    # TEST: Auto-truncation
-    from low_rank_toolbox.matrices.svd import SVD
-
-    result_with_trunc = X.project_onto_interpolated_tangent_space(
-        mode="online", auto_truncate=True, **kwargs_online
-    )
-    assert isinstance(result_with_trunc, SVD), "Should return SVD with truncation"
 
 
 # %% ===========================
@@ -2121,7 +2105,7 @@ def test_hadamard_with_dense():
     # Dense matrix for Hadamard product
     Y = np.random.randn(m, n)
 
-    result = X.hadamard(Y, auto_truncate=False)
+    result = X.hadamard(Y)
     expected = X_full * Y
 
     # Result may be dense array
@@ -2146,7 +2130,7 @@ def test_hadamard_with_quasisvd():
     S2 = np.random.randn(r, r)
     X2 = QuasiSVD(U2, S2, V2)
 
-    result = X1.hadamard(X2, auto_truncate=False)
+    result = X1.hadamard(X2)
     expected = X1.full() * X2.full()
 
     assert np.allclose(
@@ -2171,7 +2155,7 @@ def test_multi_add_with_truncation():
         full_matrices.append(X.full())
 
     # Test multi_add
-    result = QuasiSVD.multi_add(matrices, auto_truncate=False)
+    result = QuasiSVD.multi_add(matrices)
     expected = sum(full_matrices)
 
     assert np.allclose(result.full(), expected, atol=1e-10), "multi_add failed"
@@ -2201,32 +2185,11 @@ def test_multi_add_with_weights():
 
     # Apply weights manually since multi_add doesn't have weights parameter
     weighted_matrices = [w * mat for w, mat in zip(weights, matrices)]
-    result = QuasiSVD.multi_add(weighted_matrices, auto_truncate=False)
+    result = QuasiSVD.multi_add(weighted_matrices)
 
     assert np.allclose(
         result.full(), expected, atol=1e-10
     ), "multi_add with weights failed"
-
-
-def test_multi_add_auto_truncate():
-    """Test multi_add with automatic truncation."""
-    np.random.seed(207)
-    m, n, r = 15, 12, 4
-
-    # Create matrices that when added produce low numerical rank
-    U, _ = la.qr(np.random.randn(m, r), mode="economic")
-    V, _ = la.qr(np.random.randn(n, r), mode="economic")
-    S1 = np.diag([10, 5, 1, 0.1])
-    S2 = np.diag([10, 5, 1, 1e-10])
-
-    X1 = QuasiSVD(U, S1, V)
-    X2 = QuasiSVD(U, S2, V)
-
-    # Add with truncation
-    result = QuasiSVD.multi_add([X1, -X2], auto_truncate=True, rtol=1e-8)
-
-    # Result should have reduced rank
-    assert result.rank < 2 * r, f"Truncation didn't reduce rank: {result.rank}"
 
 
 def test_multi_dot_chain():

@@ -11,7 +11,6 @@ import scipy.linalg as la
 from numpy import ndarray
 
 from low_rank_toolbox import SVD, LowRankMatrix, QuasiSVD
-from low_rank_toolbox.matrices._svd_config import AUTOMATIC_TRUNCATION
 
 
 @pytest.fixture
@@ -69,24 +68,8 @@ def test_SVD_addition(svd_basic):
     assert isinstance(X + X, SVD), "Incorrect addition with SVD"
     assert np.allclose((X + X).full(), 2 * X_full), "Incorrect addition with SVD"
     assert np.allclose((X + X_full), 2 * X_full), "Incorrect addition with ndarray"
-    if AUTOMATIC_TRUNCATION:
-        assert (
-            X + X
-        ).rank == X.rank, "Incorrect rank of addition with SVD (with auto-truncation)"
-        assert (
-            X - X
-        ).rank == 0, "Incorrect rank of subtraction with SVD (with auto-truncation)"
-    else:
-        assert (
-            X + X
-        ).rank == 2 * X.rank, (
-            "Incorrect rank of addition with SVD (with auto-truncation disabled)"
-        )
-        assert (
-            X - X
-        ).rank == 2 * X.rank, (
-            "Incorrect rank of subtraction with SVD (with auto-truncation disabled)"
-        )
+    assert (X + X).rank == 2 * X.rank, "Incorrect rank of addition with SVD"
+    assert (X - X).rank == 2 * X.rank, "Incorrect rank of subtraction with SVD"
 
     assert np.allclose((X - X).full(), 0 * X_full), "Incorrect subtraction with SVD"
     Y = SVD.generate_random(
@@ -151,14 +134,7 @@ def test_SVD_hadamard():
     Y_full = Y.full()
     # SVD-SVD Hadamard product
     assert isinstance(Y.hadamard(Y), QuasiSVD), "Incorrect Hadamard product with SVD"
-    if AUTOMATIC_TRUNCATION:
-        assert (
-            Y.hadamard(Y).rank <= 2 * rank
-        ), "Incorrect rank of Hadamard product with SVD (with auto-truncation)"
-    else:
-        assert (
-            Y.hadamard(Y).rank == rank**2
-        ), "Incorrect rank of Hadamard product with SVD"
+    assert Y.hadamard(Y).rank == rank**2, "Incorrect rank of Hadamard product with SVD"
     assert np.allclose(
         Y.hadamard(Y).full(), Y_full**2
     ), "Incorrect Hadamard product with SVD"
@@ -654,20 +630,6 @@ def test_SVD_truncate_perpendicular_zero_rank():
     assert np.allclose(X_perp.full(), np.zeros((10, 8))), "Should be zero matrix"
 
 
-def test_SVD_addition_auto_truncate():
-    """Test addition with auto_truncate flag."""
-    X = SVD.generate_random((20, 15), np.array([10.0, 1e-15, 1e-16]))
-    Y = SVD.generate_random((20, 15), np.array([5.0, 1e-15, 1e-16]))
-
-    # Without auto-truncate (default)
-    Z1 = X.__add__(Y, auto_truncate=False)
-    assert Z1.rank == 6, "Without truncation, rank should be sum of ranks"
-
-    # With auto-truncate
-    Z2 = X.__add__(Y, auto_truncate=True)
-    assert Z2.rank < 6, "With truncation, small singular values should be removed"
-
-
 def test_SVD_dot_with_SVD():
     """Test dot product between two SVDs."""
     X = SVD.generate_random((20, 15), np.array([5.0, 4.0, 3.0]))
@@ -870,7 +832,9 @@ def test_SVD_dot_side_left_with_ndarray():
 
     Z = X.dot(A, side="left")
     Z_dense = Z.full() if hasattr(Z, "full") else Z
-    assert np.allclose(Z_dense, A @ X.full()), "Left multiplication with ndarray incorrect"
+    assert np.allclose(
+        Z_dense, A @ X.full()
+    ), "Left multiplication with ndarray incorrect"
 
 
 def test_SVD_dot_side_left_with_vector():
@@ -890,7 +854,9 @@ def test_SVD_dot_side_backward_compat():
 
     Z_right = X.dot(Y, side="right")
     Z_usual = X.dot(Y, side="usual")
-    assert np.allclose(Z_right.full(), Z_usual.full()), "side='usual' should match side='right'"
+    assert np.allclose(
+        Z_right.full(), Z_usual.full()
+    ), "side='usual' should match side='right'"
 
     # For left multiplication, other @ self requires other.shape[1] == self.shape[0]
     W = SVD.generate_random((10, 20), np.array([6.0, 5.0]))

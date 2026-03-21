@@ -13,7 +13,7 @@ import numpy as np
 from numpy import ndarray
 from scipy import linalg as la
 
-from ._qr_config import AUTOMATIC_TRUNCATION, DEFAULT_ATOL, DEFAULT_RTOL
+from ._qr_config import DEFAULT_ATOL, DEFAULT_RTOL
 from .low_rank_matrix import (
     LowRankEfficiencyWarning,
     LowRankMatrix,

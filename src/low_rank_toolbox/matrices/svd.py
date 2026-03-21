@@ -11,7 +11,7 @@ import numpy as np
 from numpy import ndarray
 from scipy import linalg as la
 
-from ._svd_config import AUTOMATIC_TRUNCATION, DEFAULT_ATOL, DEFAULT_RTOL
+from ._svd_config import DEFAULT_ATOL, DEFAULT_RTOL
 from .low_rank_matrix import LowRankMatrix
 from .quasi_svd import QuasiSVD
 
@@ -122,8 +122,7 @@ class SVD(QuasiSVD):
     Configuration
     -------------
     Default behavior controlled by:
-    - AUTOMATIC_TRUNCATION (default: False): Auto-truncate after operations
-    - DEFAULT_ATOL (machine precision): Absolute tolerance for truncation (when AUTOMATIC_TRUNCATION is True)
+    - DEFAULT_ATOL (machine precision): Absolute tolerance for truncation
     - DEFAULT_RTOL (None): Relative tolerance for truncation
 
     Examples
@@ -164,7 +163,7 @@ class SVD(QuasiSVD):
     >>> # Addition preserves SVD structure
     >>> Y = X + X  # Returns SVD
     >>> Z = X @ X.T  # Matrix multiplication, returns SVD
-    >>> 0 = X - X  # Subtraction, returns SVD of rank 2*rank(X) (if AUTOMATIC_TRUNCATION is False) or rank 0 (if AUTOMATIC_TRUNCATION is True)
+    >>> 0 = X - X  # Subtraction, returns SVD of rank 2*rank(X). Call .truncate() to reduce rank.
 
     **Truncation:**
 
@@ -911,7 +910,6 @@ class SVD(QuasiSVD):
     def __add__(
         self,
         other: SVD | LowRankMatrix | ndarray,
-        auto_truncate: bool = AUTOMATIC_TRUNCATION,
     ) -> SVD | LowRankMatrix | ndarray:
         "Specific addition for SVDs."
         if isinstance(other, SVD):
@@ -925,8 +923,6 @@ class SVD(QuasiSVD):
             new_U = np.dot(U_hat, U_m)
             new_V = np.dot(V_hat, Vh_m.T.conj())
             output = SVD(new_U, s_m, new_V)  # type: ignore[assignment]
-            if auto_truncate:
-                output = output.truncate(atol=DEFAULT_ATOL)
         else:
             output = super().__add__(other)  # type: ignore[assignment]
         return output
@@ -935,10 +931,9 @@ class SVD(QuasiSVD):
         self,
         other: SVD | LowRankMatrix | ndarray,
         side: str = "right",
-        auto_truncate: bool = AUTOMATIC_TRUNCATION,
         dense_output: bool = False,
     ) -> SVD | LowRankMatrix | ndarray:
-        """Matrix multiplication optimized for SVD × SVD.
+        """Matrix multiplication optimized for SVD x SVD.
 
         Efficiently multiplies two SVD matrices while preserving the SVD structure.
         The resulting rank is min(rank(X), rank(Y)).
@@ -952,9 +947,6 @@ class SVD(QuasiSVD):
             Matrix to multiply with.
         side : str, optional
             'left' or 'right', by default 'right'
-        auto_truncate : bool, optional
-            Whether to automatically truncate small singular values after multiplication.
-            Default is AUTOMATIC_TRUNCATION (False by default).
         dense_output : bool, optional
             If True, return dense ndarray. If False, return SVD/LowRankMatrix.
             Default is False.
@@ -967,7 +959,7 @@ class SVD(QuasiSVD):
         Notes
         -----
         Algorithm for SVD @ SVD: Computes M = S1 @ V1.T @ U2 @ S2, then SVD of M.
-        Computational cost: O(r³) where r = min(r1, r2).
+        Computational cost: O(r^3) where r = min(r1, r2).
 
         Examples
         --------
@@ -993,8 +985,6 @@ class SVD(QuasiSVD):
             new_U = np.dot(left.U, U_m)
             new_V = np.dot(right.V, Vh_m.T.conj())
             output = SVD(new_U, s_m, new_V)
-            if auto_truncate:
-                output = output.truncate(atol=DEFAULT_ATOL)
             if dense_output:
                 return output.full()
             else:
@@ -1006,7 +996,6 @@ class SVD(QuasiSVD):
     def hadamard(
         self,
         other: SVD | LowRankMatrix | ndarray,
-        auto_truncate: bool = AUTOMATIC_TRUNCATION,
     ) -> SVD | LowRankMatrix | ndarray:
         """Faster version of the Hadamard product for SVDs."""
         if isinstance(other, SVD) and not self.rank * other.rank >= min(self.shape):
@@ -1016,10 +1005,8 @@ class SVD(QuasiSVD):
             # The new singular values are obtained from the Kronecker product
             new_S = np.kron(self.sing_vals(), other.sing_vals())
             output = SVD(new_U, new_S, new_V)  # type: ignore[assignment]
-            if auto_truncate:
-                output = output.truncate(atol=DEFAULT_ATOL)
         else:
-            output = super().hadamard(other, auto_truncate=auto_truncate)  # type: ignore[assignment]
+            output = super().hadamard(other)  # type: ignore[assignment]
         return output
 
     def pseudoinverse(self, rtol: float | None = None, atol: float = DEFAULT_ATOL) -> SVD:  # type: ignore[override]

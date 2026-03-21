@@ -18,6 +18,7 @@ env/
 # IDE Folders
 .vscode/
 .idea/
+.claude/
 
 # Mac files
 .DS_Store

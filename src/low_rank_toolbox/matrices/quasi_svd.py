@@ -14,7 +14,7 @@ import numpy as np
 import scipy.linalg as la
 from numpy import ndarray
 
-from ._svd_config import AUTOMATIC_TRUNCATION, DEFAULT_ATOL, DEFAULT_RTOL
+from ._svd_config import DEFAULT_ATOL, DEFAULT_RTOL
 from .low_rank_matrix import (
     LowRankEfficiencyWarning,
     LowRankMatrix,
@@ -125,9 +125,9 @@ class QuasiSVD(LowRankMatrix):
 
     Configuration
     -------------
-    Default behavior controlled by AUTOMATIC_TRUNCATION (default: False)
-    - False: Maintains algebraic consistency (X - X = 0 exactly)
-    - True: Automatically truncates to save memory (X - X ≈ 0)
+    Default behavior controlled by:
+    - DEFAULT_ATOL (machine precision): Absolute tolerance for truncation
+    - DEFAULT_RTOL (None): Relative tolerance for truncation
 
     Examples
     --------
@@ -155,8 +155,8 @@ class QuasiSVD(LowRankMatrix):
     >>> # Truncate small singular values
     >>> X_trunc = X.truncate(rtol=1e-10)
     >>>
-    >>> # Memory-efficient addition
-    >>> W = QuasiSVD.multi_add([X, -X], auto_truncate=True)  # rank ≈ 0
+    >>> # Addition of multiple matrices
+    >>> W = QuasiSVD.multi_add([X, -X])  # rank = 2*rank(X), call .truncate() to reduce
 
     See Also
     --------
@@ -330,9 +330,8 @@ class QuasiSVD(LowRankMatrix):
 
         Notes
         -----
-        Without auto-truncation, X - X has rank 2*rank(X) but represents zero matrix
-        (maintains algebraic consistency). Use multi_add with auto_truncate=True to
-        remove numerical noise in such cases.
+        X - X has rank 2*rank(X) but represents zero matrix
+        (maintains algebraic consistency). Call .truncate() to remove numerical noise.
 
         Examples
         --------
@@ -807,28 +806,21 @@ class QuasiSVD(LowRankMatrix):
     def hadamard(
         self,
         other: QuasiSVD | LowRankMatrix | ndarray,
-        auto_truncate: bool = AUTOMATIC_TRUNCATION,
     ) -> QuasiSVD | SVD | ndarray:
         """Hadamard product between two QuasiSVD matrices
 
         The new rank is the multiplication of the two ranks, at maximum.
-        The default behavior depends on the value of AUTOMATIC_TRUNCATION.
-        If AUTOMATIC_TRUNCATION is True, the output is automatically truncated to remove small singular values.
-        If AUTOMATIC_TRUNCATION is False, the output is not truncated and may have high rank.
         NOTE: if the expected rank is too large, dense matrices are used for the computation, but the output is still an SVD.
 
         Parameters
         ----------
         other : QuasiSVD, LowRankMatrix or ndarray
             Matrix to multiply
-        auto_truncate : bool, optional
-            Whether to automatically truncate small singular values after the operation.
-            Default is AUTOMATIC_TRUNCATION (False by default).
 
         Returns
         -------
         QuasiSVD or SVD or ndarray
-            Result of the Hadamard product. Returns SVD if auto_truncate=True, QuasiSVD otherwise.
+            Result of the Hadamard product.
         """
         # Check inputs
         if self.shape != other.shape:
@@ -859,8 +851,6 @@ class QuasiSVD(LowRankMatrix):
                 # The new singular values are obtained from the Kronecker product
                 new_S = np.kron(self.S, other.S)
                 output = QuasiSVD(new_U, new_S, new_V)
-                if auto_truncate:
-                    output = output.truncate(atol=DEFAULT_ATOL)
         elif isinstance(other, ndarray):
             warnings.warn(
                 "Low-rank efficiency warning: Hadamard product with dense matrix, using full matrices.",
@@ -878,51 +868,32 @@ class QuasiSVD(LowRankMatrix):
     def multi_add(  # type: ignore[override]
         cls,
         matrices: List[QuasiSVD],
-        auto_truncate: bool = AUTOMATIC_TRUNCATION,
-        rtol: Optional[float] = None,
-        atol: float = DEFAULT_ATOL,
-    ) -> QuasiSVD | SVD:
+    ) -> QuasiSVD:
         """
         Addition of multiple QuasiSVD matrices.
 
         This is efficiently done by stacking the U, S, V matrices and then re-orthogonalizing.
         The resulting rank is at most the sum of all input ranks.
 
-        By default (AUTOMATIC_TRUNCATION=False), the output is NOT automatically truncated to ensure
-        algebraic consistency (e.g., X - X is always exactly zero). You can override
-        this by setting auto_truncate=True.
-
         Parameters
         ----------
         matrices : List[QuasiSVD]
             Matrices to add
-        auto_truncate : bool, optional
-            Whether to automatically truncate small singular values after addition.
-            Default is AUTOMATIC_TRUNCATION (False by default).
-        rtol : float, optional
-            Relative tolerance for truncation (only used if auto_truncate=True)
-        atol : float, optional
-            Absolute tolerance for truncation (only used if auto_truncate=True)
 
         Returns
         -------
-        QuasiSVD or SVD
-            Sum of the matrices. Returns QuasiSVD if auto_truncate=False, SVD if auto_truncate=True.
+        QuasiSVD
+            Sum of the matrices.
 
         Notes
         -----
-        - Adding matrices increases rank: rank(X + Y) ≤ rank(X) + rank(Y)
-        - Without auto-truncation: X - X has rank 2*rank(X) but represents zero
-        - With auto-truncation: X - X has rank ≈ 0 (removes numerical noise)
-        - For memory efficiency with many additions, consider auto-truncating periodically
+        - Adding matrices increases rank: rank(X + Y) <= rank(X) + rank(Y)
+        - X - X has rank 2*rank(X) but represents zero. Call .truncate() to reduce rank.
 
         Examples
         --------
-        >>> # Algebraically consistent (exact zero)
         >>> Z = QuasiSVD.multi_add([X, -X])  # rank = 2*rank(X), but represents zero
-        >>>
-        >>> # Memory efficient (removes near-zero singular values)
-        >>> Z = QuasiSVD.multi_add([X, -X], auto_truncate=True)  # rank ≈ 0
+        >>> Z = Z.truncate(atol=1e-14)  # rank ~ 0
         """
         # Check inputs
         assert all(
@@ -931,19 +902,6 @@ class QuasiSVD(LowRankMatrix):
         assert all(
             matrix.shape == matrices[0].shape for matrix in matrices
         ), "All matrices must have the same shape"
-        # Warning on low-rank memory efficiency
-        if not auto_truncate:
-            total_rank = sum(matrix.rank for matrix in matrices)
-            m, n = matrices[0].shape
-            dense_size = m * n
-            low_rank_size = total_rank * (
-                m + n + max(matrix.S.shape[1] for matrix in matrices)
-            )
-            if low_rank_size > dense_size:
-                warnings.warn(
-                    "Memory efficiency warning: Adding many QuasiSVD matrices without truncation may use more memory than dense storage.",
-                    LowRankEfficiencyWarning,
-                )
         # Add the matrices
         U_stack = np.hstack([*[matrix.U for matrix in matrices]])
         V_stack = np.hstack([*[matrix.V for matrix in matrices]])
@@ -952,39 +910,25 @@ class QuasiSVD(LowRankMatrix):
         Q1, R1 = la.qr(U_stack, mode="economic")
         Q2, R2 = la.qr(V_stack, mode="economic")
         M = np.linalg.multi_dot([R1, S_stack, R2.T.conj()])
-        result = QuasiSVD(Q1, M, Q2)
-
-        # Optionally auto-truncate
-        if auto_truncate:
-            result = result.truncate(rtol=rtol, atol=atol)
-
-        return result
+        return QuasiSVD(Q1, M, Q2)
 
     @classmethod
-    def multi_dot(  # type: ignore[override]
-        cls, matrices: List[QuasiSVD], auto_truncate: bool = AUTOMATIC_TRUNCATION
-    ) -> QuasiSVD:
+    def multi_dot(cls, matrices: List[QuasiSVD]) -> QuasiSVD:  # type: ignore[override]
         """
         Matrix multiplication of several QuasiSVD matrices.
 
         The rank of the output is the minimum of the ranks of the first and last inputs, at maximum.
-        The default behavior depends on the value of AUTOMATIC_TRUNCATION.
-        If AUTOMATIC_TRUNCATION is True, the output is automatically truncated to remove small singular values.
-        If AUTOMATIC_TRUNCATION is False, the output is not truncated and may have singular S matrix.
         The matrices are multiplied all at once, so this method is more efficient than multiplying them one by one.
 
         Parameters
         ----------
         matrices : List[QuasiSVD]
             Matrices to multiply
-        auto_truncate : bool, optional
-            Whether to automatically truncate small singular values after multiplication.
-            Default is AUTOMATIC_TRUNCATION (False by default).
 
         Returns
         -------
-        QuasiSVD or SVD
-            Product of the matrices. Returns SVD if auto_truncate=True, QuasiSVD otherwise.
+        QuasiSVD
+            Product of the matrices.
         """
         # Check inputs
         assert all(
@@ -1150,15 +1094,11 @@ class QuasiSVD(LowRankMatrix):
         self,
         other: LowRankMatrix | ndarray,
         dense_output: bool = False,
-        auto_truncate: bool = AUTOMATIC_TRUNCATION,
     ) -> QuasiSVD:
         """
         Projection of other onto the tangent space at self.
 
         The rank of the output is two times the rank of self, at maximum.
-        The default behavior depends on the value of AUTOMATIC_TRUNCATION.
-        If AUTOMATIC_TRUNCATION is True, the output is automatically truncated to remove small singular values.
-        If AUTOMATIC_TRUNCATION is False, the output is not truncated and may have high rank.
 
         The formula is given by:
             P_X Y = UUh Y - UUh Y VVh + Y VVh
@@ -1170,15 +1110,11 @@ class QuasiSVD(LowRankMatrix):
             Matrix to project
         dense_output : bool, optional
             Whether to return a dense matrix. False by default.
-        auto_truncate : bool, optional
-            Whether to automatically truncate small singular values after projection.
-            Default is AUTOMATIC_TRUNCATION (False by default).
 
         Returns
         -------
-        QuasiSVD or SVD
+        QuasiSVD
             Projection of other onto the tangent space at self.
-            Returns SVD if auto_truncate=True, QuasiSVD otherwise.
         """
         # STEP 1 : FACTORIZATION
         if isinstance(other, LowRankMatrix):
@@ -1193,10 +1129,7 @@ class QuasiSVD(LowRankMatrix):
         # STEP 2 : DOUBLE QR  (n times 2k)
         Q1, R1 = la.qr(M1, mode="economic")
         Q2, R2 = la.qr(M2.T.conj(), mode="economic")
-        if auto_truncate:
-            output = QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2).truncate(atol=DEFAULT_ATOL)
-        else:
-            output = QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2)
+        output = QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2)
         if dense_output:
             return output.full()  # type: ignore[return-value]
         else:
@@ -1209,7 +1142,6 @@ class QuasiSVD(LowRankMatrix):
         Y_uv: ndarray,
         P_u: ndarray,
         P_v: ndarray,
-        auto_truncate: bool,
         dense_output: bool,
     ) -> QuasiSVD:
         """Offline projection using pre-computed interpolatory matrices."""
@@ -1248,10 +1180,7 @@ class QuasiSVD(LowRankMatrix):
         Q1, R1 = la.qr(M1, mode="economic")
         Q2, R2 = la.qr(M2.T.conj(), mode="economic")
 
-        if auto_truncate:
-            output = QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2).truncate(atol=DEFAULT_ATOL)
-        else:
-            output = QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2)
+        output = QuasiSVD(Q1, R1.dot(R2.T.conj()), Q2)
 
         if dense_output:
             return output.full()  # type: ignore[return-value]
@@ -1265,7 +1194,6 @@ class QuasiSVD(LowRankMatrix):
         cssp_method_v: Callable,
         cssp_kwargs_u: dict,
         cssp_kwargs_v: dict,
-        auto_truncate: bool,
         dense_output: bool,
     ) -> QuasiSVD:
         """Online projection computing interpolatory matrices via CSSP methods."""
@@ -1294,14 +1222,13 @@ class QuasiSVD(LowRankMatrix):
 
         # Delegate to offline method
         return self._project_onto_interpolated_tangent_space_offline(
-            Y_u, Y_v, Y_uv, M_u, M_v, auto_truncate, dense_output
+            Y_u, Y_v, Y_uv, M_u, M_v, dense_output
         )
 
     def project_onto_interpolated_tangent_space(
         self,
         mode: str = "online",
         dense_output: bool = False,
-        auto_truncate: bool = AUTOMATIC_TRUNCATION,
         **kwargs,
     ) -> QuasiSVD:
         """
@@ -1331,9 +1258,6 @@ class QuasiSVD(LowRankMatrix):
             Either 'online' or 'offline'. Default is 'online'.
         dense_output : bool, optional
             Whether to return a dense matrix. False by default.
-        auto_truncate : bool, optional
-            Whether to automatically truncate small singular values after projection.
-            Default is AUTOMATIC_TRUNCATION (False by default).
         **kwargs : dict
             For offline mode: Y_u, Y_v, Y_uv, M_u, M_v
             For online mode: Y (required), cssp_method_u (optional, default QDEIM),
@@ -1342,9 +1266,8 @@ class QuasiSVD(LowRankMatrix):
 
         Returns
         -------
-        QuasiSVD or SVD
+        QuasiSVD
             Oblique projection of Y onto the tangent space at self using interpolation.
-            Returns SVD if auto_truncate=True, QuasiSVD otherwise.
 
         Examples
         --------
@@ -1391,15 +1314,12 @@ class QuasiSVD(LowRankMatrix):
                 Y_uv=kwargs["Y_uv"],
                 P_u=kwargs["M_u"],
                 P_v=kwargs["M_v"],
-                auto_truncate=auto_truncate,
                 dense_output=dense_output,
             )
 
         elif mode == "online":
             if "Y" not in kwargs:
                 raise ValueError("Online mode requires: Y")
-
-            # Import QDEIM at runtime for default
 
             # Use QDEIM as default if not provided
             from ..cssp import QDEIM
@@ -1415,7 +1335,6 @@ class QuasiSVD(LowRankMatrix):
                 cssp_method_v=cssp_method_v,
                 cssp_kwargs_u=cssp_kwargs_u,
                 cssp_kwargs_v=cssp_kwargs_v,
-                auto_truncate=auto_truncate,
                 dense_output=dense_output,
             )
 
