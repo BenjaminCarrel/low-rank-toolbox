@@ -851,6 +851,65 @@ def test_SVD_dot_with_vector():
     assert np.allclose(result, expected), "SVD @ vector incorrect"
 
 
+def test_SVD_dot_side_left_with_SVD():
+    """Test left-side dot product between two SVDs (other @ self)."""
+    X = SVD.generate_random((15, 20), np.array([5.0, 4.0, 3.0]))
+    Y = SVD.generate_random((10, 15), np.array([6.0, 5.0]))
+
+    Z = X.dot(Y, side="left")
+
+    assert isinstance(Z, SVD), "SVD @ SVD with side='left' should return SVD"
+    assert Z.rank == min(X.rank, Y.rank), "Rank should be min of input ranks"
+    assert np.allclose(Z.full(), Y.full() @ X.full()), "Left multiplication incorrect"
+
+
+def test_SVD_dot_side_left_with_ndarray():
+    """Test left-side dot product with ndarray (other @ self)."""
+    X = SVD.generate_random((20, 15), np.array([5.0, 4.0, 3.0]))
+    A = np.random.randn(10, 20)
+
+    Z = X.dot(A, side="left")
+    Z_dense = Z.full() if hasattr(Z, "full") else Z
+    assert np.allclose(Z_dense, A @ X.full()), "Left multiplication with ndarray incorrect"
+
+
+def test_SVD_dot_side_left_with_vector():
+    """Test left-side dot product with vector (vector @ self)."""
+    X = SVD.generate_random((20, 15), np.array([5.0, 4.0, 3.0]))
+    v = np.random.randn(20)
+
+    result = X.dot(v, side="left")
+    expected = v @ X.full()
+    assert np.allclose(result, expected), "Left multiplication with vector incorrect"
+
+
+def test_SVD_dot_side_backward_compat():
+    """Test backward compatibility aliases 'usual' and 'opposite'."""
+    X = SVD.generate_random((20, 15), np.array([5.0, 4.0, 3.0]))
+    Y = SVD.generate_random((15, 10), np.array([6.0, 5.0]))
+
+    Z_right = X.dot(Y, side="right")
+    Z_usual = X.dot(Y, side="usual")
+    assert np.allclose(Z_right.full(), Z_usual.full()), "side='usual' should match side='right'"
+
+    # For left multiplication, other @ self requires other.shape[1] == self.shape[0]
+    W = SVD.generate_random((10, 20), np.array([6.0, 5.0]))
+    Z_left = X.dot(W, side="left")
+    Z_opposite = X.dot(W, side="opposite")
+    assert np.allclose(
+        Z_left.full(), Z_opposite.full()
+    ), "side='opposite' should match side='left'"
+
+
+def test_SVD_dot_invalid_side():
+    """Test that invalid side raises ValueError."""
+    X = SVD.generate_random((20, 15), np.array([5.0, 4.0, 3.0]))
+    Y = SVD.generate_random((15, 10), np.array([6.0, 5.0]))
+
+    with pytest.raises(ValueError):
+        X.dot(Y, side="invalid")
+
+
 def test_SVD_compression_ratio():
     """Test compression ratio calculation."""
     # Low rank - should be compressed

@@ -934,6 +934,7 @@ class SVD(QuasiSVD):
     def dot(  # type: ignore[override]
         self,
         other: SVD | LowRankMatrix | ndarray,
+        side: str = "right",
         auto_truncate: bool = AUTOMATIC_TRUNCATION,
         dense_output: bool = False,
     ) -> SVD | LowRankMatrix | ndarray:
@@ -942,10 +943,15 @@ class SVD(QuasiSVD):
         Efficiently multiplies two SVD matrices while preserving the SVD structure.
         The resulting rank is min(rank(X), rank(Y)).
 
+        If side is 'right' or 'usual', compute self @ other.
+        If side is 'left' or 'opposite', compute other @ self.
+
         Parameters
         ----------
         other : SVD, LowRankMatrix, or ndarray
             Matrix to multiply with.
+        side : str, optional
+            'left' or 'right', by default 'right'
         auto_truncate : bool, optional
             Whether to automatically truncate small singular values after multiplication.
             Default is AUTOMATIC_TRUNCATION (False by default).
@@ -971,14 +977,21 @@ class SVD(QuasiSVD):
         >>> print(Z.shape)  # (100, 60)
         >>> print(Z.rank)   # min(20, 15) = 15
         """
+        if not (side.lower() in ["right", "usual", "left", "opposite"]):
+            raise ValueError('Incorrect side. Choose "right" or "left".')
         if isinstance(other, SVD):
+            # Determine multiplication order
+            if side.lower() in ["left", "opposite"]:
+                left, right = other, self
+            else:
+                left, right = self, other
             # Compute the middle matrix
-            middle = np.linalg.multi_dot([self.S, self.Vh, other.U, other.S])
+            middle = np.linalg.multi_dot([left.S, left.Vh, right.U, right.S])
             # SVD of the middle matrix
             U_m, s_m, Vh_m = np.linalg.svd(middle, full_matrices=False)
             # New U and V
-            new_U = np.dot(self.U, U_m)
-            new_V = np.dot(other.V, Vh_m.T.conj())
+            new_U = np.dot(left.U, U_m)
+            new_V = np.dot(right.V, Vh_m.T.conj())
             output = SVD(new_U, s_m, new_V)
             if auto_truncate:
                 output = output.truncate(atol=DEFAULT_ATOL)
@@ -987,7 +1000,7 @@ class SVD(QuasiSVD):
             else:
                 return output
         else:
-            output = super().dot(other, dense_output=dense_output)  # type: ignore[assignment]
+            output = LowRankMatrix.dot(self, other, side=side, dense_output=dense_output)  # type: ignore[assignment]
             return output
 
     def hadamard(
