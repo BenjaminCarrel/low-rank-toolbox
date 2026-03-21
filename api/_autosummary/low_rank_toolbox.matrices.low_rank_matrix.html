@@ -1,0 +1,1135 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.matrices.low_rank_matrix &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.matrices.qr" href="low_rank_toolbox.matrices.qr.html" />
+    <link rel="prev" title="low_rank_toolbox.matrices" href="low_rank_toolbox.matrices.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../matrices.html">Matrices Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.html#low_rank_toolbox.matrices.LowRankMatrix"><code class="docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.html#low_rank_toolbox.matrices.QR"><code class="docutils literal notranslate"><span class="pre">QR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.html#low_rank_toolbox.matrices.QuasiSVD"><code class="docutils literal notranslate"><span class="pre">QuasiSVD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.html#low_rank_toolbox.matrices.SVD"><code class="docutils literal notranslate"><span class="pre">SVD</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">low_rank_toolbox.matrices.low_rank_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.qr.html">low_rank_toolbox.matrices.qr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.quasi_svd.html">low_rank_toolbox.matrices.quasi_svd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.svd.html">low_rank_toolbox.matrices.svd</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.cssp.html">low_rank_toolbox.cssp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.randomized.html">low_rank_toolbox.randomized</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.matrices.low_rank_matrix</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.matrices.low_rank_matrix.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-low_rank_toolbox.matrices.low_rank_matrix">
+<span id="low-rank-toolbox-matrices-low-rank-matrix"></span><h1>low_rank_toolbox.matrices.low_rank_matrix<a class="headerlink" href="#module-low_rank_toolbox.matrices.low_rank_matrix" title="Link to this heading"></a></h1>
+<p>Generic low-rank matrix base class and utilities.</p>
+<dl class="simple">
+<dt>Authors: Benjamin Carrel and Rik Vorhaar</dt><dd><p>University of Geneva, 2022-2025</p>
+</dd>
+</dl>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a>(*matrices, **extra_data)</p></td>
+<td><p>Meta class for dealing with low rank matrices in different formats.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankEfficiencyWarning" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankEfficiencyWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LowRankEfficiencyWarning</span></code></a></p></td>
+<td><p>Warning for inefficient operations on low-rank matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.MemoryEfficiencyWarning" title="low_rank_toolbox.matrices.low_rank_matrix.MemoryEfficiencyWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryEfficiencyWarning</span></code></a></p></td>
+<td><p>Warning when low-rank representation uses more memory than dense storage.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py exception">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankEfficiencyWarning">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.matrices.low_rank_matrix.</span></span><span class="sig-name descname"><span class="pre">LowRankEfficiencyWarning</span></span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankEfficiencyWarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankEfficiencyWarning" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Warning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></a></p>
+<p>Warning for inefficient operations on low-rank matrices.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.matrices.low_rank_matrix.</span></span><span class="sig-name descname"><span class="pre">LowRankMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">matrices</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html#scipy.sparse.linalg.LinearOperator" title="(in SciPy v1.17.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
+<p>Meta class for dealing with low rank matrices in different formats.</p>
+<p>Inherits from scipy.sparse.linalg.LinearOperator for seamless integration
+with iterative solvers and standard numerical linear algebra tools.</p>
+<p>Do not use this class directly, but rather use its subclasses.</p>
+<p>We always decompose a matrix as a product of smaller matrices. These smaller
+matrices are stored in <code class="docutils literal notranslate"><span class="pre">self._matrices</span></code>.</p>
+<section id="linearoperator-integration">
+<h2>LinearOperator Integration<a class="headerlink" href="#linearoperator-integration" title="Link to this heading"></a></h2>
+<p>As a subclass of scipy.sparse.linalg.LinearOperator, LowRankMatrix provides
+efficient matrix-vector and matrix-matrix products without forming the full
+dense matrix. This enables direct use with scipy’s iterative solvers and
+other numerical algorithms.</p>
+<p>Key LinearOperator features:
+- Matrix-vector multiplication: A &#64; v or A.matvec(v)
+- Adjoint multiplication: A.H &#64; v or A.rmatvec(v)
+- Matrix-matrix multiplication: A &#64; B or A.matmat(B)
+- Lazy composition: A + B, A &#64; B (when B is LinearOperator)
+- Shape and dtype attributes: A.shape, A.dtype</p>
+<p class="rubric">Examples</p>
+<p>Using with scipy iterative solvers:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">gmres</span><span class="p">,</span> <span class="n">LinearOperator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVD</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a well-conditioned low-rank matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Better conditioned</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">V</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Add diagonal regularization for better conditioning</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">SVD</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A_reg</span> <span class="o">=</span> <span class="n">A</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">LinearOperator</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Solve Ax = b using GMRES (never forms the full matrix)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">gmres</span><span class="p">(</span><span class="n">A_reg</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">info</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># Verify convergence</span>
+</pre></div>
+</div>
+<p>Lazy composition with other operators:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">diags</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">aslinearoperator</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a diagonal operator for better conditioning</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="n">diags</span><span class="p">([</span><span class="mf">0.5</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D_op</span> <span class="o">=</span> <span class="n">aslinearoperator</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Lazy sum - doesn&#39;t form full matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span> <span class="o">=</span> <span class="n">A</span> <span class="o">+</span> <span class="n">D_op</span>  <span class="c1"># Returns _SumLinearOperator</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use in iterative solver</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x2</span><span class="p">,</span> <span class="n">info2</span> <span class="o">=</span> <span class="n">gmres</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">info2</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># Verify convergence</span>
+</pre></div>
+</div>
+<p>Matrix-vector products (efficient, no dense formation):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">v</span>  <span class="c1"># Efficient: never forms full 1000x1000 matrix</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Adjoint product</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">H</span> <span class="o">@</span> <span class="n">v</span>  <span class="c1"># Hermitian transpose product</span>
+</pre></div>
+</div>
+<p>Custom preconditioners:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use the regularized matrix from above</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">precondition</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="c1"># Simple diagonal preconditioner</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">v</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create LinearOperator from function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="n">LinearOperator</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">precondition</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use as preconditioner</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x3</span><span class="p">,</span> <span class="n">info3</span> <span class="o">=</span> <span class="n">gmres</span><span class="p">(</span><span class="n">A_reg</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">info3</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># Verify convergence</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>All matrix-vector products are computed efficiently in O(rank) operations</p></li>
+<li><p>Full matrix is never formed unless explicitly requested with .full()</p></li>
+<li><p>Subclasses (SVD, QR, QuasiSVD) inherit all LinearOperator functionality</p></li>
+<li><p>Compatible with all scipy.sparse.linalg iterative solvers (gmres, cg, bicgstab, etc.)</p></li>
+</ul>
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.H">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">H</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.H" title="Link to this definition"></a></dt>
+<dd><p>Hermitian transpose (conjugate transpose) of the matrix.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.T">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">T</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><span class="pre">LowRankMatrix</span></a></em><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.T" title="Link to this definition"></a></dt>
+<dd><p>Transpose of the matrix (reverse order and transpose each factor).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">matrices</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize a low-rank matrix from a sequence of factor matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*matrices</strong> (<em>ndarray</em>) – Sequence of matrices whose product forms the low-rank matrix.
+At least two matrices must be provided, and their shapes must align
+for matrix multiplication (i.e., matrices[i].shape[1] == matrices[i+1].shape[0]).</p></li>
+<li><p><strong>**extra_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional data to store with the matrix (e.g., poles, residues).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If fewer than 2 matrices are provided or if matrix shapes do not align.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.allclose">
+<span class="sig-name descname"><span class="pre">allclose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.allclose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.allclose" title="Link to this definition"></a></dt>
+<dd><p>Check approximate equality with another matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><em>LowRankMatrix</em></a><em> or </em><em>ndarray</em>) – Matrix to compare with.</p></li>
+<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Relative tolerance, by default 1e-5.</p></li>
+<li><p><strong>atol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Absolute tolerance, by default 1e-8.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if matrices are approximately equal within tolerances.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This forms the full matrix for comparison, which may be inefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.approximation_error">
+<span class="sig-name descname"><span class="pre">approximation_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.approximation_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.approximation_error" title="Link to this definition"></a></dt>
+<dd><p>Compute approximation error ||X - reference|| efficiently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<em>ndarray</em>) – Reference matrix to compare against.</p></li>
+<li><p><strong>ord</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Norm type, by default ‘fro’ (Frobenius).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Approximation error in the specified norm.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This forms the full matrix, which may be inefficient for very large matrices.
+For Frobenius norm, consider using norm_squared() for efficiency.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.compress">
+<span class="sig-name descname"><span class="pre">compress</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.compress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.compress" title="Link to this definition"></a></dt>
+<dd><p>Compress the factorization to maximize memory efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.compress_">
+<span class="sig-name descname"><span class="pre">compress_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.compress_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.compress_" title="Link to this definition"></a></dt>
+<dd><p>Compress the factorization in-place to maximize memory efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self (modified in-place).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This modifies the matrix in-place. Use compress() for a non-destructive version.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.compression_ratio">
+<span class="sig-name descname"><span class="pre">compression_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.compression_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.compression_ratio" title="Link to this definition"></a></dt>
+<dd><p>Compute compression ratio relative to dense storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Ratio of low-rank storage to dense storage (&lt; 1 means savings).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>A ratio of 0.1 means the low-rank format uses 10% of the memory
+of the dense format, i.e., a 10x compression.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.cond_estimate">
+<span class="sig-name descname"><span class="pre">cond_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'power_iteration'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.cond_estimate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.cond_estimate" title="Link to this definition"></a></dt>
+<dd><p>Estimate condition number without computing full SVD.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Method to use: ‘power_iteration’ (default) or ‘norm_ratio’.</p></li>
+<li><p><strong>n_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of iterations for power iteration method, by default 10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Estimated condition number (ratio of largest to smallest singular value).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The ‘power_iteration’ method estimates the largest singular value
+using power iteration. The smallest is estimated using the inverse
+(via solving linear systems). This is approximate but avoids full SVD.</p>
+<p>The ‘norm_ratio’ method uses matrix norms as bounds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.conj">
+<span class="sig-name descname"><span class="pre">conj</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.conj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.conj" title="Link to this definition"></a></dt>
+<dd><p>Complex conjugate of the matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.copy" title="Link to this definition"></a></dt>
+<dd><p>Create a deep copy of the matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A deep copy of this matrix with independent factor matrices.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.create_data_alias">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_data_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.create_data_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.create_data_alias" title="Link to this definition"></a></dt>
+<dd><p>Create a property that provides access to an entry in extra_data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Key for accessing the data in self._extra_data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Property object for accessing the extra data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#property" title="(in Python v3.14)">property</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Create a property to access extra data stored with the matrix:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">RationalKrylov</span><span class="p">(</span><span class="n">LowRankMatrix</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">poles</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="o">.</span><span class="n">create_data_alias</span><span class="p">(</span><span class="s1">&#39;poles&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">residues</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="o">.</span><span class="n">create_data_alias</span><span class="p">(</span><span class="s1">&#39;residues&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now <cite>my_matrix.poles</cite> accesses <cite>self._extra_data[‘poles’]</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.create_matrix_alias">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_matrix_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transpose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conjugate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.create_matrix_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.create_matrix_alias" title="Link to this definition"></a></dt>
+<dd><p>Create a property that provides access to a factor matrix with optional transformations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Index of the factor matrix in self._matrices.</p></li>
+<li><p><strong>transpose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to transpose the matrix when accessed, by default False.</p></li>
+<li><p><strong>conjugate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to conjugate the matrix when accessed, by default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Property object for accessing the transformed matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#property" title="(in Python v3.14)">property</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Create a property to access the first factor matrix:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyLowRank</span><span class="p">(</span><span class="n">LowRankMatrix</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">U</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="o">.</span><span class="n">create_matrix_alias</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">V</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="o">.</span><span class="n">create_matrix_alias</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now <cite>my_matrix.U</cite> accesses <cite>self._matrices[0]</cite> and <cite>my_matrix.V</cite>
+accesses <cite>self._matrices[1].T</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.deepshape">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deepshape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></em><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.deepshape" title="Link to this definition"></a></dt>
+<dd><p>Shape tuple including all intermediate dimensions of the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple of dimensions showing the shape of each factor in the chain.
+For factors A (m×k), B (k×n), returns (m, k, n).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.diag">
+<span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.diag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.diag" title="Link to this definition"></a></dt>
+<dd><p>Extract diagonal without forming full matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Diagonal elements of the matrix.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This is computed efficiently by extracting only the diagonal elements
+during the matrix chain multiplication, avoiding forming the full matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.dot">
+<span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dense_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.dot" title="Link to this definition"></a></dt>
+<dd><p>Matrix and vector multiplication</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><em>LowRankMatrix</em></a><em>, </em><em>ndarray</em><em>, </em><em>spmatrix</em>) – Matrix or vector to multiply with.</p></li>
+<li><p><strong>side</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Whether to multiply on the left or right, by default ‘right’.</p></li>
+<li><p><strong>dense_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to return a dense matrix or a low-rank matrix, by default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.dot_sparse">
+<span class="sig-name descname"><span class="pre">dot_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'usual'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dense_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.dot_sparse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.dot_sparse" title="Link to this definition"></a></dt>
+<dd><p>Efficient multiplication with a sparse matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sparse_other</strong> (<em>spmatrix</em>) – Sparse matrix to multiply with.</p></li>
+<li><p><strong>side</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – ‘right’ or ‘usual’: output = self &#64; sparse_other
+‘left’ or ‘opposite’: output = sparse_other &#64; self</p></li>
+<li><p><strong>dense_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to return a dense matrix, by default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result of the multiplication.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray | <a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.expm_multiply">
+<span class="sig-name descname"><span class="pre">expm_multiply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dense_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.expm_multiply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.expm_multiply" title="Link to this definition"></a></dt>
+<dd><p>Efficient action of sparse matrix exponential
+left: output = exp(h*A) &#64; self
+right: output = self &#64; exp(h*A)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>) – Sparse matrix in the exponential.</p></li>
+<li><p><strong>h</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Time step.</p></li>
+<li><p><strong>side</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Whether to multiply on the left or right, by default ‘left’.</p></li>
+<li><p><strong>dense_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to return a dense matrix or a low-rank matrix, by default False.</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Extra arguments to pass to scipy.sparse.linalg.expm_multiply.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resulting matrix after applying the exponential action.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray | <a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.flatten">
+<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.flatten" title="Link to this definition"></a></dt>
+<dd><p>Flatten the matrix to a 1D array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_dense">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dense</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.from_dense"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_dense" title="Link to this definition"></a></dt>
+<dd><p>Alias for from_matrix(). Must be implemented by subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_full">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.from_full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_full" title="Link to this definition"></a></dt>
+<dd><p>Alias for from_matrix(). Must be implemented by subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_low_rank">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_low_rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low_rank_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.from_low_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_low_rank" title="Link to this definition"></a></dt>
+<dd><p>Convert a LowRankMatrix to this specific subclass format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>low_rank_matrix</strong> (<a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><em>LowRankMatrix</em></a>) – Existing low-rank matrix to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New matrix of the target subclass type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Subclasses should override this to perform format-specific conversions.
+For example, SVD.from_low_rank() would compute the SVD of the input.
+The base class implementation creates a generic LowRankMatrix.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X_generic</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_svd</span> <span class="o">=</span> <span class="n">SVD</span><span class="o">.</span><span class="n">from_low_rank</span><span class="p">(</span><span class="n">X_generic</span><span class="p">)</span>  <span class="c1"># Converts to SVD format</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_matrix">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.from_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.from_matrix" title="Link to this definition"></a></dt>
+<dd><p>Create a low-rank matrix from a full matrix.</p>
+<p>This method must be implemented by subclasses (e.g., SVD, QR).
+The base LowRankMatrix class requires at least 2 matrices for factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></span></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.full">
+<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.full" title="Link to this definition"></a></dt>
+<dd><p>Form the full dense matrix by multiplying all factors in optimal order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.gather">
+<span class="sig-name descname"><span class="pre">gather</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.gather"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.gather" title="Link to this definition"></a></dt>
+<dd><p>Access specific matrix entries without forming the full matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> (<em>ndarray</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Index specification. For single element: [row_idx, col_idx].
+For multiple elements (fancy indexing): [row_indices, col_indices].</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested matrix element(s).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a> | ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This is faster and more memory-efficient than forming the full matrix.
+Very useful for matrix completion tasks or estimating reconstruction error.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.get_block">
+<span class="sig-name descname"><span class="pre">get_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.get_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.get_block" title="Link to this definition"></a></dt>
+<dd><p>Extract block submatrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rows</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.14)"><em>slice</em></a>) – Row slice specification.</p></li>
+<li><p><strong>cols</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.14)"><em>slice</em></a>) – Column slice specification.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested block submatrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method forms the full matrix, which may be inefficient.
+It’s provided for convenience and compatibility.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.hadamard">
+<span class="sig-name descname"><span class="pre">hadamard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.hadamard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.hadamard" title="Link to this definition"></a></dt>
+<dd><p>Element-wise (Hadamard) product with another matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><em>LowRankMatrix</em></a><em> or </em><em>ndarray</em>) – Matrix to multiply element-wise.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dense result of element-wise multiplication.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.is_memory_efficient">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_memory_efficient</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.is_memory_efficient" title="Link to this definition"></a></dt>
+<dd><p>Check if the low-rank representation uses less memory than dense storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if low-rank format uses less memory than dense format, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This compares the total number of elements stored in the factorization
+versus the full m×n matrix. For empty matrices (zero size), returns True.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">is_memory_efficient</span>  <span class="c1"># True: 20,000 elements vs 1,000,000</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">.</span><span class="n">is_memory_efficient</span>  <span class="c1"># False: 18,000 elements vs 10,000</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.is_symmetric">
+<span class="sig-name descname"><span class="pre">is_symmetric</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.is_symmetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.is_symmetric" title="Link to this definition"></a></dt>
+<dd><p>Check if the matrix is symmetric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the matrix is square and symmetric, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method forms the full matrix to check symmetry.
+For large matrices, this may be memory-intensive.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.is_well_conditioned">
+<span class="sig-name descname"><span class="pre">is_well_conditioned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.is_well_conditioned"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.is_well_conditioned" title="Link to this definition"></a></dt>
+<dd><p>Check if the factorization is numerically well-conditioned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Condition number threshold, by default 1e10.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if estimated condition number is below threshold.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This uses an approximate condition number estimate and may not be
+accurate for all cases. Consider this a heuristic check.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.length">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.length" title="Link to this definition"></a></dt>
+<dd><p>Number of factor matrices in the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of matrices in the product chain.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.load">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.load" title="Link to this definition"></a></dt>
+<dd><p>Load low-rank matrix from disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to the saved matrix file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded low-rank matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.matvec">
+<span class="sig-name descname"><span class="pre">matvec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.matvec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.matvec" title="Link to this definition"></a></dt>
+<dd><p>Matrix-vector product (public interface, backward compatibility).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>ndarray</em>) – Vector to multiply with.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result of matrix-vector multiplication.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.memory_usage">
+<span class="sig-name descname"><span class="pre">memory_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MB'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.memory_usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.memory_usage" title="Link to this definition"></a></dt>
+<dd><p>Report actual memory used by the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Unit for memory size: ‘B’, ‘KB’, ‘MB’, ‘GB’, by default ‘MB’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Memory usage in the specified unit.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.multi_add">
+<span class="sig-name descname"><span class="pre">multi_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">others</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.multi_add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.multi_add" title="Link to this definition"></a></dt>
+<dd><p>Add multiple low-rank matrices efficiently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>others</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><em>LowRankMatrix</em></a><em>]</em>) – Sequence of low-rank matrices to add.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dense matrix representing the sum.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>While more efficient than repeated use of +, this still requires
+forming full dense matrices and may be memory-intensive.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.multi_dot">
+<span class="sig-name descname"><span class="pre">multi_dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">others</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.multi_dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.multi_dot" title="Link to this definition"></a></dt>
+<dd><p>Matrix multiplication of a sequence of matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>others</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><em>LowRankMatrix</em></a><em> | </em><em>ndarray</em><em>]</em>) – Sequence of matrices to multiply.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Low rank matrix representing the product.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.ndim">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ndim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.ndim" title="Link to this definition"></a></dt>
+<dd><p>Number of dimensions (always 2 for matrices).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.norm">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.norm" title="Link to this definition"></a></dt>
+<dd><p>Default implementation, overload this for some subclasses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ord</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.norm_squared">
+<span class="sig-name descname"><span class="pre">norm_squared</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.norm_squared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.norm_squared" title="Link to this definition"></a></dt>
+<dd><p>Compute squared Frobenius norm efficiently: ||X||²_F = tr(X^H X).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Squared Frobenius norm of the matrix.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This is more efficient than computing the norm and squaring it,
+as it avoids the square root operation. For complex matrices,
+uses Hermitian transpose (X^H X) to ensure real result.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.power">
+<span class="sig-name descname"><span class="pre">power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.power" title="Link to this definition"></a></dt>
+<dd><p>Compute matrix power X^n efficiently using repeated squaring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Power to raise the matrix to. Must be non-negative.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrix raised to the n-th power. Returns identity matrix (as ndarray)
+for n=0, self for n=1, and LowRankMatrix for n&gt;1.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a> | ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If matrix is not square or n is negative.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This uses the binary exponentiation algorithm for efficiency.
+Time complexity is O(log n) matrix multiplications.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.rank">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rank</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.rank" title="Link to this definition"></a></dt>
+<dd><p>Rank of the low-rank factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The maximum possible rank given the factorization structure,
+computed as the minimum dimension across all factor matrices.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This is an upper bound on the true numerical rank. The actual rank
+may be lower if the factors are rank-deficient. For the true numerical
+rank, compute SVD of the full matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.rmatvec">
+<span class="sig-name descname"><span class="pre">rmatvec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.rmatvec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.rmatvec" title="Link to this definition"></a></dt>
+<dd><p>Adjoint matrix-vector product (public interface, backward compatibility).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>ndarray</em>) – Vector to multiply with.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result of adjoint matrix-vector multiplication.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.save" title="Link to this definition"></a></dt>
+<dd><p>Save low-rank matrix to disk efficiently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to save the matrix. Extension ‘.npz’ will be added if not present.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The matrix is saved in compressed NumPy format with all factor matrices
+and extra data preserved.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.scale_">
+<span class="sig-name descname"><span class="pre">scale_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.scale_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.scale_" title="Link to this definition"></a></dt>
+<dd><p>Scale the matrix in-place by a scalar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scalar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Scalar to multiply the matrix by.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self (modified in-place).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.size">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.size" title="Link to this definition"></a></dt>
+<dd><p>Total number of elements stored in the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Sum of elements across all factor matrices.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This returns the storage cost, not the matrix size (m×n).
+For matrix dimensions, use <cite>.shape</cite>. For compression ratio,
+use <cite>.compression_ratio()</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.to_dense">
+<span class="sig-name descname"><span class="pre">to_dense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.to_dense"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.to_dense" title="Link to this definition"></a></dt>
+<dd><p>Convert to dense matrix (alias for full).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.to_full">
+<span class="sig-name descname"><span class="pre">to_full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.to_full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.to_full" title="Link to this definition"></a></dt>
+<dd><p>Convert to dense matrix (alias for full).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.to_sparse">
+<span class="sig-name descname"><span class="pre">to_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.to_sparse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.to_sparse" title="Link to this definition"></a></dt>
+<dd><p>Convert to sparse format, zeroing small entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Sparse matrix format: ‘csr’, ‘csc’, ‘coo’, by default ‘csr’.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Entries with absolute value below threshold are set to zero, by default 1e-10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sparse matrix representation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>spmatrix</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This forms the full dense matrix first, which may be inefficient.
+Only use this if you expect the resulting matrix to be sparse.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.todense">
+<span class="sig-name descname"><span class="pre">todense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.todense"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.todense" title="Link to this definition"></a></dt>
+<dd><p>Convert to dense matrix (alias for full).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.trace">
+<span class="sig-name descname"><span class="pre">trace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.trace" title="Link to this definition"></a></dt>
+<dd><p>Compute trace efficiently using cyclic property: tr(ABC) = tr(CAB) = tr(BCA).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Trace of the matrix.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For a product of matrices A₁A₂…Aₙ, this method uses the cyclic property
+of the trace to minimize computational cost. The trace is computed as
+tr(A₂…AₙA₁) by cyclically permuting to minimize the intermediate matrix sizes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.transpose">
+<span class="sig-name descname"><span class="pre">transpose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#LowRankMatrix.transpose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix.transpose" title="Link to this definition"></a></dt>
+<dd><p>Transpose the matrix (alias for .T property).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>matrices</strong> (<em>ndarray</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.low_rank_matrix.MemoryEfficiencyWarning">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.matrices.low_rank_matrix.</span></span><span class="sig-name descname"><span class="pre">MemoryEfficiencyWarning</span></span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/low_rank_matrix.html#MemoryEfficiencyWarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.low_rank_matrix.MemoryEfficiencyWarning" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Warning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></a></p>
+<p>Warning when low-rank representation uses more memory than dense storage.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.matrices.html" class="btn btn-neutral float-left" title="low_rank_toolbox.matrices" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.matrices.qr.html" class="btn btn-neutral float-right" title="low_rank_toolbox.matrices.qr" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

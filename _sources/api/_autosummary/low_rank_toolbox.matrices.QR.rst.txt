@@ -1,0 +1,93 @@
+﻿low\_rank\_toolbox.matrices.QR
+==============================
+
+.. currentmodule:: low_rank_toolbox.matrices
+
+.. autoclass:: QR
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~QR.__init__
+      ~QR.adjoint
+      ~QR.allclose
+      ~QR.approximation_error
+      ~QR.compress
+      ~QR.compress_
+      ~QR.compression_ratio
+      ~QR.cond
+      ~QR.cond_estimate
+      ~QR.copy
+      ~QR.create_data_alias
+      ~QR.create_matrix_alias
+      ~QR.diag
+      ~QR.dot
+      ~QR.dot_sparse
+      ~QR.expm_multiply
+      ~QR.flatten
+      ~QR.from_dense
+      ~QR.from_full
+      ~QR.from_low_rank
+      ~QR.from_matrix
+      ~QR.from_svd
+      ~QR.full
+      ~QR.gather
+      ~QR.generate_random
+      ~QR.get_block
+      ~QR.hadamard
+      ~QR.is_orthogonal
+      ~QR.is_symmetric
+      ~QR.is_upper_triangular
+      ~QR.is_well_conditioned
+      ~QR.load
+      ~QR.lstsq
+      ~QR.matmat
+      ~QR.matvec
+      ~QR.memory_usage
+      ~QR.multi_add
+      ~QR.multi_dot
+      ~QR.norm
+      ~QR.norm_squared
+      ~QR.power
+      ~QR.pseudoinverse
+      ~QR.qr
+      ~QR.rmatmat
+      ~QR.rmatvec
+      ~QR.save
+      ~QR.scale_
+      ~QR.solve
+      ~QR.to_dense
+      ~QR.to_full
+      ~QR.to_sparse
+      ~QR.to_svd
+      ~QR.todense
+      ~QR.trace
+      ~QR.transpose
+      ~QR.truncate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~QR.H
+      ~QR.Q
+      ~QR.R
+      ~QR.T
+      ~QR.conj
+      ~QR.deepshape
+      ~QR.is_memory_efficient
+      ~QR.length
+      ~QR.ndim
+      ~QR.rank
+      ~QR.size
+   
+   

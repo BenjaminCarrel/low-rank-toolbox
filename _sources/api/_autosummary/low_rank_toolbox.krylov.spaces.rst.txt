@@ -1,0 +1,17 @@
+low\_rank\_toolbox.krylov.spaces
+================================
+
+.. automodule:: low_rank_toolbox.krylov.spaces
+
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   extended_krylov_space
+   inverted_krylov_space
+   krylov_space
+   rational_krylov_space
+   space_structure

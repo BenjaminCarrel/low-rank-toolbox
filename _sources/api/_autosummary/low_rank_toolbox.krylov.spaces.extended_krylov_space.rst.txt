@@ -1,0 +1,12 @@
+low\_rank\_toolbox.krylov.spaces.extended\_krylov\_space
+========================================================
+
+.. automodule:: low_rank_toolbox.krylov.spaces.extended_krylov_space
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ExtendedKrylovSpace
+   

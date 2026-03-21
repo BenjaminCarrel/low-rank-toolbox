@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api/index.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-import">Basic Import</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#low-rank-matrix-representations">Low-Rank Matrix Representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#computing-svd-from-matrices">Computing SVD from Matrices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#column-subset-selection-cssp">Column Subset Selection (CSSP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#krylov-subspace-methods">Krylov Subspace Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#randomized-low-rank-approximation">Randomized Low-Rank Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-operations">Common Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quick Start</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h1>
+<p>This guide provides quick examples to get you started with the <code class="docutils literal notranslate"><span class="pre">low_rank_toolbox</span></code> package.</p>
+<section id="basic-import">
+<h2>Basic Import<a class="headerlink" href="#basic-import" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVD</span><span class="p">,</span> <span class="n">QR</span><span class="p">,</span> <span class="n">LowRankMatrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox</span><span class="w"> </span><span class="kn">import</span> <span class="n">QDEIM</span><span class="p">,</span> <span class="n">DEIM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_lyapunov</span><span class="p">,</span> <span class="n">solve_sylvester</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.randomized</span><span class="w"> </span><span class="kn">import</span> <span class="n">randomized_svd</span><span class="p">,</span> <span class="n">generalized_nystrom</span>
+</pre></div>
+</div>
+</section>
+<section id="low-rank-matrix-representations">
+<h2>Low-Rank Matrix Representations<a class="headerlink" href="#low-rank-matrix-representations" title="Link to this heading"></a></h2>
+<p>Create and manipulate matrices in SVD format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create orthonormal matrices</span>
+<span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">20</span>
+<span class="n">U</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span>
+<span class="n">V</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>  <span class="c1"># Singular values with exponential decay</span>
+
+<span class="c1"># Create SVD representation (only stores U, s, V - not the full matrix!)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">SVD</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Matrix shape: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, Rank: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory savings: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">compression_ratio</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Efficient operations exploiting low-rank structure</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="s1">&#39;fro&#39;</span><span class="p">)</span>      <span class="c1"># Frobenius norm: O(r) instead of O(mn)</span>
+<span class="n">trace</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span>         <span class="c1"># Trace: O(r²) instead of O(min(m,n))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span>              <span class="c1"># Matrix multiplication returns SVD</span>
+</pre></div>
+</div>
+<p><strong>Memory Efficiency Example:</strong></p>
+<p>For a 1000×1000 matrix with rank 10:</p>
+<ul class="simple">
+<li><p>Dense storage: 1,000,000 elements</p></li>
+<li><p>SVD storage: 20,100 elements (50× compression!)</p></li>
+</ul>
+</section>
+<section id="computing-svd-from-matrices">
+<h2>Computing SVD from Matrices<a class="headerlink" href="#computing-svd-from-matrices" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Full SVD</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+<span class="n">X_full</span> <span class="o">=</span> <span class="n">SVD</span><span class="o">.</span><span class="n">reduced_svd</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+<span class="c1"># Truncated SVD (keep top 10 singular values)</span>
+<span class="n">X_trunc</span> <span class="o">=</span> <span class="n">SVD</span><span class="o">.</span><span class="n">truncated_svd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Adaptive truncation (tolerance-based)</span>
+<span class="n">X_adaptive</span> <span class="o">=</span> <span class="n">SVD</span><span class="o">.</span><span class="n">truncated_svd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adaptive rank: </span><span class="si">{</span><span class="n">X_adaptive</span><span class="o">.</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="column-subset-selection-cssp">
+<h2>Column Subset Selection (CSSP)<a class="headerlink" href="#column-subset-selection-cssp" title="Link to this heading"></a></h2>
+<p>Select representative columns for interpolation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create basis matrix (e.g., POD modes, eigenvectors, etc.)</span>
+<span class="n">U</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># Select 10 interpolation points with guaranteed bounds</span>
+<span class="n">indices</span><span class="p">,</span> <span class="n">projector</span> <span class="o">=</span> <span class="n">QDEIM</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">return_projector</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selected indices: </span><span class="si">{</span><span class="n">indices</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Interpolation property: U ≈ Projector @ U[indices, :]</span>
+<span class="n">interpolated</span> <span class="o">=</span> <span class="n">projector</span> <span class="o">@</span> <span class="n">U</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">interpolated</span><span class="p">,</span> <span class="s1">&#39;fro&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interpolation error: </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Available Algorithms:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DEIM</span></code> - Discrete Empirical Interpolation Method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">QDEIM</span></code> - QR-based DEIM with better stability</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sQDEIM</span></code> - Strong QDEIM with conditioning guarantees</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ARP</span></code> - Adaptive Row Pivoting</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gpode</span></code> - Greedy Point Selection (Oversampled DEIM Extension)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gpodr</span></code> - Greedy Point Selection with Reduced basis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Osinsky</span></code> - Alternative column selection method</p></li>
+</ul>
+</section>
+<section id="krylov-subspace-methods">
+<h2>Krylov Subspace Methods<a class="headerlink" href="#krylov-subspace-methods" title="Link to this heading"></a></h2>
+<p>Solve large-scale Lyapunov equations efficiently:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">diags</span>
+
+<span class="c1"># Large sparse matrix</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">diags</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csc&#39;</span><span class="p">)</span>
+
+<span class="c1"># Low-rank right-hand side: AX + XA^T = C</span>
+<span class="n">C_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">C_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="p">(</span><span class="n">C_left</span><span class="p">,</span> <span class="n">C_right</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+<span class="c1"># Solve using Krylov methods (never forms full n×n solution!)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">solve_lyapunov</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solution rank: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solution shape: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Key Features:</strong></p>
+<ul class="simple">
+<li><p>Automatically detects symmetric matrices and uses Lanczos (faster)</p></li>
+<li><p>Extended Krylov spaces for better convergence</p></li>
+<li><p>Rational Krylov with optimal poles</p></li>
+<li><p>Never forms full matrix - keeps low-rank structure</p></li>
+</ul>
+</section>
+<section id="randomized-low-rank-approximation">
+<h2>Randomized Low-Rank Approximation<a class="headerlink" href="#randomized-low-rank-approximation" title="Link to this heading"></a></h2>
+<p>Fast approximation for large matrices:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Large matrix</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">)</span>
+
+<span class="c1"># Randomized SVD (much faster than full SVD)</span>
+<span class="n">X_approx</span> <span class="o">=</span> <span class="n">randomized_svd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span> <span class="o">-</span> <span class="n">X_approx</span><span class="o">.</span><span class="n">to_dense</span><span class="p">(),</span> <span class="s1">&#39;fro&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Approximation error: </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Generalized Nyström method (for symmetric/positive-semidefinite matrices)</span>
+<span class="n">A_sym</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span>
+<span class="n">X_nystrom</span> <span class="o">=</span> <span class="n">generalized_nystrom</span><span class="p">(</span><span class="n">A_sym</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">oversampling_params</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generalized Nyström rank: </span><span class="si">{</span><span class="n">X_nystrom</span><span class="o">.</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Performance Benefits:</strong></p>
+<p>For a 10000×10000 matrix, rank 100 approximation:</p>
+<ul class="simple">
+<li><p>Full SVD: ~5 minutes</p></li>
+<li><p>Randomized SVD: ~5 seconds (60× faster!)</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code> - Target rank</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> - Oversampling parameter (typically 5-10)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">q</span></code> - Power iterations for accuracy (0-3)</p></li>
+</ul>
+</section>
+<section id="common-operations">
+<h2>Common Operations<a class="headerlink" href="#common-operations" title="Link to this heading"></a></h2>
+<p><strong>Matrix Operations:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">SVD</span><span class="o">.</span><span class="n">generate_random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">SVD</span><span class="o">.</span><span class="n">generate_random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># Addition/Subtraction</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="n">Y</span>  <span class="c1"># Returns SVD of rank 20</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">X</span> <span class="o">-</span> <span class="n">Y</span>
+
+<span class="c1"># Scalar multiplication</span>
+<span class="n">X2</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">X</span>  <span class="c1"># Multiplies singular values by 2</span>
+
+<span class="c1"># Matrix multiplication</span>
+<span class="n">XT</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># Returns SVD</span>
+<span class="n">XY</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span>
+
+<span class="c1"># Hadamard (element-wise) product</span>
+<span class="n">H</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">hadamard</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Norms and Properties:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Efficient norm computation</span>
+<span class="n">norm_fro</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="s1">&#39;fro&#39;</span><span class="p">)</span>    <span class="c1"># Frobenius: sqrt(sum(s²))</span>
+<span class="n">norm_2</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>          <span class="c1"># Spectral: max(s)</span>
+<span class="n">norm_nuc</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="s1">&#39;nuc&#39;</span><span class="p">)</span>    <span class="c1"># Nuclear: sum(s)</span>
+
+<span class="c1"># Matrix properties</span>
+<span class="n">trace</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span>
+<span class="n">diagonal</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">diag</span><span class="p">()</span>
+<span class="n">is_sym</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">()</span>
+<span class="n">is_orth</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">is_orthogonal</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Conversion:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To dense array</span>
+<span class="n">A_dense</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
+
+<span class="c1"># To sparse (if sparsity threshold met)</span>
+<span class="n">A_sparse</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">to_sparse</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+
+<span class="c1"># Between formats</span>
+<span class="n">X_qr</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">to_qr</span><span class="p">()</span>
+<span class="n">X_quasi</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">to_quasi_svd</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-topics">
+<h2>Advanced Topics<a class="headerlink" href="#advanced-topics" title="Link to this heading"></a></h2>
+<p><strong>Truncation Strategies:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># By rank</span>
+<span class="n">X_r5</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="c1"># By relative tolerance (relative to largest singular value)</span>
+<span class="n">X_rtol</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+
+<span class="c1"># By absolute tolerance</span>
+<span class="n">X_atol</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+
+<span class="c1"># Keep perpendicular component (residual)</span>
+<span class="n">X_perp</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate_perpendicular</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Linear System Solving:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Square system</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># Least squares (overdetermined/underdetermined)</span>
+<span class="n">x_ls</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># Pseudoinverse</span>
+<span class="n">X_pinv</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">pseudoinverse</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Custom Krylov Spaces:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.krylov</span><span class="w"> </span><span class="kn">import</span> <span class="n">KrylovSpace</span><span class="p">,</span> <span class="n">ExtendedKrylovSpace</span>
+
+<span class="c1"># Standard Krylov space</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">KrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">K</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>  <span class="c1"># Add more vectors</span>
+
+<span class="c1"># Extended Krylov (uses A and A^-1)</span>
+<span class="n">invA</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">EK</span> <span class="o">=</span> <span class="n">ExtendedKrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">invA</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Explore the <a class="reference internal" href="api/index.html"><span class="doc">API Reference</span></a> for detailed documentation</p></li>
+<li><p>See <span class="xref std std-doc">examples/index</span> for more comprehensive examples</p></li>
+<li><p>Check out the <a class="reference external" href="https://github.com/BenjaminCarrel/low-rank-toolbox/tree/main/tests">test suite</a> for additional usage patterns</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

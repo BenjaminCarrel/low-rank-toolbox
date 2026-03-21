@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.cssp.osinsky &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.cssp.osinsky</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for low_rank_toolbox.cssp.osinsky</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Osinsky&#39;s quasi-optimal column subset selection algorithm.</span>
+
+<span class="sd">Author: Benjamin Carrel, University of Geneva, 2024</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">la</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>
+
+
+<div class="viewcode-block" id="Osinsky">
+<a class="viewcode-back" href="../../../api/_autosummary/low_rank_toolbox.cssp.osinsky.html#low_rank_toolbox.cssp.Osinsky">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">Osinsky</span><span class="p">(</span>
+    <span class="n">U</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">return_projector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">return_inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">extra_args</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Osinsky&#39;s quasi optimal column subset selection algorithm.</span>
+
+<span class="sd">    Reference:</span>
+<span class="sd">        &quot;Close to optimal column approximations with a single SVD.&quot; by A.I. Osinsky, 2023.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U : numpy.ndarray</span>
+<span class="sd">        Orthonormal real matrix of shape (n, r) defining a row space approximation</span>
+<span class="sd">    return_projector : bool</span>
+<span class="sd">        If True, return also the matrix U @ inv(U[S, :])</span>
+<span class="sd">    return_inverse : bool</span>
+<span class="sd">        If True, return also the inverse matrix inv(U[S, :])</span>
+<span class="sd">    extra_args : dict</span>
+<span class="sd">        Additional arguments:</span>
+<span class="sd">            solve_kwargs : dict</span>
+<span class="sd">                Additional arguments for the solve function</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    J : ndarray</span>
+<span class="sd">        Selected column indices (r elements)</span>
+<span class="sd">    P_U : ndarray (n x r) (optional)</span>
+<span class="sd">        Matrix U @ inv(U[J, :]) where U[J, :] is the (r x r) submatrix.</span>
+<span class="sd">        Only returned if return_projector=True.</span>
+<span class="sd">    inv_U : ndarray (r x r) (optional)</span>
+<span class="sd">        Matrix inv(U[J, :]).</span>
+<span class="sd">        Only returned if return_inverse=True (requires return_projector=True).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="n">n</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Number of columns r must be less than or equal to number of rows n.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">Uk</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">l_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>  <span class="c1"># Machine epsilon for float64</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+        <span class="c1"># --- Pivot Selection ---</span>
+        <span class="n">current_sub_Uk</span> <span class="o">=</span> <span class="n">Uk</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">norms_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">current_sub_Uk</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">current_l</span> <span class="o">=</span> <span class="n">l_scores</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">n</span><span class="p">]</span>
+
+        <span class="c1"># Criterion: norms_sq / (1 + l_j), handle small norms/denominators</span>
+        <span class="n">denominators</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">current_l</span>
+        <span class="n">pivot_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">denominators</span><span class="p">)</span>
+        <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">norms_sq</span> <span class="o">&gt;</span> <span class="n">eps</span>
+        <span class="n">pivot_vals</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">norms_sq</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">denominators</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
+
+        <span class="n">best_idx_in_slice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">pivot_vals</span><span class="p">)</span>
+        <span class="n">j_pivot</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="n">best_idx_in_slice</span>
+
+        <span class="c1"># --- Swap ---</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">j_pivot</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k</span><span class="p">,</span> <span class="n">j_pivot</span><span class="p">])</span>
+            <span class="n">Uk</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">Uk</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j_pivot</span><span class="p">,</span> <span class="n">k</span><span class="p">])]</span>
+            <span class="n">P</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="n">j_pivot</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">j_pivot</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">l_scores</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">l_scores</span><span class="p">[</span><span class="n">j_pivot</span><span class="p">]</span> <span class="o">=</span> <span class="n">l_scores</span><span class="p">[</span><span class="n">j_pivot</span><span class="p">],</span> <span class="n">l_scores</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="c1"># --- Householder Reflection ---</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Uk</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">norm_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">d_update</span> <span class="o">=</span> <span class="n">Uk</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Initialize update scores from current row</span>
+
+        <span class="k">if</span> <span class="n">norm_x</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">norm_x</span>
+            <span class="n">norm_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">norm_v</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">/=</span> <span class="n">norm_v</span>
+                <span class="c1"># Apply reflection: A_sub = A_sub - 2 * v * (v.H @ A_sub)</span>
+                <span class="n">sub_matrix_to_update</span> <span class="o">=</span> <span class="n">Uk</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span><span class="n">n</span><span class="p">]</span>
+                <span class="n">vT_Asub</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">sub_matrix_to_update</span><span class="p">)</span>
+                <span class="n">Uk</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span><span class="n">n</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">vT_Asub</span><span class="p">)</span>
+                <span class="n">d_update</span> <span class="o">=</span> <span class="n">Uk</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># --- Update Scores ---</span>
+        <span class="c1"># Use absolute value squared for both real and complex matrices</span>
+        <span class="n">l_scores</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">d_update</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="c1"># --- End Loop ---</span>
+
+    <span class="k">if</span> <span class="n">return_projector</span><span class="p">:</span>
+        <span class="n">P_U</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+            <span class="n">U</span><span class="p">[</span><span class="n">P</span><span class="p">[:</span><span class="n">r</span><span class="p">],</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="o">**</span><span class="n">extra_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;solve_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">return_inverse</span><span class="p">:</span>
+            <span class="n">inv_U</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">P_U</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">P</span><span class="p">[:</span><span class="n">r</span><span class="p">],</span> <span class="n">P_U</span><span class="p">,</span> <span class="n">inv_U</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">P</span><span class="p">[:</span><span class="n">r</span><span class="p">],</span> <span class="n">P_U</span>
+    <span class="k">return</span> <span class="n">P</span><span class="p">[:</span><span class="n">r</span><span class="p">]</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Example usage - real case</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">## Tall matrix with orthonormal columns</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Real case -- Tall matrix with orthonormal columns&quot;</span><span class="p">)</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">4</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+
+    <span class="n">J</span> <span class="o">=</span> <span class="n">Osinsky</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">return_projector</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selected indices J:&quot;</span><span class="p">,</span> <span class="n">J</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;U[J, :]:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">U</span><span class="p">[</span><span class="n">J</span><span class="p">,</span> <span class="p">:])</span>
+
+    <span class="c1"># Example usage - complex case</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Complex case -- Tall matrix with orthonormal columns&quot;</span><span class="p">)</span>
+    <span class="n">U_complex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+    <span class="n">U_complex</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">U_complex</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+
+    <span class="n">J_complex</span> <span class="o">=</span> <span class="n">Osinsky</span><span class="p">(</span><span class="n">U_complex</span><span class="p">,</span> <span class="n">return_projector</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selected indices J (complex case):&quot;</span><span class="p">,</span> <span class="n">J_complex</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;U[J, :] (complex case):</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">U_complex</span><span class="p">[</span><span class="n">J_complex</span><span class="p">,</span> <span class="p">:])</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

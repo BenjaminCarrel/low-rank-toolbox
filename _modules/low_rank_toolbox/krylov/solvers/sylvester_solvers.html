@@ -1,0 +1,523 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.krylov.solvers.sylvester_solvers &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.krylov.solvers.sylvester_solvers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for low_rank_toolbox.krylov.solvers.sylvester_solvers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Krylov-based solvers for the Sylvester equation.</span>
+
+<span class="sd">Author: Benjamin Carrel, University of Geneva, 2022-2023</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+
+<span class="c1"># %% Imports</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">la</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">spsla</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">issparse</span><span class="p">,</span> <span class="n">spmatrix</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...matrices</span><span class="w"> </span><span class="kn">import</span> <span class="n">LowRankMatrix</span><span class="p">,</span> <span class="n">QuasiSVD</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExtendedKrylovSpace</span><span class="p">,</span> <span class="n">KrylovSpace</span><span class="p">,</span> <span class="n">RationalKrylovSpace</span>
+
+<span class="n">machine_precision</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+<span class="n">Matrix</span> <span class="o">=</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">spmatrix</span> <span class="o">|</span> <span class="n">LowRankMatrix</span>
+
+<span class="c1"># %% Functions</span>
+
+
+<div class="viewcode-block" id="solve_small_sylvester">
+<a class="viewcode-back" href="../../../../api/_autosummary/low_rank_toolbox.krylov.solvers.sylvester_solvers.html#low_rank_toolbox.krylov.solvers.solve_small_sylvester">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_small_sylvester</span><span class="p">(</span>
+    <span class="n">A</span><span class="p">:</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">spmatrix</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">spmatrix</span><span class="p">,</span> <span class="n">C</span><span class="p">:</span> <span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solve the Sylvester equation for small systems.</span>
+
+<span class="sd">    Find X such that AX + XB = C. Wrapper to scipy.linalg.solve_sylvester.</span>
+<span class="sd">    For larger systems, use solve_sparse_low_rank_sylvester or solve_sylvester_large_A_small_B.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray | spmatrix</span>
+<span class="sd">        Matrix of shape (m, m)</span>
+<span class="sd">    B : ndarray | spmatrix</span>
+<span class="sd">        Matrix of shape (n, n)</span>
+<span class="sd">    C : ndarray</span>
+<span class="sd">        Matrix of shape (m, n)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Dense solution of shape (m, n)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert sparse matrices to dense for scipy.linalg.solve_sylvester</span>
+    <span class="n">A_dense</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="k">else</span> <span class="n">A</span>  <span class="c1"># type: ignore[assignment, union-attr]</span>
+    <span class="n">B_dense</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="k">else</span> <span class="n">B</span>  <span class="c1"># type: ignore[assignment, union-attr]</span>
+    <span class="k">return</span> <span class="n">la</span><span class="o">.</span><span class="n">solve_sylvester</span><span class="p">(</span><span class="n">A_dense</span><span class="p">,</span> <span class="n">B_dense</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="solve_sylvester_large_A_small_B">
+<a class="viewcode-back" href="../../../../api/_autosummary/low_rank_toolbox.krylov.solvers.sylvester_solvers.html#low_rank_toolbox.krylov.solvers.solve_sylvester_large_A_small_B">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_sylvester_large_A_small_B</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">spmatrix</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">C</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solve the Sylvester equation when A is large and B is small.</span>
+
+<span class="sd">    Find X such that AX + XB = C using eigenvalue decomposition of B.</span>
+
+<span class="sd">    Reference:</span>
+<span class="sd">    Simoncini, V., 2016. Computational Methods for Linear Matrix Equations.</span>
+<span class="sd">    SIAM Rev. 58, 377-441. https://doi.org/10.1137/130912839</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : spmatrix</span>
+<span class="sd">        Sparse matrix of shape (m, m)</span>
+<span class="sd">    B : ndarray</span>
+<span class="sd">        Dense matrix of shape (n, n)</span>
+<span class="sd">    C : ndarray</span>
+<span class="sd">        Dense matrix of shape (m, n)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Dense solution of the Sylvester equation of shape (m, n)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check inputs</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">),</span> <span class="s2">&quot;A must be a sparse matrix&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">),</span> <span class="s2">&quot;B must be a dense matrix&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">),</span> <span class="s2">&quot;C must be a dense matrix&quot;</span>
+
+    <span class="n">S</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">C_hat</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+    <span class="n">X_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="o">*</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">S</span><span class="p">)):</span>
+        <span class="n">X_hat</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">spsla</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">A</span> <span class="o">+</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">I</span><span class="p">,</span> <span class="n">C_hat</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">X_hat</span> <span class="o">@</span> <span class="n">W</span><span class="o">.</span><span class="n">T</span></div>
+
+
+
+<div class="viewcode-block" id="solve_sparse_low_rank_sylvester">
+<a class="viewcode-back" href="../../../../api/_autosummary/low_rank_toolbox.krylov.solvers.sylvester_solvers.html#low_rank_toolbox.krylov.solvers.solve_sparse_low_rank_sylvester">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_sparse_low_rank_sylvester</span><span class="p">(</span>
+    <span class="n">A</span><span class="p">:</span> <span class="n">spmatrix</span><span class="p">,</span>
+    <span class="n">B</span><span class="p">:</span> <span class="n">spmatrix</span><span class="p">,</span>
+    <span class="n">C</span><span class="p">:</span> <span class="n">LowRankMatrix</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">krylov_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">is_A_symmetric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">is_B_symmetric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuasiSVD</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Low-rank solver for the Sylvester equation.</span>
+
+<span class="sd">    Find X such that AX + XB = C.</span>
+
+<span class="sd">    Uses two Krylov spaces (left for A, right for B). The projected problem is solved</span>
+<span class="sd">    as a small Sylvester equation: Ak Y + Y Bk = Ck.</span>
+
+<span class="sd">    **Algorithm Note:** Each Krylov space independently uses Lanczos if the corresponding</span>
+<span class="sd">    matrix is symmetric. If A is symmetric, the left Krylov space uses Lanczos.</span>
+<span class="sd">    If B is symmetric, the right Krylov space uses Lanczos. Both can use Lanczos independently.</span>
+
+<span class="sd">    **Special Case:** When A = B and both are symmetric, the problem becomes a Lyapunov</span>
+<span class="sd">    equation (AX + XA = C). Use solve_lyapunov() instead to exploit the symmetry of X</span>
+<span class="sd">    and use only one Krylov space instead of two.</span>
+
+<span class="sd">    Reference:</span>
+<span class="sd">    Simoncini, V., 2016. Computational Methods for Linear Matrix Equations.</span>
+<span class="sd">    SIAM Rev. 58, 377-441. https://doi.org/10.1137/130912839</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : spmatrix</span>
+<span class="sd">        Sparse matrix of shape (m, m)</span>
+<span class="sd">    B : spmatrix</span>
+<span class="sd">        Sparse matrix of shape (n, n)</span>
+<span class="sd">    C : LowRankMatrix</span>
+<span class="sd">        Low-rank right-hand side of shape (m, n)</span>
+<span class="sd">    tol : float, optional</span>
+<span class="sd">        Convergence tolerance, by default 1e-12</span>
+<span class="sd">    max_iter : int, optional</span>
+<span class="sd">        Maximum iterations, by default m / rank(C)</span>
+<span class="sd">    krylov_kwargs : dict, optional</span>
+<span class="sd">        Krylov space configuration with keys:</span>
+<span class="sd">        - &#39;extended&#39; (bool): Use extended Krylov space (default True)</span>
+<span class="sd">        - &#39;invA&#39; (callable): Custom inverse function for A</span>
+<span class="sd">        - &#39;invB&#39; (callable): Custom inverse function for B</span>
+<span class="sd">        - &#39;poles_A&#39; (array_like): Poles for rational Krylov space for A</span>
+<span class="sd">        - &#39;poles_B&#39; (array_like): Poles for rational Krylov space for B</span>
+<span class="sd">    is_A_symmetric : bool, optional</span>
+<span class="sd">        If True, A is symmetric and Lanczos is used for left Krylov space.</span>
+<span class="sd">        If None (default), symmetry is auto-detected.</span>
+<span class="sd">    is_B_symmetric : bool, optional</span>
+<span class="sd">        If True, B is symmetric and Lanczos is used for right Krylov space.</span>
+<span class="sd">        If None (default), symmetry is auto-detected.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    QuasiSVD</span>
+<span class="sd">        Low-rank solution X of shape (m, n)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from scipy.sparse import diags</span>
+<span class="sd">    &gt;&gt;&gt; from low_rank_toolbox import LowRankMatrix</span>
+<span class="sd">    &gt;&gt;&gt; from low_rank_toolbox.krylov import solve_sparse_low_rank_sylvester</span>
+<span class="sd">    &gt;&gt;&gt; # Create sparse matrices A and B (larger sizes)</span>
+<span class="sd">    &gt;&gt;&gt; n, m = 100, 80</span>
+<span class="sd">    &gt;&gt;&gt; A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format=&#39;csr&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format=&#39;csr&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; # Create a low-rank right-hand side</span>
+<span class="sd">    &gt;&gt;&gt; U = np.zeros((n, 1))</span>
+<span class="sd">    &gt;&gt;&gt; U[0, 0] = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; V = np.zeros((m, 1))</span>
+<span class="sd">    &gt;&gt;&gt; V[0, 0] = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; C = LowRankMatrix(U, V.T)</span>
+<span class="sd">    &gt;&gt;&gt; # Solve AX + XB = C</span>
+<span class="sd">    &gt;&gt;&gt; X = solve_sparse_low_rank_sylvester(A, B, C, tol=1e-10)</span>
+<span class="sd">    &gt;&gt;&gt; # Verify the solution</span>
+<span class="sd">    &gt;&gt;&gt; residual = A @ X + X @ B - C</span>
+<span class="sd">    &gt;&gt;&gt; residual.norm() &lt; 1e-8</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; # X is low-rank</span>
+<span class="sd">    &gt;&gt;&gt; X.rank &lt;= 50</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check inputs</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">),</span> <span class="s2">&quot;A must be a sparse matrix&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">),</span> <span class="s2">&quot;B must be a sparse matrix&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">LowRankMatrix</span><span class="p">),</span> <span class="s2">&quot;C must be a low-rank matrix&quot;</span>
+    <span class="k">assert</span> <span class="n">tol</span> <span class="o">&gt;</span> <span class="n">machine_precision</span><span class="p">,</span> <span class="s2">&quot;tol must be larger than machine precision&quot;</span>
+    <span class="k">if</span> <span class="n">max_iter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_iter</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">C</span><span class="o">.</span><span class="n">rank</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">max_iter</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_iter must be at least 2&quot;</span>
+
+    <span class="c1"># Parse Krylov kwargs</span>
+    <span class="k">if</span> <span class="n">krylov_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">krylov_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">extended</span> <span class="o">=</span> <span class="n">krylov_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extended&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">invA</span> <span class="o">=</span> <span class="n">krylov_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;invA&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">invB</span> <span class="o">=</span> <span class="n">krylov_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;invB&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">poles_A</span> <span class="o">=</span> <span class="n">krylov_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;poles_A&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">poles_B</span> <span class="o">=</span> <span class="n">krylov_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;poles_B&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">extended</span> <span class="ow">and</span> <span class="p">(</span><span class="n">poles_A</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">poles_B</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot use rational Krylov space with extended Krylov space&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check symmetry of A and B</span>
+    <span class="k">if</span> <span class="n">is_A_symmetric</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Auto-detect symmetry of A</span>
+        <span class="n">is_A_symmetric</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">nnz</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">is_B_symmetric</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Auto-detect symmetry of B</span>
+        <span class="n">is_B_symmetric</span> <span class="o">=</span> <span class="p">(</span><span class="n">B</span> <span class="o">!=</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">nnz</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="c1"># Precompute some quantities</span>
+    <span class="n">normA</span> <span class="o">=</span> <span class="n">spsla</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">normB</span> <span class="o">=</span> <span class="n">spsla</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">normC</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">_matrices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">C</span><span class="o">.</span><span class="n">_matrices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># Ensure U and V are 2D</span>
+    <span class="k">if</span> <span class="n">U</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">V</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Define the left Krylov space (for A)</span>
+    <span class="n">left_space</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ExtendedKrylovSpace</span><span class="p">,</span> <span class="n">RationalKrylovSpace</span><span class="p">,</span> <span class="n">KrylovSpace</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">extended</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">invA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">invA</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">spsla</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">left_space</span> <span class="o">=</span> <span class="n">ExtendedKrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">invA</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_A_symmetric</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">poles_A</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">left_space</span> <span class="o">=</span> <span class="n">RationalKrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">poles_A</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_A_symmetric</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Warning: standard Krylov space may not converge. Consider using extended or rational Krylov space.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">left_space</span> <span class="o">=</span> <span class="n">KrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_A_symmetric</span><span class="p">)</span>
+
+    <span class="c1"># Define the right Krylov space (for B)</span>
+    <span class="n">right_space</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ExtendedKrylovSpace</span><span class="p">,</span> <span class="n">RationalKrylovSpace</span><span class="p">,</span> <span class="n">KrylovSpace</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">extended</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">invB</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">invB</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">spsla</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">right_space</span> <span class="o">=</span> <span class="n">ExtendedKrylovSpace</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">invB</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_B_symmetric</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">poles_B</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">right_space</span> <span class="o">=</span> <span class="n">RationalKrylovSpace</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">poles_B</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_B_symmetric</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">right_space</span> <span class="o">=</span> <span class="n">KrylovSpace</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_B_symmetric</span><span class="p">)</span>
+
+    <span class="c1"># Current basis</span>
+    <span class="n">Uk</span> <span class="o">=</span> <span class="n">left_space</span><span class="o">.</span><span class="n">Q</span>
+    <span class="n">Vk</span> <span class="o">=</span> <span class="n">right_space</span><span class="o">.</span><span class="n">Q</span>
+
+    <span class="c1"># SOLVE SMALL PROJECTED SYLVESTER IN LOOP</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">):</span>
+        <span class="c1"># SOLVE PROJECTED SYLVESTER Ak Y + Y Bk = Ck</span>
+        <span class="n">Ak</span> <span class="o">=</span> <span class="n">Uk</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Uk</span><span class="p">))</span>
+        <span class="n">Bk</span> <span class="o">=</span> <span class="n">Vk</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Vk</span><span class="p">))</span>
+        <span class="c1"># Ck = U^T @ C @ V (convert to dense)</span>
+        <span class="n">CVk</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Vk</span><span class="p">)</span>  <span class="c1"># C @ V</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">CVk</span><span class="p">,</span> <span class="n">LowRankMatrix</span><span class="p">):</span>
+            <span class="n">CVk</span> <span class="o">=</span> <span class="n">CVk</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
+        <span class="n">Ck</span> <span class="o">=</span> <span class="n">Uk</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">CVk</span>  <span class="c1"># U^T @ (C @ V)</span>
+        <span class="n">Yk</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve_sylvester</span><span class="p">(</span><span class="n">Ak</span><span class="p">,</span> <span class="n">Bk</span><span class="p">,</span> <span class="n">Ck</span><span class="p">)</span>
+
+        <span class="c1"># CHECK CONVERGENCE</span>
+        <span class="n">Xk</span> <span class="o">=</span> <span class="n">QuasiSVD</span><span class="p">(</span><span class="n">Uk</span><span class="p">,</span> <span class="n">Yk</span><span class="p">,</span> <span class="n">Vk</span><span class="p">)</span>
+        <span class="n">AXk</span> <span class="o">=</span> <span class="n">Xk</span><span class="o">.</span><span class="n">dot_sparse</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;opposite&quot;</span><span class="p">)</span>  <span class="c1"># A @ Xk</span>
+        <span class="n">XkB</span> <span class="o">=</span> <span class="n">Xk</span><span class="o">.</span><span class="n">dot_sparse</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>  <span class="c1"># Xk @ B</span>
+        <span class="c1"># Compute residual norm</span>
+        <span class="n">residual</span> <span class="o">=</span> <span class="n">AXk</span> <span class="o">+</span> <span class="n">XkB</span> <span class="o">-</span> <span class="n">C</span>
+        <span class="c1"># Handle both ndarray and LowRankMatrix types</span>
+        <span class="n">residual_norm</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)</span> <span class="k">else</span> <span class="n">residual</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">crit</span> <span class="o">=</span> <span class="n">residual_norm</span> <span class="o">/</span> <span class="p">((</span><span class="n">normA</span> <span class="o">+</span> <span class="n">normB</span><span class="p">)</span> <span class="o">*</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">Yk</span><span class="p">)</span> <span class="o">+</span> <span class="n">normC</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">crit</span> <span class="o">&lt;</span> <span class="n">tol</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="n">max_iter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Truncate to machine precision since the criterion overestimates the error</span>
+            <span class="k">return</span> <span class="n">Xk</span><span class="o">.</span><span class="n">to_svd</span><span class="p">()</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left_space</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>
+            <span class="n">Uk</span> <span class="o">=</span> <span class="n">left_space</span><span class="o">.</span><span class="n">Q</span>
+            <span class="n">right_space</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>
+            <span class="n">Vk</span> <span class="o">=</span> <span class="n">right_space</span><span class="o">.</span><span class="n">Q</span>
+
+    <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No convergence before max_iter&quot;</span><span class="p">)</span>
+    <span class="c1"># Need to solve with final basis</span>
+    <span class="n">Ak</span> <span class="o">=</span> <span class="n">Uk</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Uk</span><span class="p">))</span>
+    <span class="n">Bk</span> <span class="o">=</span> <span class="n">Vk</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Vk</span><span class="p">))</span>
+    <span class="n">CVk</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Vk</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">CVk</span><span class="p">,</span> <span class="n">LowRankMatrix</span><span class="p">):</span>
+        <span class="n">CVk</span> <span class="o">=</span> <span class="n">CVk</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
+    <span class="n">Ck</span> <span class="o">=</span> <span class="n">Uk</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">CVk</span>
+    <span class="n">Yk</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve_sylvester</span><span class="p">(</span><span class="n">Ak</span><span class="p">,</span> <span class="n">Bk</span><span class="p">,</span> <span class="n">Ck</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">QuasiSVD</span><span class="p">(</span><span class="n">Uk</span><span class="p">,</span> <span class="n">Yk</span><span class="p">,</span> <span class="n">Vk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span></div>
+
+
+
+<div class="viewcode-block" id="solve_sylvester">
+<a class="viewcode-back" href="../../../../api/_autosummary/low_rank_toolbox.krylov.solvers.sylvester_solvers.html#low_rank_toolbox.krylov.solvers.solve_sylvester">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_sylvester</span><span class="p">(</span>
+    <span class="n">A</span><span class="p">:</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">spmatrix</span><span class="p">,</span>
+    <span class="n">B</span><span class="p">:</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">spmatrix</span><span class="p">,</span>
+    <span class="n">C</span><span class="p">:</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">LowRankMatrix</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">krylov_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">is_A_symmetric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">is_B_symmetric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">LowRankMatrix</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Efficient low-rank compatible solver for the Sylvester equation.</span>
+
+<span class="sd">    Find X such that AX + XB = C.</span>
+
+<span class="sd">    This function is a wrapper that selects the appropriate solver based on the types of A, B, and C.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray | spmatrix</span>
+<span class="sd">        Matrix of shape (m, m)</span>
+<span class="sd">    B : ndarray | spmatrix</span>
+<span class="sd">        Matrix of shape (n, n)</span>
+<span class="sd">    C : ndarray | LowRankMatrix</span>
+<span class="sd">        Right-hand side of shape (m, n)</span>
+<span class="sd">    tol : float, optional</span>
+<span class="sd">        Convergence tolerance for Krylov solver, by default 1e-12</span>
+<span class="sd">    max_iter : int, optional</span>
+<span class="sd">        Maximum iterations for Krylov solver, by default None</span>
+<span class="sd">    krylov_kwargs : dict, optional</span>
+<span class="sd">        Krylov space configuration for sparse low-rank solver</span>
+<span class="sd">    is_A_symmetric : bool, optional</span>
+<span class="sd">        If True, A is symmetric. Auto-detected if None.</span>
+<span class="sd">    is_B_symmetric : bool, optional</span>
+<span class="sd">        If True, B is symmetric. Auto-detected if None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray | LowRankMatrix</span>
+<span class="sd">        Solution X of shape (m, n), either dense or low-rank depending on inputs</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from scipy.sparse import csr_matrix</span>
+<span class="sd">    &gt;&gt;&gt; from low_rank_toolbox import LowRankMatrix</span>
+<span class="sd">    &gt;&gt;&gt; from low_rank_toolbox.krylov import solve_sylvester</span>
+<span class="sd">    &gt;&gt;&gt; # Small dense case</span>
+<span class="sd">    &gt;&gt;&gt; A_small = np.array([[4, 1], [1, 3]])</span>
+<span class="sd">    &gt;&gt;&gt; B_small = np.array([[2, 1], [1, 1]])</span>
+<span class="sd">    &gt;&gt;&gt; C_small = np.array([[1, 0], [0, 1]])</span>
+<span class="sd">    &gt;&gt;&gt; X_small = solve_sylvester(A_small, B_small, C_small)</span>
+<span class="sd">    &gt;&gt;&gt; # Verify: AX + XB = C</span>
+<span class="sd">    &gt;&gt;&gt; np.allclose(A_small @ X_small + X_small @ B_small, C_small)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; # Large sparse case with low-rank RHS</span>
+<span class="sd">    &gt;&gt;&gt; from scipy.sparse import diags</span>
+<span class="sd">    &gt;&gt;&gt; n, m = 100, 80</span>
+<span class="sd">    &gt;&gt;&gt; A = diags([1, 4, 1], [-1, 0, 1], shape=(n, n), format=&#39;csr&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; B = diags([1, 2, 1], [-1, 0, 1], shape=(m, m), format=&#39;csr&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; U = np.zeros((n, 1))</span>
+<span class="sd">    &gt;&gt;&gt; U[0, 0] = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; V = np.zeros((m, 1))</span>
+<span class="sd">    &gt;&gt;&gt; V[0, 0] = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; C = LowRankMatrix(U, V.T)</span>
+<span class="sd">    &gt;&gt;&gt; X = solve_sylvester(A, B, C, tol=1e-10)</span>
+<span class="sd">    &gt;&gt;&gt; # Solution is low-rank</span>
+<span class="sd">    &gt;&gt;&gt; type(X).__name__</span>
+<span class="sd">    &#39;SVD&#39;</span>
+<span class="sd">    &gt;&gt;&gt; X.rank &lt;= 50</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check Krylov kwargs</span>
+    <span class="k">if</span> <span class="n">krylov_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Default parameters for Krylov solver</span>
+        <span class="n">krylov_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extended&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+    <span class="c1"># Low rank solver</span>
+    <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">QuasiSVD</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">LowRankMatrix</span><span class="p">):</span>
+        <span class="c1"># Convert dense A and B to sparse if needed</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="c1"># Both A and B must be sparse for low-rank solver</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">B</span><span class="p">,</span> <span class="n">spmatrix</span>
+        <span class="p">),</span> <span class="s2">&quot;For low-rank C, both A and B should be sparse (or will be converted)&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">solve_sparse_low_rank_sylvester</span><span class="p">(</span>
+            <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span> <span class="n">krylov_kwargs</span><span class="p">,</span> <span class="n">is_A_symmetric</span><span class="p">,</span> <span class="n">is_B_symmetric</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Dense solver</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># C is dense</span>
+        <span class="n">X_result</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">QuasiSVD</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="c1"># A large/sparse, B small/dense</span>
+            <span class="n">X_result</span> <span class="o">=</span> <span class="n">solve_sylvester_large_A_small_B</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">):</span>
+            <span class="c1"># A small/dense, B large/sparse - transpose the problem</span>
+            <span class="c1"># AX + XB = C  =&gt;  B^T X^T + X^T A^T = C^T</span>
+            <span class="n">X_T</span> <span class="o">=</span> <span class="n">solve_sylvester_large_A_small_B</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">X_result</span> <span class="o">=</span> <span class="n">X_T</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Both A and B are small (dense or small sparse)</span>
+            <span class="n">X_result</span> <span class="o">=</span> <span class="n">solve_small_sylvester</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X_result</span>
+    <span class="k">return</span> <span class="n">X</span>  <span class="c1"># type: ignore[return-value]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.krylov.spaces.extended_krylov_space &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.krylov.spaces.extended_krylov_space</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for low_rank_toolbox.krylov.spaces.extended_krylov_space</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Extended Krylov subspace construction.</span>
+
+<span class="sd">Author: Benjamin Carrel, University of Geneva, 2022-2023</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># %% Imports</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">la</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">spsla</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">spmatrix</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.inverted_krylov_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvertedKrylovSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.krylov_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">KrylovSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.space_structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpaceStructure</span>
+
+
+<span class="c1"># %% Class definition</span>
+<div class="viewcode-block" id="ExtendedKrylovSpace">
+<a class="viewcode-back" href="../../../../api/_autosummary/low_rank_toolbox.krylov.spaces.extended_krylov_space.html#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtendedKrylovSpace</span><span class="p">(</span><span class="n">SpaceStructure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extended Krylov space.</span>
+
+<span class="sd">    Constructs the extended Krylov space by combining a standard Krylov space</span>
+<span class="sd">    and an inverted Krylov space:</span>
+<span class="sd">        EK_m(A, X) = span{X, AX, A^2X, ..., A^(m-1)X, A^(-1)X, A^(-2)X, ..., A^(-m)X}</span>
+
+<span class="sd">    This space is particularly useful for problems requiring information from both</span>
+<span class="sd">    the range of A and its inverse.</span>
+
+<span class="sd">    **Algorithm Selection:** When is_symmetric=True, both component Krylov spaces</span>
+<span class="sd">    (standard and inverted) use the Lanczos algorithm, providing approximately 2x</span>
+<span class="sd">    speedup over the non-symmetric case. The combined basis maintains orthogonality</span>
+<span class="sd">    across both components.</span>
+
+<span class="sd">    How to use</span>
+<span class="sd">    ----------</span>
+<span class="sd">    1. Create an instance: EK = ExtendedKrylovSpace(A, X, invA=None)</span>
+<span class="sd">    2. Augment the basis as needed: EK.augment_basis()</span>
+<span class="sd">    3. Access the basis via EK.basis or EK.Q</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : spmatrix</span>
+<span class="sd">        Sparse matrix of shape (n, n)</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        Initial vector or matrix of shape (n, r)</span>
+<span class="sd">    invA : callable</span>
+<span class="sd">        Function that computes A^(-1) * v for a given vector/matrix v</span>
+<span class="sd">    krylov_space : KrylovSpace</span>
+<span class="sd">        The standard Krylov space component</span>
+<span class="sd">    inverted_krylov_space : InvertedKrylovSpace</span>
+<span class="sd">        The inverted Krylov space component</span>
+<span class="sd">    Q : ndarray</span>
+<span class="sd">        Combined orthonormal basis of the extended Krylov space</span>
+<span class="sd">    Q1 : ndarray</span>
+<span class="sd">        Basis of the standard Krylov space</span>
+<span class="sd">    Q2 : ndarray</span>
+<span class="sd">        Basis of the inverted Krylov space</span>
+<span class="sd">    basis : ndarray</span>
+<span class="sd">        Pointer to Q</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from scipy.sparse import csr_matrix</span>
+<span class="sd">    &gt;&gt;&gt; from low_rank_toolbox.krylov import ExtendedKrylovSpace</span>
+<span class="sd">    &gt;&gt;&gt; # Create a sparse matrix</span>
+<span class="sd">    &gt;&gt;&gt; A = csr_matrix([[4, 1], [1, 3]])</span>
+<span class="sd">    &gt;&gt;&gt; X = np.array([[1.0], [0.0]])</span>
+<span class="sd">    &gt;&gt;&gt; # Extended Krylov includes both A^k*X and A^(-k)*X</span>
+<span class="sd">    &gt;&gt;&gt; EK = ExtendedKrylovSpace(A, X)</span>
+<span class="sd">    &gt;&gt;&gt; EK.augment_basis()  # Adds both A*X and A^(-1)*X</span>
+<span class="sd">    &gt;&gt;&gt; EK.size  # Total size is sum of both components</span>
+<span class="sd">    4</span>
+<span class="sd">    &gt;&gt;&gt; # Access individual components</span>
+<span class="sd">    &gt;&gt;&gt; EK.Q1.shape  # Standard Krylov part</span>
+<span class="sd">    (2, 2)</span>
+<span class="sd">    &gt;&gt;&gt; EK.Q2.shape  # Inverted Krylov part</span>
+<span class="sd">    (2, 2)</span>
+<span class="sd">    &gt;&gt;&gt; # Combined basis is orthonormal</span>
+<span class="sd">    &gt;&gt;&gt; np.allclose(EK.Q.T @ EK.Q, np.eye(EK.Q.shape[1]))</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ExtendedKrylovSpace.__init__">
+<a class="viewcode-back" href="../../../../api/_autosummary/low_rank_toolbox.krylov.spaces.extended_krylov_space.html#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span> <span class="n">spmatrix</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">invA</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_args</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        A : spmatrix</span>
+<span class="sd">            The matrix A of the linear system.</span>
+<span class="sd">        X : ndarray</span>
+<span class="sd">            The basis of the Krylov space.</span>
+<span class="sd">        invA: callable</span>
+<span class="sd">            The function that computes the action of A^(-1) on a vector, or a matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Validate inputs first (before accessing any attributes)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;X must be a numpy array&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ensure X is 2D before calling parent constructor</span>
+        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Call parent constructor</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_args</span><span class="p">)</span>
+
+        <span class="c1"># Check specific inputs</span>
+        <span class="k">assert</span> <span class="n">invA</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">invA</span><span class="p">),</span> <span class="s2">&quot;invA must be a function.&quot;</span>
+        <span class="k">if</span> <span class="n">invA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spluA</span> <span class="o">=</span> <span class="n">spsla</span><span class="o">.</span><span class="n">splu</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+            <span class="n">invA</span> <span class="o">=</span> <span class="n">spluA</span><span class="o">.</span><span class="n">solve</span>
+
+        <span class="c1"># Store specific inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invA</span> <span class="o">=</span> <span class="n">invA</span>
+
+        <span class="c1"># Krylov space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">krylov_space</span> <span class="o">=</span> <span class="n">KrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">)</span>
+
+        <span class="c1"># Inverted Krylov space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inverted_krylov_space</span> <span class="o">=</span> <span class="n">InvertedKrylovSpace</span><span class="p">(</span>
+            <span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">invA</span><span class="o">=</span><span class="n">invA</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_symmetric</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Cache for the combined basis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Q_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+    <span class="c1"># %% Properties</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Q1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Basis of the standard Krylov space component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            Matrix of shape (n, m*r) containing the Krylov basis vectors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">krylov_space</span><span class="o">.</span><span class="n">Q</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">H1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upper Hessenberg matrix from Arnoldi for the Krylov space.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            The Hessenberg matrix (non-symmetric case only).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">krylov_space</span><span class="o">.</span><span class="n">H</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Q2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Basis of the inverted Krylov space component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            Matrix of shape (n, m*r) containing the inverted Krylov basis vectors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverted_krylov_space</span><span class="o">.</span><span class="n">Q</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">H2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upper Hessenberg matrix from Arnoldi for the inverted Krylov space.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            The Hessenberg matrix (non-symmetric case only).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverted_krylov_space</span><span class="o">.</span><span class="n">H</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Q</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Combined orthonormal basis of the extended Krylov space.</span>
+
+<span class="sd">        Concatenates Q1 and Q2, then orthonormalizes the result. The result is</span>
+<span class="sd">        cached and only recomputed when the space size changes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            Matrix of shape (n, size) containing the orthonormal basis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if cache is valid</span>
+        <span class="n">current_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Q_cache</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span> <span class="o">!=</span> <span class="n">current_size</span><span class="p">:</span>
+            <span class="c1"># Recompute and cache</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Q_cache</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Q1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q2</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span> <span class="o">=</span> <span class="n">current_size</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Q_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Q cache should be initialized&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Q_cache</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The orthonormal basis of the extended Krylov space.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            Matrix of shape (n, size) (same as Q).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total size of the extended Krylov space.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Sum of the sizes of the Krylov and inverted Krylov components.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">krylov_space</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverted_krylov_space</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="c1"># %% Methods</span>
+<div class="viewcode-block" id="ExtendedKrylovSpace.augment_basis">
+<a class="viewcode-back" href="../../../../api/_autosummary/low_rank_toolbox.krylov.spaces.extended_krylov_space.html#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.augment_basis">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">augment_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Augment the basis of the extended Krylov space.</span>
+
+<span class="sd">        Augments both the standard Krylov space and the inverted Krylov space</span>
+<span class="sd">        by adding the next block of basis vectors to each component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">krylov_space</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inverted_krylov_space</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

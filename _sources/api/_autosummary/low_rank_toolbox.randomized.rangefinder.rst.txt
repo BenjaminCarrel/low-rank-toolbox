@@ -1,0 +1,6 @@
+low\_rank\_toolbox.randomized.rangefinder
+=========================================
+
+.. currentmodule:: low_rank_toolbox.randomized
+
+.. autofunction:: rangefinder

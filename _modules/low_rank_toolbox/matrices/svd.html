@@ -1,0 +1,1523 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.matrices.svd &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.matrices.svd</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for low_rank_toolbox.matrices.svd</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;SVD low-rank matrix class and functions.</span>
+
+<span class="sd">Authors: Benjamin Carrel and Rik Vorhaar</span>
+<span class="sd">         University of Geneva, 2022-2025</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># %% Imports</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">la</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._svd_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_ATOL</span><span class="p">,</span> <span class="n">DEFAULT_RTOL</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.low_rank_matrix</span><span class="w"> </span><span class="kn">import</span> <span class="n">LowRankMatrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quasi_svd</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuasiSVD</span>
+
+
+<span class="c1"># %% Define class SVD</span>
+<div class="viewcode-block" id="SVD">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SVD</span><span class="p">(</span><span class="n">QuasiSVD</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Singular Value Decomposition (SVD) for low-rank matrices.</span>
+
+<span class="sd">    The gold standard for low-rank matrix representation with guaranteed diagonal structure and non-negative singular values. Inherits from QuasiSVD but enforces diagonal middle matrix for optimal storage.</span>
+
+<span class="sd">    Mathematical Representation</span>
+<span class="sd">    ---------------------------</span>
+<span class="sd">    X = U @ diag(s) @ V.H = U @ S @ V.H</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - U ∈ ℝ^(m×r) has orthonormal columns (U^H @ U = I_r)</span>
+<span class="sd">    - s ∈ ℝ^r contains non-negative singular values in descending order (s[0] ≥ s[1] ≥ ... ≥ s[r-1] ≥ 0)</span>
+<span class="sd">    - V ∈ ℝ^(n×r) has orthonormal columns (V^H @ V = I_r)</span>
+<span class="sd">    - S = diag(s) is an r×r matrix with singular values on the diagonal</span>
+
+<span class="sd">    Key Differences from QuasiSVD</span>
+<span class="sd">    ------------------------------</span>
+<span class="sd">    - **Diagonal structure**: S is always diagonal (guaranteed by construction)</span>
+<span class="sd">    - **Singular values**: Non-negative by definition, stored in descending order</span>
+<span class="sd">    - **Efficiency**: Optimized operations exploit diagonal structure</span>
+<span class="sd">    - **Operations**: Addition, multiplication, and Hadamard preserve SVD format when possible</span>
+
+<span class="sd">    Storage Efficiency</span>
+<span class="sd">    ------------------</span>
+<span class="sd">    Full matrix: O(mn) storage</span>
+<span class="sd">    SVD: O(mr + r² + nr) storage (same as QuasiSVD)</span>
+<span class="sd">    Memory savings when r &lt;&lt; min(m, n)</span>
+
+<span class="sd">    For 1000×1000 matrix with rank 10:</span>
+<span class="sd">    - Dense: 1,000,000 elements</span>
+<span class="sd">    - SVD: 20,100 elements (50x compression)</span>
+<span class="sd">    - QuasiSVD: 20,100 elements</span>
+
+<span class="sd">    Important Notes</span>
+<span class="sd">    ---------------</span>
+<span class="sd">    - CRITICAL: U and V MUST have orthonormal columns.</span>
+<span class="sd">        This is NOT verified at initialization for performance.</span>
+<span class="sd">        Invalid inputs produce incorrect results without warning.</span>
+<span class="sd">    - Use .is_orthogonal() to verify orthonormality if needed</span>
+<span class="sd">    - Singular values are stored internally as a diagonal matrix S (2D array)</span>
+<span class="sd">    - The property `s` extracts the diagonal as a 1D vector when needed</span>
+<span class="sd">    - After operations, may return QuasiSVD or LowRankMatrix (orthogonality not preserved)</span>
+<span class="sd">    - For non-diagonal S, use QuasiSVD instead</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U : ndarray, shape (m, r)</span>
+<span class="sd">        Left singular vectors (orthonormal columns)</span>
+<span class="sd">    s : ndarray, shape (r,)</span>
+<span class="sd">        Singular values (1D vector, non-negative, descending order)</span>
+<span class="sd">    S : ndarray, shape (r, r)</span>
+<span class="sd">        Diagonal matrix of singular values (property, computed on demand)</span>
+<span class="sd">    V : ndarray, shape (n, r)</span>
+<span class="sd">        Right singular vectors (orthonormal columns)</span>
+<span class="sd">    Vh : ndarray, shape (r, n)</span>
+<span class="sd">        Hermitian conjugate of V (V.T.conj())</span>
+<span class="sd">    Vt : ndarray, shape (r, n)</span>
+<span class="sd">        Transpose of V (without conjugate)</span>
+<span class="sd">    Ut : ndarray, shape (r, m)</span>
+<span class="sd">        Transpose of U (without conjugate)</span>
+<span class="sd">    Uh : ndarray, shape (r, m)</span>
+<span class="sd">        Hermitian conjugate of U (U.T.conj())</span>
+
+<span class="sd">    Properties</span>
+<span class="sd">    ----------</span>
+<span class="sd">    shape : tuple</span>
+<span class="sd">        Shape of the represented matrix (m, n)</span>
+<span class="sd">    rank : int</span>
+<span class="sd">        Number of singular values (length of s)</span>
+<span class="sd">    sing_vals : ndarray</span>
+<span class="sd">        Singular values (alias for s)</span>
+<span class="sd">    T : SVD</span>
+<span class="sd">        Transpose of the matrix (returns SVD)</span>
+
+<span class="sd">    Methods Overview</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    Core Operations:</span>
+<span class="sd">        - __add__ : Addition preserving SVD structure when possible</span>
+<span class="sd">        - __sub__ : Subtraction preserving SVD structure when possible</span>
+<span class="sd">        - __mul__ : Scalar or Hadamard (element-wise) multiplication preserving SVD structure when possible</span>
+<span class="sd">        - dot : Matrix-vector or matrix-matrix multiplication preserving SVD structure when possible</span>
+<span class="sd">        - hadamard : Element-wise multiplication with another matrix preserving SVD structure when possible</span>
+
+<span class="sd">    Truncation:</span>
+<span class="sd">        - truncate() : Remove small singular values</span>
+<span class="sd">        - truncate_perpendicular() : Remove large singular values and keep smallest singular values</span>
+
+<span class="sd">    Class Methods:</span>
+<span class="sd">        - from_matrix() : Convert any matrix to SVD</span>
+<span class="sd">        - from_quasiSVD() : Convert QuasiSVD to SVD</span>
+<span class="sd">        - from_low_rank() : Convert LowRankMatrix to SVD</span>
+<span class="sd">        - reduced_svd() : Compute reduced/economic SVD</span>
+<span class="sd">        - truncated_svd() : Compute truncated SVD with specified rank or (relative/absolute) tolerance</span>
+<span class="sd">        - generate_random() : Generate random SVD with specified singular values</span>
+
+<span class="sd">    Optimized Operations:</span>
+<span class="sd">        - norm() : Compute norms efficiently using singular values</span>
+<span class="sd">        - norm_squared() : Squared Frobenius norm from singular values</span>
+<span class="sd">        - trace() : Efficient trace computation</span>
+<span class="sd">        - diag() : Extract diagonal efficiently</span>
+
+<span class="sd">    Configuration</span>
+<span class="sd">    -------------</span>
+<span class="sd">    Default behavior controlled by:</span>
+<span class="sd">    - DEFAULT_ATOL (machine precision): Absolute tolerance for truncation</span>
+<span class="sd">    - DEFAULT_RTOL (None): Relative tolerance for truncation</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    **Creating an SVD from scratch:**</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from low_rank_toolbox.matrices import SVD</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Create orthonormal matrices</span>
+<span class="sd">    &gt;&gt;&gt; m, n, r = 100, 80, 10</span>
+<span class="sd">    &gt;&gt;&gt; U, _ = np.linalg.qr(np.random.randn(m, r))</span>
+<span class="sd">    &gt;&gt;&gt; V, _ = np.linalg.qr(np.random.randn(n, r))</span>
+<span class="sd">    &gt;&gt;&gt; s = np.logspace(0, -2, r)  # Singular values (1D array)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Create SVD</span>
+<span class="sd">    &gt;&gt;&gt; X = SVD(U, s, V)</span>
+<span class="sd">    &gt;&gt;&gt; print(X.shape)  # (100, 80)</span>
+<span class="sd">    &gt;&gt;&gt; print(X.rank)   # 10</span>
+<span class="sd">    &gt;&gt;&gt; print(X.s.shape)  # (10,) - 1D vector!</span>
+<span class="sd">    &gt;&gt;&gt; print(X.S.shape)  # (10, 10) - 2D diagonal matrix (property)</span>
+
+<span class="sd">    **Computing SVD from a matrix:**</span>
+
+<span class="sd">    &gt;&gt;&gt; A = np.random.randn(100, 80)</span>
+<span class="sd">    &gt;&gt;&gt; X_reduced = SVD.reduced_svd(A)  # Reduced SVD</span>
+<span class="sd">    &gt;&gt;&gt; X_truncated = SVD.truncated_svd(A, r=10)  # Keep top 10 singular values</span>
+<span class="sd">    &gt;&gt;&gt; X_auto = SVD.truncated_svd(A, rtol=1e-6)  # Adaptive truncation</span>
+
+<span class="sd">    **Efficient operations:**</span>
+
+<span class="sd">    &gt;&gt;&gt; # Operations exploit diagonal structure and orthogonality</span>
+<span class="sd">    &gt;&gt;&gt; norm_fro = X.norm(&#39;fro&#39;)  # sqrt(sum(s²)) - O(r)</span>
+<span class="sd">    &gt;&gt;&gt; norm_squared = X.norm_squared()  # sum(s²) - O(r)</span>
+<span class="sd">    &gt;&gt;&gt; norm_2 = X.norm(2)  # max(s) - instant!</span>
+<span class="sd">    &gt;&gt;&gt; norm_nuc = X.norm(&#39;nuc&#39;)  # sum(s) - O(r) instead of O(mnr)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Addition preserves SVD structure</span>
+<span class="sd">    &gt;&gt;&gt; Y = X + X  # Returns SVD</span>
+<span class="sd">    &gt;&gt;&gt; Z = X @ X.T  # Matrix multiplication, returns SVD</span>
+<span class="sd">    &gt;&gt;&gt; 0 = X - X  # Subtraction, returns SVD of rank 2*rank(X). Call .truncate() to reduce rank.</span>
+
+<span class="sd">    **Truncation:**</span>
+
+<span class="sd">    &gt;&gt;&gt; # Remove small singular values</span>
+<span class="sd">    &gt;&gt;&gt; X_trunc = X.truncate(r=5)  # Keep top 5</span>
+<span class="sd">    &gt;&gt;&gt; X_trunc = X.truncate(rtol=1e-10)  # Relative tolerance (based on max singular value)</span>
+<span class="sd">    &gt;&gt;&gt; X_trunc = X.truncate(atol=1e-12)  # Absolute tolerance (raw threshold, independent of max singular value)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Get perpendicular component (residual)</span>
+<span class="sd">    &gt;&gt;&gt; X_perp = X.truncate_perpendicular(r=5)  # Keep last (r-5) singular values</span>
+
+<span class="sd">    **Random matrices with controlled spectrum:**</span>
+
+<span class="sd">    &gt;&gt;&gt; # Generate test matrices</span>
+<span class="sd">    &gt;&gt;&gt; s_decay = np.logspace(0, -10, 20)  # Exponential decay</span>
+<span class="sd">    &gt;&gt;&gt; X_test = SVD.generate_random((100, 100), s_decay, is_symmetric=True)</span>
+<span class="sd">    &gt;&gt;&gt; # Perfect for testing algorithms!</span>
+
+<span class="sd">    **Conversion between formats:**</span>
+
+<span class="sd">    &gt;&gt;&gt; from low_rank_toolbox.matrices import QuasiSVD, LowRankMatrix</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # From QuasiSVD (non-diagonal S)</span>
+<span class="sd">    &gt;&gt;&gt; X_quasi = QuasiSVD(U, S_full, V)  # S_full is general matrix</span>
+<span class="sd">    &gt;&gt;&gt; X_svd = SVD.from_quasiSVD(X_quasi)  # Diagonalize S</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # From generic low-rank</span>
+<span class="sd">    &gt;&gt;&gt; X_lr = LowRankMatrix(A, B, C)</span>
+<span class="sd">    &gt;&gt;&gt; X_svd = SVD.from_low_rank(X_lr)  # Compute SVD</span>
+
+<span class="sd">    **Memory efficiency:**</span>
+
+<span class="sd">    &gt;&gt;&gt; X.compression_ratio()  # &lt; 1.0 means memory savings</span>
+<span class="sd">    &gt;&gt;&gt; X.memory_usage(&#39;MB&#39;)  # Actual memory used</span>
+<span class="sd">    &gt;&gt;&gt; X.is_memory_efficient  # True if saves memory</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    QuasiSVD : Generalized SVD with non-diagonal middle matrix</span>
+<span class="sd">    LowRankMatrix : Base class for low-rank matrix representations</span>
+<span class="sd">    QR : QR factorization format</span>
+<span class="sd">    Randomized SVD methods for large-scale problems</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Trefethen, L. N., &amp; Bau III, D. (1997). Numerical Linear Algebra. SIAM.</span>
+<span class="sd">    .. [2] Golub, G. H., &amp; Van Loan, C. F. (2013). Matrix Computations (4th ed.). Johns Hopkins University Press.</span>
+
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This class is designed for numerical linear algebra applications</span>
+<span class="sd">    - Singular values are ALWAYS stored as a 1D array for memory efficiency, otherwise use QuasiSVD</span>
+<span class="sd">    - The 2D diagonal matrix S is computed on-the-fly when needed (via property)</span>
+<span class="sd">    - Operations exploit orthogonality and diagonal structure for efficiency</span>
+<span class="sd">    - After general operations with non-SVD matrices (e.g., X + Y), may return QuasiSVD or LowRankMatrix</span>
+<span class="sd">    - Use .truncate() to insure (numerical) invertibility or reduce rank</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">## ATTRIBUTES</span>
+    <span class="n">_format</span> <span class="o">=</span> <span class="s2">&quot;SVD&quot;</span>
+
+<div class="viewcode-block" id="SVD.__init__">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">U</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a low-rank matrix stored by its SVD: X = U @ diag(s) @ V.T</span>
+
+<span class="sd">        This is the primary constructor for the SVD class. It efficiently stores</span>
+<span class="sd">        singular values as a 1D vector rather than a full diagonal matrix.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        U : ndarray</span>
+<span class="sd">            Left singular vectors, shape (m, r).</span>
+<span class="sd">            ASSUMED to have orthonormal columns: U.T @ U = I_r.</span>
+<span class="sd">            Not verified at initialization for performance.</span>
+<span class="sd">        s : ndarray</span>
+<span class="sd">            Singular values. Accepts two formats:</span>
+<span class="sd">            - **1D array** (shape (r,)): Vector of singular values (RECOMMENDED)</span>
+<span class="sd">            - **2D array** (shape (r, r) or (r, k)): Diagonal or nearly-diagonal matrix</span>
+<span class="sd">        V : ndarray</span>
+<span class="sd">            Right singular vectors, shape (n, k).</span>
+<span class="sd">            ASSUMED to have orthonormal columns: V.T @ V = I_k.</span>
+<span class="sd">            Not verified at initialization for performance.</span>
+<span class="sd">            NOTE: Provide V, not V.T or V.H (conjugate transpose).</span>
+
+<span class="sd">        **extra_data : dict, optional</span>
+<span class="sd">            Additional metadata to store with the matrix (e.g., poles, residues).</span>
+<span class="sd">            Internal flags:</span>
+<span class="sd">            - &#39;_skip_diagonal_check&#39;: Skip diagonal verification (used internally)</span>
+<span class="sd">            - &#39;_skip_memory_check&#39;: Skip memory efficiency check</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            - If input dimensions are incompatible for multiplication</span>
+<span class="sd">            - If number of singular values doesn&#39;t match min(r, k)</span>
+<span class="sd">            - If U or V are not 2D arrays</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            - If U, V, or s are not numpy arrays</span>
+<span class="sd">            - If s is not 1D or 2D</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        **Storage**: Singular values are stored internally as a diagonal matrix S (2D array).</span>
+<span class="sd">        The input parameter `s` can be provided in either 1D or 2D format for convenience.</span>
+
+<span class="sd">        **Input format flexibility**:</span>
+<span class="sd">        - If s is 1D: converted to diagonal matrix S for storage</span>
+<span class="sd">        - If s is 2D diagonal: stored directly as S</span>
+<span class="sd">        - If s is 2D rectangular (r ≠ k): stored as rectangular matrix with filled diagonal</span>
+
+<span class="sd">        **Orthogonality assumption**: U and V are ASSUMED to have orthonormal columns.</span>
+<span class="sd">        This is NOT verified at initialization for performance. Use .is_orthogonal() to verify if needed.</span>
+
+<span class="sd">        **Parent class**: Calls QuasiSVD.__init__ with a flag to suppress the &quot;use SVD class&quot; warning (since we ARE the SVD class).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        **Recommended usage (1D singular values):**</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; from low_rank_toolbox.matrices import SVD</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; m, n, r = 100, 80, 10</span>
+<span class="sd">        &gt;&gt;&gt; U, _ = np.linalg.qr(np.random.randn(m, r))</span>
+<span class="sd">        &gt;&gt;&gt; s = np.logspace(0, -2, r)  # 1D vector</span>
+<span class="sd">        &gt;&gt;&gt; V, _ = np.linalg.qr(np.random.randn(n, r))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD(U, s, V)</span>
+<span class="sd">        &gt;&gt;&gt; print(X.s.shape)  # (10,) - extracted from diagonal of S</span>
+<span class="sd">        &gt;&gt;&gt; print(X.S.shape)  # (10, 10) - stored 2D matrix</span>
+
+<span class="sd">        **Alternative usage (2D diagonal matrix):**</span>
+
+<span class="sd">        &gt;&gt;&gt; S_diag = np.diag(s)  # 2D diagonal matrix</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD(U, S_diag, V)  # Also works</span>
+<span class="sd">        &gt;&gt;&gt; print(X.s.shape)  # (10,) - extracted from diagonal of S</span>
+
+<span class="sd">        **From numpy.linalg.svd:**</span>
+
+<span class="sd">        &gt;&gt;&gt; A = np.random.randn(100, 80)</span>
+<span class="sd">        &gt;&gt;&gt; U, s, Vt = np.linalg.svd(A, full_matrices=False)</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD(U, s, Vt.T)  # Note: Vt.T to get V!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Input validation</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;U and V must be numpy arrays&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">U</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">V</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;U and V must be 2D arrays&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;s must be a numpy array&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Handle different input formats for s</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># s is a vector of singular values</span>
+            <span class="n">sing_vals</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">sing_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;s must be 1D or 2D array, got </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ensure singular values are float type (not integers)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">sing_vals</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="n">sing_vals</span> <span class="o">=</span> <span class="n">sing_vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># Dimension checks</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sing_vals</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Number of singular values (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sing_vals</span><span class="p">)</span><span class="si">}</span><span class="s2">) does not match &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;min(U.shape[1], V.shape[1]) = min(</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Create a diagonal matrix S for storage in _matrices[1]</span>
+        <span class="c1"># Square case</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="n">k</span><span class="p">:</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sing_vals</span><span class="p">)</span>
+        <span class="c1"># Rectangular case</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">sing_vals</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">sing_vals</span><span class="p">)</span>
+
+        <span class="c1"># Call parent constructor</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span></div>
+
+
+    <span class="c1">## SPECIFIC PROPERTIES</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">s</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the singular values as a 1D array.</span>
+
+<span class="sd">        Extracts the diagonal from the stored diagonal matrix S.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray, shape (r,)</span>
+<span class="sd">            Singular values (diagonal of S). Returns a copy for writability.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This extracts the diagonal from the 2D matrix S stored in _matrices[1].</span>
+<span class="sd">        For SVD, S is guaranteed to be diagonal.</span>
+<span class="sd">        Returns a copy to allow modification.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SVD.sing_vals">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.sing_vals">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sing_vals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the singular values as a 1D array.</span>
+
+<span class="sd">        This is an alias for the `s` property, provided for API consistency with QuasiSVD (which computes singular values on demand).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray, shape (r,)</span>
+<span class="sd">            Singular values in descending order (non-negative).</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        For SVD, this is O(1) as it extracts the diagonal from S.</span>
+<span class="sd">        For QuasiSVD, this is O(r³) as it computes svd(S).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 80), np.logspace(0, -5, 10))</span>
+<span class="sd">        &gt;&gt;&gt; s = X.sing_vals()</span>
+<span class="sd">        &gt;&gt;&gt; print(s)  # [1.0, 0.1, 0.01, ..., 1e-5]</span>
+<span class="sd">        &gt;&gt;&gt; assert np.array_equal(s, X.s)  # True (same values)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="SVD.full">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.full">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">full</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct the full dense matrix from its SVD representation.</span>
+
+<span class="sd">        Computes X = (U * s)  @ V.H to obtain the full matrix.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray, shape (m, n)</span>
+<span class="sd">            The full dense matrix represented by the SVD.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This operation is O(mnr) and should be avoided for large matrices.</span>
+<span class="sd">        Use low-rank operations whenever possible.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; A = np.random.randn(100, 80)</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.reduced_svd(A)</span>
+<span class="sd">        &gt;&gt;&gt; A_reconstructed = X.full()</span>
+<span class="sd">        &gt;&gt;&gt; assert np.allclose(A, A_reconstructed)  # True within numerical precision</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># For rectangular matrices, use only first r columns of U and Vh</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ik,k,kj-&gt;ij&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[:,</span> <span class="p">:</span><span class="n">r</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vh</span><span class="p">[:</span><span class="n">r</span><span class="p">,</span> <span class="p">:])</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transpose of the SVD matrix, returning another SVD.</span>
+
+<span class="sd">        For X = U @ diag(s) @ V.H (where V.H is Hermitian conjugate of V),</span>
+<span class="sd">        the transpose is:</span>
+<span class="sd">            X.T = (U @ diag(s) @ V.H).T</span>
+<span class="sd">                = (V.H).T @ diag(s).T @ U.T</span>
+<span class="sd">                = V* @ diag(s) @ U.T  (where V* is conjugate of V)</span>
+
+<span class="sd">        Note: This is the transpose WITHOUT conjugation.</span>
+<span class="sd">        For Hermitian conjugate (conjugate transpose), use X.H instead.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            Transposed matrix in SVD format (not QuasiSVD).</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is O(1) as it only swaps references, doesn&#39;t copy data.</span>
+<span class="sd">        The result is guaranteed to be an SVD (diagonal structure preserved).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 80), np.ones(10))</span>
+<span class="sd">        &gt;&gt;&gt; print(X.shape)  # (100, 80)</span>
+<span class="sd">        &gt;&gt;&gt; print(X.T.shape)  # (80, 100)</span>
+<span class="sd">        &gt;&gt;&gt; assert isinstance(X.T, SVD)  # True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Transpose: swap U and V, conjugate both</span>
+        <span class="c1"># V* @ diag(s) @ U.T where V* is conjugate of V</span>
+        <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">H</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Hermitian conjugate (conjugate transpose) of the SVD matrix.</span>
+
+<span class="sd">        For X = U @ diag(s) @ V.H, the Hermitian conjugate is:</span>
+<span class="sd">            X.H = (U @ diag(s) @ V.H).H</span>
+<span class="sd">                = V @ diag(s) @ U.H</span>
+
+<span class="sd">        This is equivalent to X.T.conj() or X.conj().T.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            Hermitian conjugate in SVD format.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is O(1) as it only swaps references, doesn&#39;t copy data.</span>
+<span class="sd">        For real matrices, X.H == X.T.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # For complex matrix</span>
+<span class="sd">        &gt;&gt;&gt; A = np.random.randn(10, 8) + 1j * np.random.randn(10, 8)</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.reduced_svd(A)</span>
+<span class="sd">        &gt;&gt;&gt; X_H = X.H</span>
+<span class="sd">        &gt;&gt;&gt; assert np.allclose(X_H.full(), A.T.conj())</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Hermitian: swap U and V without conjugation</span>
+        <span class="c1"># This works because V is already stored to represent V.H in the original matrix</span>
+        <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_storage_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute storage size for SVD format.</span>
+
+
+<span class="sd">        Storage breakdown:</span>
+<span class="sd">        - U: m × r elements</span>
+<span class="sd">        - S: r × r or r × k elements (diagonal matrix stored as 2D array)</span>
+<span class="sd">        - V: n × k elements</span>
+<span class="sd">        - Total: m*r + r*k + n*k</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Total number of elements stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Count U, S (full 2D matrix), and V</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">size</span>
+
+<div class="viewcode-block" id="SVD.norm">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.norm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">ord</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="s2">&quot;fro&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate matrix norm, optimized for SVD representation.</span>
+
+<span class="sd">        For orthogonal U and V, common norms are computed directly from singular</span>
+<span class="sd">        values without forming the full matrix. This is MUCH faster: O(r) vs O(mnr).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ord : str or int, optional</span>
+<span class="sd">            Order of the norm. Default is &#39;fro&#39; (Frobenius).</span>
+<span class="sd">            Optimized norms (computed from singular values):</span>
+<span class="sd">            - &#39;fro&#39;: Frobenius norm = ||s||₂</span>
+<span class="sd">            - 2: Spectral norm (largest singular value) = max(s)</span>
+<span class="sd">            - &#39;nuc&#39;: Nuclear norm (sum of singular values) = sum(s)</span>
+<span class="sd">            Other norms fall back to full matrix computation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The requested norm of the matrix.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        **Result caching**: Norms are cached after first computation for efficiency.</span>
+<span class="sd">        Each norm type is cached separately.</span>
+
+<span class="sd">        **Orthogonality check**: IMPORTANT: This method assumes U and V are orthogonal for efficient computation.</span>
+<span class="sd">        If they are not, the computed norm is incorrect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if norm is already cached</span>
+        <span class="k">if</span> <span class="nb">ord</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span>
+
+        <span class="c1"># Compute norm using singular values directly (assuming orthogonality)</span>
+        <span class="k">if</span> <span class="nb">ord</span> <span class="o">==</span> <span class="s2">&quot;fro&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">ord</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">elif</span> <span class="nb">ord</span> <span class="o">==</span> <span class="s2">&quot;nuc&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For other norms, compute from full matrix</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="nb">ord</span><span class="o">=</span><span class="nb">ord</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span></div>
+
+
+    <span class="c1">## CLASS METHODS</span>
+<div class="viewcode-block" id="SVD.singular_values">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.singular_values">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">singular_values</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+        <span class="s2">&quot;Extract singular values from any matrix type.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">SVD</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">LowRankMatrix</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">SVD</span><span class="o">.</span><span class="n">from_low_rank</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">compute_uv</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.from_quasiSVD">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.from_quasiSVD">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_quasiSVD</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mat</span><span class="p">:</span> <span class="n">QuasiSVD</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert QuasiSVD to SVD by diagonalizing the middle matrix.</span>
+
+<span class="sd">        This computes the SVD of the non-diagonal middle matrix S to obtain a true SVD representation with diagonal singular values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat : QuasiSVD</span>
+<span class="sd">            QuasiSVD matrix to convert.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            SVD representation with diagonal singular values.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Computational cost: O(r³) where r is the rank of S.</span>
+<span class="sd">        This is equivalent to calling mat.to_svd().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">to_svd</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SVD.from_low_rank">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.from_low_rank">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_low_rank</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mat</span><span class="p">:</span> <span class="n">LowRankMatrix</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert any LowRankMatrix to SVD format.</span>
+
+<span class="sd">        This performs QR decompositions on the outer factors and SVD on the middle product to obtain an efficient SVD representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat : LowRankMatrix</span>
+<span class="sd">            Low-rank matrix in any format (e.g., product of multiple matrices).</span>
+<span class="sd">        **extra_data : dict, optional</span>
+<span class="sd">            Additional metadata to store with the result.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            SVD representation of the matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">compress</span><span class="p">()</span>
+        <span class="c1"># QR decomposition of the first matrix</span>
+        <span class="n">Q1</span><span class="p">,</span> <span class="n">R1</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">_matrices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+        <span class="c1"># QR decomposition of the last matrix</span>
+        <span class="n">Q2</span><span class="p">,</span> <span class="n">R2</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">_matrices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+        <span class="c1"># SVD of the middle matrix</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">multi_dot</span><span class="p">([</span><span class="n">R1</span><span class="p">]</span> <span class="o">+</span> <span class="n">mat</span><span class="o">.</span><span class="n">_matrices</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">R2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()])</span>
+        <span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">Vh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">middle</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Create the SVD</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="n">Q1</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">U</span><span class="p">)</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">Q2</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Vh</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.from_matrix">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.from_matrix">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_matrix</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mat</span><span class="p">:</span> <span class="n">ndarray</span> <span class="o">|</span> <span class="n">LowRankMatrix</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert any matrix type to SVD format (automatic dispatch).</span>
+
+<span class="sd">        This is the universal converter that automatically selects the best method based on input type. Use this when you don&#39;t know the input type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat : ndarray, LowRankMatrix, QuasiSVD, or SVD</span>
+<span class="sd">            Matrix to convert to SVD format.</span>
+<span class="sd">        **extra_data : dict, optional</span>
+<span class="sd">            Additional metadata to store with the result.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            SVD representation of the matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">SVD</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">mat</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">QuasiSVD</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">to_svd</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">LowRankMatrix</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_low_rank</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">reduced_svd</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.full_svd">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.full_svd">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">full_svd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mat</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a full SVD&quot;&quot;&quot;</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">vh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">vh</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.reduced_svd">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.reduced_svd">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reduced_svd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mat</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a reduced SVD of rank r&quot;&quot;&quot;</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">vh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">vh</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.truncated_svd">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.truncated_svd">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">truncated_svd</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">mat</span><span class="p">:</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">r</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DEFAULT_RTOL</span><span class="p">,</span>
+        <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_ATOL</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">extra_data</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute truncated SVD with automatic rank selection.</span>
+
+<span class="sd">        First converts the input to SVD format (if needed), then truncates small singular values based on rank or tolerance criteria.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat : SVD, LowRankMatrix, or ndarray</span>
+<span class="sd">            Input matrix to decompose and truncate.</span>
+<span class="sd">        r : int, optional</span>
+<span class="sd">            Target rank. If specified, keep only the r largest singular values.</span>
+<span class="sd">            Takes priority over tolerances. Default is None.</span>
+<span class="sd">        rtol : float, optional</span>
+<span class="sd">            Relative tolerance. Singular values &lt; rtol * σ_max are removed.</span>
+<span class="sd">            Takes priority over atol. Default is DEFAULT_RTOL (None).</span>
+<span class="sd">        atol : float, optional</span>
+<span class="sd">            Absolute tolerance. Singular values &lt; atol are removed.</span>
+<span class="sd">            Default is DEFAULT_ATOL (machine precision).</span>
+<span class="sd">        **extra_data : dict, optional</span>
+<span class="sd">            Additional metadata to store.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            Truncated SVD with reduced rank.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        **Truncation priority** (from highest to lowest):</span>
+<span class="sd">        1. r (explicit rank)</span>
+<span class="sd">        2. rtol (relative tolerance)</span>
+<span class="sd">        3. atol (absolute tolerance)</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        **Fixed rank truncation:**</span>
+
+<span class="sd">        &gt;&gt;&gt; A = np.random.randn(100, 80)</span>
+<span class="sd">        &gt;&gt;&gt; X_r10 = SVD.truncated_svd(A, r=10)</span>
+<span class="sd">        &gt;&gt;&gt; print(X_r10.rank)  # 10</span>
+
+<span class="sd">        **Relative tolerance (adaptive):**</span>
+
+<span class="sd">        &gt;&gt;&gt; # Keep singular values &gt; 1e-6 * max(singular values)</span>
+<span class="sd">        &gt;&gt;&gt; X_rel = SVD.truncated_svd(A, rtol=1e-6)</span>
+<span class="sd">        &gt;&gt;&gt; print(X_rel.rank)  # Depends on spectrum</span>
+
+<span class="sd">        **Absolute tolerance:**</span>
+
+<span class="sd">        &gt;&gt;&gt; # Keep singular values &gt; 1e-10</span>
+<span class="sd">        &gt;&gt;&gt; X_abs = SVD.truncated_svd(A, atol=1e-10)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.generate_random">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.generate_random">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_random</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+        <span class="n">sing_vals</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1234</span><span class="p">,</span>
+        <span class="n">is_symmetric</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">extra_data</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a random SVD with given singular values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : tuple</span>
+<span class="sd">            Shape of the matrix</span>
+<span class="sd">        sing_vals : ndarray</span>
+<span class="sd">            Singular values</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            Random seed, by default 1234</span>
+<span class="sd">        is_symmetric : bool, optional</span>
+<span class="sd">            Whether the generated matrix is symmetric, by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            SVD matrix generated randomly</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>  <span class="c1"># for reproducibility</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sing_vals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_symmetric</span><span class="p">:</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+            <span class="n">Q</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">sing_vals</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+            <span class="n">Q1</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+            <span class="n">Q2</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="n">Q1</span><span class="p">,</span> <span class="n">sing_vals</span><span class="p">,</span> <span class="n">Q2</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_data</span><span class="p">)</span></div>
+
+
+    <span class="c1"># %% INSTANCE METHODS</span>
+<div class="viewcode-block" id="SVD.truncate">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.truncate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">truncate</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">r</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DEFAULT_RTOL</span><span class="p">,</span>
+        <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_ATOL</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Truncate the SVD.</span>
+<span class="sd">        The rank is prioritized over the tolerance.</span>
+<span class="sd">        The relative tolerance is prioritized over absolute tolerance.</span>
+<span class="sd">        NOTE: By default, the truncation is done with respect to the machine precision (DEFAULT_ATOL).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : int, optional</span>
+<span class="sd">            Rank, by default None</span>
+<span class="sd">        rtol : float, optional</span>
+<span class="sd">            Relative tolerance, by default None.</span>
+<span class="sd">            Uses the largest singular value as reference.</span>
+<span class="sd">        atol : float, optional</span>
+<span class="sd">            Absolute tolerance, by default DEFAULT_ATOL.</span>
+<span class="sd">        inplace : bool, optional</span>
+<span class="sd">            If True, modify the matrix inplace, by default False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If all are None, do nothing</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">rtol</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">atol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="c1"># Compute the rank associated to the tolerance</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rtol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">rtol</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">atol</span><span class="p">))</span>
+
+        <span class="c1"># Truncate</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># trivial case</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># general case</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[:,</span> <span class="p">:</span><span class="n">r</span><span class="p">]</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()[:</span><span class="n">r</span><span class="p">]</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[:,</span> <span class="p">:</span><span class="n">r</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">U</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">r</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># Invalidate cached values after modification</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.truncate_perpendicular">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.truncate_perpendicular">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">truncate_perpendicular</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">r</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DEFAULT_RTOL</span><span class="p">,</span>
+        <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_ATOL</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perpendicular truncation of SVD. (keep the minimal rank)</span>
+
+<span class="sd">        Rank is prioritized over tolerance.</span>
+<span class="sd">        Relative tolerance is prioritized over absolute tolerance.</span>
+<span class="sd">        NOTE: By default, the truncation is done with respect to the machine precision (DEFAULT_ATOL).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : int, optional</span>
+<span class="sd">            Rank, by default None</span>
+<span class="sd">        rtol : float, optional</span>
+<span class="sd">            Relative tolerance, by default None.</span>
+<span class="sd">            Uses the largest singular value as reference.</span>
+<span class="sd">        atol : float, optional</span>
+<span class="sd">            Absolute tolerance, by default DEFAULT_ATOL.</span>
+<span class="sd">        inplace : bool, optional</span>
+<span class="sd">            If True, modify the matrix inplace, by default False</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If all are None, do nothing</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">rtol</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">atol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="c1"># Compute the rank associated to the tolerance</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rtol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">rtol</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">atol</span><span class="p">))</span>
+
+        <span class="c1"># Truncate perpendicular</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="nb">min</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>  <span class="c1"># matrix is full rank -&gt; perpendicular truncation is trivial</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># general case</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[:,</span> <span class="n">r</span><span class="p">:]</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">()[</span><span class="n">r</span><span class="p">:]</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[:,</span> <span class="n">r</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">U</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">r</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># Invalidate cached values after modification</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__imul__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;In-place scalar multiplication for SVD class.</span>
+
+<span class="sd">        Overrides parent&#39;s __imul__ to properly handle the 1D singular values vector `s`</span>
+<span class="sd">        instead of the 2D matrix `S`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : float, complex, LowRankMatrix, or ndarray</span>
+<span class="sd">            Scalar: multiplies singular values in-place</span>
+<span class="sd">            Matrix: computes Hadamard (element-wise) product (returns NEW object)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD or ndarray</span>
+<span class="sd">            For scalars: returns self (modified in-place)</span>
+<span class="sd">            For matrices: returns new Hadamard product object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="n">LowRankMatrix</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)):</span>
+            <span class="c1"># Not in-place for matrices - use parent&#39;s hadamard method</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadamard</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Scalar multiplication: modify s directly</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">*</span> <span class="n">other</span>
+            <span class="c1"># Clear cache since we modified the matrix</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">other</span><span class="p">:</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">:</span>
+        <span class="s2">&quot;Specific addition for SVDs.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SVD</span><span class="p">):</span>
+            <span class="n">U_tilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">U</span><span class="p">))</span>
+            <span class="n">V_tilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">V</span><span class="p">))</span>
+            <span class="n">S_tilde</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
+            <span class="n">U_hat</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">U_tilde</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+            <span class="n">V_hat</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">V_tilde</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">)</span>
+            <span class="n">middle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">multi_dot</span><span class="p">([</span><span class="n">R</span><span class="p">,</span> <span class="n">S_tilde</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()])</span>
+            <span class="n">U_m</span><span class="p">,</span> <span class="n">s_m</span><span class="p">,</span> <span class="n">Vh_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">middle</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">new_U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">U_hat</span><span class="p">,</span> <span class="n">U_m</span><span class="p">)</span>
+            <span class="n">new_V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">V_hat</span><span class="p">,</span> <span class="n">Vh_m</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">SVD</span><span class="p">(</span><span class="n">new_U</span><span class="p">,</span> <span class="n">s_m</span><span class="p">,</span> <span class="n">new_V</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__add__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+<div class="viewcode-block" id="SVD.dot">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.dot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dot</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">other</span><span class="p">:</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+        <span class="n">dense_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Matrix multiplication optimized for SVD x SVD.</span>
+
+<span class="sd">        Efficiently multiplies two SVD matrices while preserving the SVD structure.</span>
+<span class="sd">        The resulting rank is min(rank(X), rank(Y)).</span>
+
+<span class="sd">        If side is &#39;right&#39; or &#39;usual&#39;, compute self @ other.</span>
+<span class="sd">        If side is &#39;left&#39; or &#39;opposite&#39;, compute other @ self.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : SVD, LowRankMatrix, or ndarray</span>
+<span class="sd">            Matrix to multiply with.</span>
+<span class="sd">        side : str, optional</span>
+<span class="sd">            &#39;left&#39; or &#39;right&#39;, by default &#39;right&#39;</span>
+<span class="sd">        dense_output : bool, optional</span>
+<span class="sd">            If True, return dense ndarray. If False, return SVD/LowRankMatrix.</span>
+<span class="sd">            Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD, LowRankMatrix, or ndarray</span>
+<span class="sd">            Result of matrix multiplication.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Algorithm for SVD @ SVD: Computes M = S1 @ V1.T @ U2 @ S2, then SVD of M.</span>
+<span class="sd">        Computational cost: O(r^3) where r = min(r1, r2).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 80), np.ones(20))</span>
+<span class="sd">        &gt;&gt;&gt; Y = SVD.generate_random((80, 60), np.ones(15))</span>
+<span class="sd">        &gt;&gt;&gt; Z = X.dot(Y)</span>
+<span class="sd">        &gt;&gt;&gt; print(Z.shape)  # (100, 60)</span>
+<span class="sd">        &gt;&gt;&gt; print(Z.rank)   # min(20, 15) = 15</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">side</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;usual&quot;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;opposite&quot;</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incorrect side. Choose &quot;right&quot; or &quot;left&quot;.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SVD</span><span class="p">):</span>
+            <span class="c1"># Determine multiplication order</span>
+            <span class="k">if</span> <span class="n">side</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;opposite&quot;</span><span class="p">]:</span>
+                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">other</span><span class="p">,</span> <span class="bp">self</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span>
+            <span class="c1"># Compute the middle matrix</span>
+            <span class="n">middle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">multi_dot</span><span class="p">([</span><span class="n">left</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">Vh</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">S</span><span class="p">])</span>
+            <span class="c1"># SVD of the middle matrix</span>
+            <span class="n">U_m</span><span class="p">,</span> <span class="n">s_m</span><span class="p">,</span> <span class="n">Vh_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">middle</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># New U and V</span>
+            <span class="n">new_U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="n">U_m</span><span class="p">)</span>
+            <span class="n">new_V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">right</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">Vh_m</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">SVD</span><span class="p">(</span><span class="n">new_U</span><span class="p">,</span> <span class="n">s_m</span><span class="p">,</span> <span class="n">new_V</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dense_output</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">full</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">output</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="n">side</span><span class="p">,</span> <span class="n">dense_output</span><span class="o">=</span><span class="n">dense_output</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+            <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="SVD.hadamard">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.hadamard">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hadamard</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">other</span><span class="p">:</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span> <span class="o">|</span> <span class="n">LowRankMatrix</span> <span class="o">|</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Faster version of the Hadamard product for SVDs.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SVD</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span> <span class="o">&gt;=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+            <span class="c1"># The new matrices U and V are obtained from transposed Khatri-Rao products</span>
+            <span class="n">new_U</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">khatri_rao</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Uh</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">Uh</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+            <span class="n">new_V</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">khatri_rao</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Vh</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">Vh</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+            <span class="c1"># The new singular values are obtained from the Kronecker product</span>
+            <span class="n">new_S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">(),</span> <span class="n">other</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">())</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">SVD</span><span class="p">(</span><span class="n">new_U</span><span class="p">,</span> <span class="n">new_S</span><span class="p">,</span> <span class="n">new_V</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">hadamard</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="SVD.pseudoinverse">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.pseudoinverse">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pseudoinverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_ATOL</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the Moore-Penrose pseudoinverse X⁺ efficiently.</span>
+
+<span class="sd">        For SVD X = U @ diag(s) @ V.H, the pseudoinverse is:</span>
+<span class="sd">            X⁺ = V @ diag(s⁺) @ U.H</span>
+<span class="sd">        where s⁺[i] = 1/s[i] if s[i] &gt; threshold, else 0.</span>
+
+<span class="sd">        This is more efficient than QuasiSVD.pseudoinverse() since S is already diagonal.</span>
+<span class="sd">        Small singular values (&lt; max(rtol*σ_max, atol)) are treated as zero.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rtol : float, optional</span>
+<span class="sd">            Relative tolerance for determining zero singular values.</span>
+<span class="sd">            Default is None (uses machine precision * max(m,n)).</span>
+<span class="sd">        atol : float, optional</span>
+<span class="sd">            Absolute tolerance. Default is DEFAULT_ATOL (machine precision).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            Pseudoinverse in SVD format (guaranteed diagonal structure).</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Computational cost: O(r) for computing s⁺ (vs O(r³) for QuasiSVD).</span>
+<span class="sd">        The threshold is: max(rtol * max(s), atol)</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 80), np.logspace(0, -5, 20))</span>
+<span class="sd">        &gt;&gt;&gt; X_pinv = X.pseudoinverse()</span>
+<span class="sd">        &gt;&gt;&gt; # Check: X @ X_pinv @ X ≈ X</span>
+<span class="sd">        &gt;&gt;&gt; reconstruction = X @ X_pinv @ X</span>
+<span class="sd">        &gt;&gt;&gt; np.allclose(X.full(), reconstruction.full())</span>
+<span class="sd">        True</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        solve : Solve linear system Xx = b</span>
+<span class="sd">        lstsq : Least squares solution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine threshold for zero singular values</span>
+        <span class="k">if</span> <span class="n">rtol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rtol</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">rtol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">),</span> <span class="n">atol</span><span class="p">)</span>
+
+        <span class="c1"># Compute pseudoinverse of singular values (element-wise)</span>
+        <span class="n">s_pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">threshold</span>
+        <span class="n">s_pinv</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="c1"># X⁺ = V @ diag(s⁺) @ U.H  (stored as SVD with V, s⁺, U)</span>
+        <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">s_pinv</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.solve">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.solve">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;direct&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solve the linear system Xx = b efficiently using SVD structure.</span>
+
+<span class="sd">        For square full-rank matrices, solves Xx = b directly.</span>
+<span class="sd">        For rectangular or rank-deficient matrices, computes the least-squares solution.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        b : ndarray</span>
+<span class="sd">            Right-hand side vector or matrix. Shape (m,) or (m, k).</span>
+<span class="sd">        method : str, optional</span>
+<span class="sd">            Solution method:</span>
+<span class="sd">            - &#39;direct&#39;: Use SVD factorization (default, very fast: O(mr + rk))</span>
+<span class="sd">              x = V @ diag(1/s) @ U.T @ b</span>
+<span class="sd">            - &#39;lstsq&#39;: Use pseudoinverse (handles rank deficiency)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            Solution x. Shape (n,) or (n, k).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If dimensions are incompatible.</span>
+<span class="sd">        LinAlgError</span>
+<span class="sd">            If matrix is singular and method=&#39;direct&#39;.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The &#39;direct&#39; method is faster than QuasiSVD.solve() since S is diagonal:</span>
+<span class="sd">        - SVD.solve: O(mr + rk) where k is the number of RHS vectors</span>
+<span class="sd">        - QuasiSVD.solve: O(mr² + r²k) due to S inversion</span>
+
+<span class="sd">        For rank-deficient matrices, use method=&#39;lstsq&#39; or call lstsq() directly.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 100), np.ones(100))  # Full rank</span>
+<span class="sd">        &gt;&gt;&gt; b = np.random.randn(100)</span>
+<span class="sd">        &gt;&gt;&gt; x = X.solve(b)</span>
+<span class="sd">        &gt;&gt;&gt; # Check: X @ x ≈ b</span>
+<span class="sd">        &gt;&gt;&gt; np.allclose(X @ x, b)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; # For rank-deficient systems, may have larger residual:</span>
+<span class="sd">        &gt;&gt;&gt; X_deficient = SVD.generate_random((100, 100), np.ones(20))  # Rank 20</span>
+<span class="sd">        &gt;&gt;&gt; x_deficient = X_deficient.solve(b, method=&#39;lstsq&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; # Residual may be non-zero for rank-deficient case</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        lstsq : Least squares solution (handles rank deficiency)</span>
+<span class="sd">        pseudoinverse : Compute Moore-Penrose pseudoinverse</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Validate inputs</span>
+        <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dimension mismatch: b has </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> elements, matrix has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dimension mismatch: b has </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows, matrix has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;direct&quot;</span><span class="p">:</span>
+            <span class="c1"># Check for zero singular values</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">&lt;</span> <span class="n">DEFAULT_ATOL</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">(</span>
+                    <span class="s2">&quot;Matrix is singular or rank-deficient. Use method=&#39;lstsq&#39; or lstsq() for least-squares solution.&quot;</span>
+                <span class="p">)</span>
+            <span class="c1"># x = V @ diag(1/s) @ U.H @ b  (U.H for complex, U.T for real)</span>
+            <span class="c1"># = V @ ((1/s) * (U.H @ b))</span>
+            <span class="n">Uh_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uh</span> <span class="o">@</span> <span class="n">b</span>  <span class="c1"># Uses Uh which handles both real and complex correctly</span>
+            <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">@</span> <span class="p">((</span><span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">Uh_b</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># For multiple RHS, need to broadcast correctly</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">@</span> <span class="p">((</span><span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">Uh_b</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;lstsq&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;. Use &#39;direct&#39; or &#39;lstsq&#39;.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.lstsq">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.lstsq">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lstsq</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_ATOL</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the least-squares solution to Xx ≈ b.</span>
+
+<span class="sd">        Minimizes ||Xx - b||₂ using the pseudoinverse: x = X⁺ @ b</span>
+<span class="sd">        This is optimized for SVD with diagonal structure.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        b : ndarray</span>
+<span class="sd">            Right-hand side vector or matrix. Shape (m,) or (m, k).</span>
+<span class="sd">        rtol : float, optional</span>
+<span class="sd">            Relative tolerance for pseudoinverse computation.</span>
+<span class="sd">            Default is None (uses machine precision * max(m,n)).</span>
+<span class="sd">        atol : float, optional</span>
+<span class="sd">            Absolute tolerance for pseudoinverse. Default is DEFAULT_ATOL.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            Least-squares solution x. Shape (n,) or (n, k).</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is faster than QuasiSVD.lstsq() due to diagonal S:</span>
+<span class="sd">        - SVD.lstsq: O(mr + rk) for computing x</span>
+<span class="sd">        - QuasiSVD.lstsq: O(r³ + mr + rk) due to SVD(S)</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 80), np.logspace(0, -10, 20))</span>
+<span class="sd">        &gt;&gt;&gt; b = np.random.randn(100)</span>
+<span class="sd">        &gt;&gt;&gt; x = X.lstsq(b)</span>
+<span class="sd">        &gt;&gt;&gt; # x minimizes ||X @ x - b||</span>
+<span class="sd">        &gt;&gt;&gt; residual = np.linalg.norm(X @ x - b)</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pseudoinverse : Compute pseudoinverse</span>
+<span class="sd">        solve : Solve linear system (for full-rank matrices)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Validate inputs</span>
+        <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dimension mismatch: b has </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> elements, matrix has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dimension mismatch: b has </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows, matrix has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Determine threshold for zero singular values</span>
+        <span class="k">if</span> <span class="n">rtol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rtol</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">rtol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">),</span> <span class="n">atol</span><span class="p">)</span>
+
+        <span class="c1"># Compute pseudoinverse of singular values</span>
+        <span class="n">s_pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">threshold</span>
+        <span class="n">s_pinv</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="c1"># x = V @ diag(s⁺) @ U.H @ b</span>
+        <span class="n">U_T_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Uh</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="n">s_pinv</span> <span class="o">*</span> <span class="n">U_T_b</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For multiple RHS, need to broadcast correctly</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="n">s_pinv</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">U_T_b</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SVD.sqrtm">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.sqrtm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sqrtm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the matrix square root X^{1/2} such that X^{1/2} @ X^{1/2} = X.</span>
+
+<span class="sd">        For SVD X = U @ diag(s) @ V.H, the square root is:</span>
+<span class="sd">            X^{1/2} = U @ diag(√s) @ V.H</span>
+<span class="sd">        where √s is the element-wise square root of singular values.</span>
+
+<span class="sd">        This is MUCH simpler and faster than QuasiSVD.sqrtm() since S is diagonal.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inplace : bool, optional</span>
+<span class="sd">            If True, modify the current object in-place. Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            Matrix square root in SVD format.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Computational cost: O(r) for computing √s (vs O(r³) for QuasiSVD).</span>
+<span class="sd">        For matrices with negative eigenvalues, the square root may be complex.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 100), np.array([4.0, 9.0, 16.0]), is_symmetric=True)</span>
+<span class="sd">        &gt;&gt;&gt; X_sqrt = X.sqrtm()</span>
+<span class="sd">        &gt;&gt;&gt; # Check: X_sqrt @ X_sqrt ≈ X</span>
+<span class="sd">        &gt;&gt;&gt; reconstruction = X_sqrt @ X_sqrt</span>
+<span class="sd">        &gt;&gt;&gt; np.allclose(X.full(), reconstruction.full())</span>
+<span class="sd">        True</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        expm : Matrix exponential</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Matrix square root is defined only for symmetric matrices (U == V).&quot;</span>
+            <span class="p">)</span>
+        <span class="n">s_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s_sqrt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># Invalidate cached values after modification</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="n">s_sqrt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SVD.expm">
+<a class="viewcode-back" href="../../../api/matrices.html#low_rank_toolbox.matrices.SVD.expm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">expm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SVD</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the matrix exponential exp(X) = e^X.</span>
+
+<span class="sd">        For SVD X = U @ diag(s) @ V.H, if X is Hermitian (U == V for real, U == V.conj() for complex), then:</span>
+<span class="sd">            exp(X) = U @ diag(exp(s)) @ U.H</span>
+<span class="sd">        where exp(s) is the element-wise exponential of singular values.</span>
+
+<span class="sd">        This is MUCH faster than matrix exponentiation for general matrices:</span>
+<span class="sd">        - SVD.expm (symmetric): O(r) for computing exp(s)</span>
+<span class="sd">        - General expm: O(n³) using Padé approximation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inplace : bool, optional</span>
+<span class="sd">            If True, modify the current object in-place. Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SVD</span>
+<span class="sd">            Matrix exponential in SVD format.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If matrix is not square.</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            If matrix is not symmetric (U != V).</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method currently only supports symmetric matrices where U == V.</span>
+<span class="sd">        For general matrices, the eigenvalue decomposition would be needed.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; X = SVD.generate_random((100, 100), np.array([1.0, 0.5, 0.1]), is_symmetric=True)</span>
+<span class="sd">        &gt;&gt;&gt; X_exp = X.expm()</span>
+<span class="sd">        &gt;&gt;&gt; print(X_exp.s)  # [e^1.0, e^0.5, e^0.1] ≈ [2.718, 1.649, 1.105]</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        sqrtm : Matrix square root</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if matrix is square</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Matrix must be square for expm, got shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check if matrix is complex</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Matrix exponential not implemented for complex matrices. &quot;</span>
+                <span class="s2">&quot;Use scipy.linalg.expm(X.full()) instead.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check if matrix is symmetric (U == V)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Matrix exponential is defined only for symmetric matrices (U == V). &quot;</span>
+                <span class="s2">&quot;For general matrices, use scipy.linalg.expm(X.full()).&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Compute exp(s) element-wise</span>
+        <span class="n">s_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s_exp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># Invalidate cached values after modification</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SVD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="n">s_exp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_data</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

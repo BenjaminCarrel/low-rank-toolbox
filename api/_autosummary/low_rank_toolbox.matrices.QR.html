@@ -1,0 +1,1582 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.matrices.QR &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.matrices.QuasiSVD" href="low_rank_toolbox.matrices.QuasiSVD.html" />
+    <link rel="prev" title="low_rank_toolbox.matrices.SVD" href="low_rank_toolbox.matrices.SVD.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../matrices.html">Matrices Module</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../matrices.html#classes-overview">Classes Overview</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.SVD.html">low_rank_toolbox.matrices.SVD</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">low_rank_toolbox.matrices.QR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.QuasiSVD.html">low_rank_toolbox.matrices.QuasiSVD</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.matrices.LowRankMatrix.html">low_rank_toolbox.matrices.LowRankMatrix</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../matrices.html#svd-class">SVD Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../matrices.html#qr-class">QR Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../matrices.html#quasisvd-class">QuasiSVD Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../matrices.html#lowrankmatrix-class">LowRankMatrix Class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#core-modules">Core Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../matrices.html">Matrices Module</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.matrices.QR</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.matrices.QR.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="low-rank-toolbox-matrices-qr">
+<h1>low_rank_toolbox.matrices.QR<a class="headerlink" href="#low-rank-toolbox-matrices-qr" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.matrices.</span></span><span class="sig-name descname"><span class="pre">QR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="low_rank_toolbox.matrices.low_rank_matrix.html#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></p>
+<p>QR decomposition for low-rank matrices.</p>
+<p>Efficient storage and operations for matrices represented as the product of an
+orthogonal matrix Q and an upper triangular matrix R. Particularly well-suited
+for solving linear systems and least squares problems.</p>
+<section id="mathematical-representation">
+<h2>Mathematical Representation<a class="headerlink" href="#mathematical-representation" title="Link to this heading"></a></h2>
+<p>Standard form: X = Q &#64; R
+Transposed form: X = R.H &#64; Q.H</p>
+<p>where:
+- Q ∈ ℂ^(m×r) has orthonormal columns (Q.H &#64; Q = I_r)
+- R ∈ ℂ^(r×n) is upper triangular
+- r = rank ≤ min(m, n)</p>
+<p>For real matrices, conjugate transpose (.H) is equivalent to regular transpose (.T).</p>
+</section>
+<section id="key-differences-from-svd">
+<h2>Key Differences from SVD<a class="headerlink" href="#key-differences-from-svd" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Triangular structure</strong>: R is upper triangular (not diagonal)</p></li>
+<li><p><strong>Solve efficiency</strong>: O(r²) back substitution vs O(r³) for SVD</p></li>
+<li><p><strong>No singular values</strong>: Diagonal of R approximates importance but not sorted</p></li>
+<li><p><strong>Operations</strong>: Addition/subtraction preserve QR structure (unlike SVD which needs recomputation)</p></li>
+<li><p><strong>Memory</strong>: Same O(mr + rn) storage as SVD</p></li>
+</ul>
+</section>
+<section id="storage-efficiency">
+<h2>Storage Efficiency<a class="headerlink" href="#storage-efficiency" title="Link to this heading"></a></h2>
+<p>Full matrix: O(mn) storage
+QR: O(mr + rn) storage
+Memory savings when r &lt;&lt; min(m, n)</p>
+<p>For 1000×800 matrix with rank 10:
+- Dense: 800,000 elements
+- QR: 18,000 elements (44x compression)
+- SVD: 18,100 elements (similar)</p>
+</section>
+<section id="important-notes">
+<h2>Important Notes<a class="headerlink" href="#important-notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>CRITICAL: Q MUST have orthonormal columns (Q.H &#64; Q = I_r).
+This is NOT verified at initialization for performance.
+Invalid inputs produce incorrect results without warning.</p></li>
+<li><p>Use .is_orthogonal() to verify orthonormality if needed</p></li>
+<li><p>Use .is_upper_triangular() to verify R structure</p></li>
+<li><p>R diagonal elements <a href="#id9"><span class="problematic" id="id10">|R[i,i]|</span></a> serve as importance indicators (but not sorted)</p></li>
+<li><p>After operations, may return LowRankMatrix (orthogonality not preserved)</p></li>
+<li><p>Transposed mode enables efficient representation of A.H without recomputation</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.Q" title="Link to this definition"></a></dt>
+<dd><p>Orthogonal matrix with orthonormal columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray, shape (m, r)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.R">
+<span class="sig-name descname"><span class="pre">R</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.R" title="Link to this definition"></a></dt>
+<dd><p>Upper triangular matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray, shape (r, n)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.shape" title="Link to this definition"></a></dt>
+<dd><p>Shape of the represented matrix (m, n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.rank">
+<span class="sig-name descname"><span class="pre">rank</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.rank" title="Link to this definition"></a></dt>
+<dd><p>Number of columns in Q (rank of the decomposition)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR._transposed">
+<span class="sig-name descname"><span class="pre">_transposed</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR._transposed" title="Link to this definition"></a></dt>
+<dd><p>Whether in transposed mode (X = R.H &#64; Q.H)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.Properties">
+<span class="sig-name descname"><span class="pre">Properties</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.Properties" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">----------</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.T">
+<span class="sig-name descname"><span class="pre">T</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.T" title="Link to this definition"></a></dt>
+<dd><p>Transpose of the matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.H">
+<span class="sig-name descname"><span class="pre">H</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.H" title="Link to this definition"></a></dt>
+<dd><p>Conjugate transpose (Hermitian) of the matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.conj">
+<span class="sig-name descname"><span class="pre">conj</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.conj" title="Link to this definition"></a></dt>
+<dd><p>Complex conjugate of the matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Methods</span> <span class="pre">Overview</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">----------------</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Solving</span> <span class="pre">Linear</span> <span class="pre">Systems</span></span></dt>
+<dd><ul class="simple">
+<li><p>solve(b) : Solve Xx = b via back/forward substitution</p></li>
+<li><p>lstsq(b) : Least squares solution</p></li>
+<li><p>pseudoinverse() : Moore-Penrose pseudoinverse</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Matrix</span> <span class="pre">Operations</span></span></dt>
+<dd><ul class="simple">
+<li><p>__add__ : Addition (preserves QR for matching transposed modes)</p></li>
+<li><p>__sub__ : Subtraction (preserves QR for matching transposed modes)</p></li>
+<li><p>__mul__ : Scalar or Hadamard multiplication</p></li>
+<li><p>dot : Matrix-vector/matrix-matrix multiplication</p></li>
+<li><p>hadamard : Element-wise multiplication</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.Validation">
+<span class="sig-name descname"><span class="pre">Validation</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.Validation" title="Link to this definition"></a></dt>
+<dd><ul class="simple">
+<li><p>is_orthogonal() : Check Q orthonormality</p></li>
+<li><p>is_upper_triangular() : Check R triangular structure</p></li>
+<li><p>cond() : Condition number estimation</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.Truncation">
+<span class="sig-name descname"><span class="pre">Truncation</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.Truncation" title="Link to this definition"></a></dt>
+<dd><ul class="simple">
+<li><p>truncate() : Remove columns with small R diagonal elements</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.Conversions">
+<span class="sig-name descname"><span class="pre">Conversions</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.Conversions" title="Link to this definition"></a></dt>
+<dd><ul class="simple">
+<li><p>to_svd() : Convert to SVD format</p></li>
+<li><p>from_svd() : Create from SVD</p></li>
+<li><p>from_matrix() : Compute QR decomposition</p></li>
+<li><p>from_low_rank() : QR of generic low-rank matrix</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.Norms">
+<span class="sig-name descname"><span class="pre">Norms</span></span><a class="headerlink" href="#low_rank_toolbox.matrices.QR.Norms" title="Link to this definition"></a></dt>
+<dd><ul class="simple">
+<li><p>norm() : Matrix norms (Frobenius optimized for QR)</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Class</span> <span class="pre">Methods</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-------------</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-</span> <span class="pre">from_matrix(A)</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Compute QR decomposition of matrix A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-</span> <span class="pre">from_low_rank(LR)</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Compute QR of low-rank matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-</span> <span class="pre">from_svd(svd)</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Convert SVD to QR (Q=U, <a class="reference external" href="mailto:R=S&#37;&#52;&#48;V&#46;H">R=S<span>&#64;</span>V<span>&#46;</span>H</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-</span> <span class="pre">qr(A)</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Alias for from_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-</span> <span class="pre">generate_random(shape)</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generate random QR for testing</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<p><strong>Creating QR from a matrix:</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.matrices</span><span class="w"> </span><span class="kn">import</span> <span class="n">QR</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (100, 80)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span>   <span class="c1"># 80</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">A</span><span class="p">)</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+<p><strong>Solving linear systems (faster than SVD):</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>  <span class="c1"># True</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Least squares for overdetermined systems</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_ls</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x_ls</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Efficient operations:</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Addition preserves QR structure (same transposed mode)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="n">Y</span>  <span class="c1"># Returns QR (may auto-truncate to min(m,n))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Frobenius norm computed from R only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">norm_fro</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="s1">&#39;fro&#39;</span><span class="p">)</span>  <span class="c1"># O(rn) vs O(mnr) for full matrix</span>
+</pre></div>
+</div>
+<p><strong>Transposed mode for efficient A.H representation:</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Instead of computing QR(A.H), use transposed flag</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_t</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">transposed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_t</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>  <span class="c1"># True (for real A)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Conjugate transpose flips mode</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_h</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">H</span>  <span class="c1"># Returns transposed QR</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">X_h</span><span class="o">.</span><span class="n">_transposed</span> <span class="o">!=</span> <span class="n">X</span><span class="o">.</span><span class="n">_transposed</span>
+</pre></div>
+</div>
+<p><strong>Validation and diagnostics:</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">is_orthogonal</span><span class="p">()</span>  <span class="c1"># Verify Q orthonormality</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">is_upper_triangular</span><span class="p">()</span>  <span class="c1"># Verify R structure</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cond_approx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Fast diagonal approximation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cond_exact</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># Exact via SVD of R</span>
+</pre></div>
+</div>
+<p><strong>Truncation for rank reduction:</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X_trunc</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Keep first 10 columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_trunc</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>  <span class="c1"># Remove small R[i,i]</span>
+</pre></div>
+</div>
+<p><strong>Conversion between formats:</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.matrices</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVD</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_svd</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">to_svd</span><span class="p">()</span>  <span class="c1"># Convert to SVD (requires SVD of R)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_svd</span><span class="p">(</span><span class="n">X_svd</span><span class="p">)</span>  <span class="c1"># Convert back (Q=U, R=S@V.H)</span>
+</pre></div>
+</div>
+<p><strong>Memory efficiency:</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">compression_ratio</span><span class="p">()</span>  <span class="c1"># &lt; 1.0 means memory savings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">(</span><span class="s1">&#39;MB&#39;</span><span class="p">)</span>  <span class="c1"># Actual memory used</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SVD</span></code></a></dt><dd><p>Singular Value Decomposition (diagonal middle matrix)</p>
+</dd>
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QuasiSVD" title="low_rank_toolbox.matrices.QuasiSVD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiSVD</span></code></a></dt><dd><p>Generalized SVD with non-diagonal middle matrix</p>
+</dd>
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a></dt><dd><p>Base class for low-rank representations</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Trefethen, L. N., &amp; Bau III, D. (1997). Numerical Linear Algebra. SIAM.</p>
+</aside>
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Golub, G. H., &amp; Van Loan, C. F. (2013). Matrix Computations (4th ed.).
+Johns Hopkins University Press.</p>
+</aside>
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Demmel, J. W. (1997). Applied Numerical Linear Algebra. SIAM.</p>
+</aside>
+</aside>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>QR is particularly efficient for solving linear systems and least squares</p></li>
+<li><p>For repeated solves with same A, QR is faster than LU or SVD</p></li>
+<li><p>Column pivoting available via scipy.linalg.qr(pivoting=True) but not
+integrated into this class (see documentation for details)</p></li>
+<li><p>Operations exploit orthogonality and triangular structure for efficiency</p></li>
+<li><p>Condition number can be estimated quickly from R diagonal (O(r) vs O(r³))</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize a QR decomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Q</strong> (<em>ndarray</em>) – Orthogonal matrix (m x r) with orthonormal columns.
+ASSUMED to have orthonormal columns: Q.H &#64; Q = I_r.
+Not verified at initialization for performance.</p></li>
+<li><p><strong>R</strong> (<em>ndarray</em>) – Upper triangular matrix (r x n)</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, represents X = R.H &#64; Q.H instead of X = Q &#64; R, by default False
+For real matrices, this is equivalent to X = R.T &#64; Q.T</p></li>
+<li><p><strong>**extra_data</strong> – Additional data to store with the matrix</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For the standard form (transposed=False): X = Q &#64; R
+For the transposed form (transposed=True): X = R.H &#64; Q.H</p>
+<p>The transposed form is useful when you have computed QR(A.H) and want
+to represent A efficiently.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.__init__" title="low_rank_toolbox.matrices.QR.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(Q, R[, transposed])</p></td>
+<td><p>Initialize a QR decomposition.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">adjoint</span></code>()</p></td>
+<td><p>Hermitian adjoint.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allclose</span></code>(other[, rtol, atol])</p></td>
+<td><p>Check approximate equality with another matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">approximation_error</span></code>(reference[, ord])</p></td>
+<td><p>Compute approximation error ||X - reference|| efficiently.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compress</span></code>()</p></td>
+<td><p>Compress the factorization to maximize memory efficiency.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compress_</span></code>()</p></td>
+<td><p>Compress the factorization in-place to maximize memory efficiency.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compression_ratio</span></code>()</p></td>
+<td><p>Compute compression ratio relative to dense storage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.cond" title="low_rank_toolbox.matrices.QR.cond"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cond</span></code></a>([p, exact])</p></td>
+<td><p>Compute condition number efficiently using R matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cond_estimate</span></code>([method, n_iter])</p></td>
+<td><p>Estimate condition number without computing full SVD.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>()</p></td>
+<td><p>Create a deep copy of the matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_data_alias</span></code>(key)</p></td>
+<td><p>Create a property that provides access to an entry in extra_data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_matrix_alias</span></code>(index[, transpose, ...])</p></td>
+<td><p>Create a property that provides access to a factor matrix with optional transformations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">diag</span></code>()</p></td>
+<td><p>Extract diagonal without forming full matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.dot" title="low_rank_toolbox.matrices.QR.dot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dot</span></code></a>(other[, side, dense_output])</p></td>
+<td><p>Matrix and vector multiplication</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dot_sparse</span></code>(sparse_other[, side, dense_output])</p></td>
+<td><p>Efficient multiplication with a sparse matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">expm_multiply</span></code>(A, h[, side, dense_output])</p></td>
+<td><p>Efficient action of sparse matrix exponential left: output = exp(h*A) &#64; self right: output = self &#64; exp(h*A)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code>()</p></td>
+<td><p>Flatten the matrix to a 1D array.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dense</span></code>(matrix)</p></td>
+<td><p>Alias for from_matrix().</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_full</span></code>(matrix)</p></td>
+<td><p>Alias for from_matrix().</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.from_low_rank" title="low_rank_toolbox.matrices.QR.from_low_rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_low_rank</span></code></a>(low_rank[, transposed])</p></td>
+<td><p>Compute the QR decomposition from a low-rank representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.from_matrix" title="low_rank_toolbox.matrices.QR.from_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_matrix</span></code></a>(matrix[, mode, transposed])</p></td>
+<td><p>Compute the QR decomposition of a matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.from_svd" title="low_rank_toolbox.matrices.QR.from_svd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_svd</span></code></a>(svd[, transposed])</p></td>
+<td><p>Convert SVD to QR format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">full</span></code>()</p></td>
+<td><p>Form the full dense matrix by multiplying all factors in optimal order.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gather</span></code>(indices)</p></td>
+<td><p>Access specific matrix entries without forming the full matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.generate_random" title="low_rank_toolbox.matrices.QR.generate_random"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_random</span></code></a>(shape[, transposed, seed])</p></td>
+<td><p>Generate a random QR decomposition.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_block</span></code>(rows, cols)</p></td>
+<td><p>Extract block submatrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.hadamard" title="low_rank_toolbox.matrices.QR.hadamard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hadamard</span></code></a>(other)</p></td>
+<td><p>Element-wise (Hadamard) product with another matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.is_orthogonal" title="low_rank_toolbox.matrices.QR.is_orthogonal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_orthogonal</span></code></a>([tol])</p></td>
+<td><p>Check if Q has orthonormal columns within a tolerance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_symmetric</span></code>()</p></td>
+<td><p>Check if the matrix is symmetric.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.is_upper_triangular" title="low_rank_toolbox.matrices.QR.is_upper_triangular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_upper_triangular</span></code></a>([tol])</p></td>
+<td><p>Check if R is upper triangular within a tolerance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_well_conditioned</span></code>([threshold])</p></td>
+<td><p>Check if the factorization is numerically well-conditioned.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code>(filename)</p></td>
+<td><p>Load low-rank matrix from disk.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.lstsq" title="low_rank_toolbox.matrices.QR.lstsq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lstsq</span></code></a>(b[, rcond])</p></td>
+<td><p>Least squares solution via QR decomposition.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">matmat</span></code>(X)</p></td>
+<td><p>Matrix-matrix multiplication.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">matvec</span></code>(v)</p></td>
+<td><p>Matrix-vector product (public interface, backward compatibility).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory_usage</span></code>([unit])</p></td>
+<td><p>Report actual memory used by the factorization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">multi_add</span></code>(others)</p></td>
+<td><p>Add multiple low-rank matrices efficiently.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">multi_dot</span></code>(others)</p></td>
+<td><p>Matrix multiplication of a sequence of matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.norm" title="low_rank_toolbox.matrices.QR.norm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm</span></code></a>([ord])</p></td>
+<td><p>Compute matrix norm with QR-specific optimizations.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_squared</span></code>()</p></td>
+<td><p>Compute squared Frobenius norm efficiently: ||X||²_F = tr(X^H X).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">power</span></code>(n)</p></td>
+<td><p>Compute matrix power X^n efficiently using repeated squaring.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.pseudoinverse" title="low_rank_toolbox.matrices.QR.pseudoinverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pseudoinverse</span></code></a>([rcond])</p></td>
+<td><p>Compute Moore-Penrose pseudoinverse using QR factorization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.qr" title="low_rank_toolbox.matrices.QR.qr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">qr</span></code></a>(matrix[, mode, transposed])</p></td>
+<td><p>Compute a QR decomposition (alias for from_matrix).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmatmat</span></code>(X)</p></td>
+<td><p>Adjoint matrix-matrix multiplication.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmatvec</span></code>(v)</p></td>
+<td><p>Adjoint matrix-vector product (public interface, backward compatibility).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code>(filename)</p></td>
+<td><p>Save low-rank matrix to disk efficiently.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale_</span></code>(scalar)</p></td>
+<td><p>Scale the matrix in-place by a scalar.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.solve" title="low_rank_toolbox.matrices.QR.solve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve</span></code></a>(b[, method])</p></td>
+<td><p>Solve Xx = b using QR factorization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dense</span></code>()</p></td>
+<td><p>Convert to dense matrix (alias for full).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_full</span></code>()</p></td>
+<td><p>Convert to dense matrix (alias for full).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_sparse</span></code>([format, threshold])</p></td>
+<td><p>Convert to sparse format, zeroing small entries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.to_svd" title="low_rank_toolbox.matrices.QR.to_svd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_svd</span></code></a>()</p></td>
+<td><p>Convert QR to SVD format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">todense</span></code>()</p></td>
+<td><p>Convert to dense matrix (alias for full).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">trace</span></code>()</p></td>
+<td><p>Compute trace efficiently using cyclic property: tr(ABC) = tr(CAB) = tr(BCA).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code>()</p></td>
+<td><p>Transpose the matrix (alias for .T property).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.truncate" title="low_rank_toolbox.matrices.QR.truncate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">truncate</span></code></a>([r, rtol, atol, inplace])</p></td>
+<td><p>Truncate QR to lower rank by removing columns with small R diagonal elements.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#id11" title="low_rank_toolbox.matrices.QR.H"><code class="xref py py-obj docutils literal notranslate"><span class="pre">H</span></code></a></p></td>
+<td><p>Return the conjugate transpose (Hermitian) of the QR matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#id12" title="low_rank_toolbox.matrices.QR.Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Q</span></code></a></p></td>
+<td><p>Orthogonal matrix Q with orthonormal columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#id13" title="low_rank_toolbox.matrices.QR.R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">R</span></code></a></p></td>
+<td><p>Upper triangular matrix R.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#id14" title="low_rank_toolbox.matrices.QR.T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code></a></p></td>
+<td><p>Return the transpose of the QR matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../matrices.html#id15" title="low_rank_toolbox.matrices.QR.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a></p></td>
+<td><p>Return the complex conjugate of the QR matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">deepshape</span></code></p></td>
+<td><p>Shape tuple including all intermediate dimensions of the factorization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_memory_efficient</span></code></p></td>
+<td><p>Check if the low-rank representation uses less memory than dense storage.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">length</span></code></p></td>
+<td><p>Number of factor matrices in the factorization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndim</span></code></p></td>
+<td><p>Number of dimensions (always 2 for matrices).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.rank" title="low_rank_toolbox.matrices.QR.rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rank</span></code></a></p></td>
+<td><p>Rank of the low-rank factorization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></p></td>
+<td><p>Total number of elements stored in the factorization.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">H</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="low_rank_toolbox.matrices.qr.html#low_rank_toolbox.matrices.qr.QR" title="low_rank_toolbox.matrices.qr.QR"><span class="pre">QR</span></a></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>Return the conjugate transpose (Hermitian) of the QR matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Conjugate transpose with flipped transposed mode</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If X = Q &#64; R, then X.H = R.H &#64; Q.H (transposed mode)
+If X = R.H &#64; Q.H, then X.H = (R.H &#64; Q.H).H = Q &#64; R (standard mode)</p>
+<p>The transposed flag is always flipped (unlike .conj which preserves it).
+For real matrices, .H is equivalent to .T</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_h</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">H</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_h</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>  <span class="c1"># True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">X_h</span><span class="o">.</span><span class="n">_transposed</span> <span class="o">!=</span> <span class="n">X</span><span class="o">.</span><span class="n">_transposed</span>  <span class="c1"># Mode flipped</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Double conjugate transpose returns to original mode</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_hh</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">H</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">X_hh</span><span class="o">.</span><span class="n">_transposed</span> <span class="o">==</span> <span class="n">X</span><span class="o">.</span><span class="n">_transposed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_hh</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">X</span><span class="o">.</span><span class="n">full</span><span class="p">())</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id4">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Q</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd><p>Orthogonal matrix Q with orthonormal columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The orthogonal factor with Q.H &#64; Q = I_r.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray, shape (m, r)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>In standard mode (transposed=False): directly returns stored Q.
+In transposed mode (transposed=True): reconstructs Q from internal storage.</p>
+<p>ASSUMPTION: Orthonormality is assumed, not verified. Use .is_orthogonal()
+to validate if needed.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">Q</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (100, 80)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">Q</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">80</span><span class="p">)))</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id5">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">R</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd><p>Upper triangular matrix R.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The upper triangular factor where R[i, j] ≈ 0 for i &gt; j.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray, shape (r, n)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>In standard mode (transposed=False): directly returns stored R.
+In transposed mode (transposed=True): reconstructs R from internal storage.</p>
+<p>The diagonal elements <a href="#id11"><span class="problematic" id="id12">|R[i,i]|</span></a> indicate column importance (but unlike SVD,
+they are NOT sorted by magnitude).</p>
+<p>ASSUMPTION: Upper triangular structure is assumed. Use .is_upper_triangular()
+to validate if needed.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">R</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (80, 80)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>  <span class="c1"># True (lower triangle is zero)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>  <span class="c1"># Diagonal elements (importance indicators)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id6">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">T</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="low_rank_toolbox.matrices.qr.html#low_rank_toolbox.matrices.qr.QR" title="low_rank_toolbox.matrices.qr.QR"><span class="pre">QR</span></a></em><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd><p>Return the transpose of the QR matrix.</p>
+<p>For real matrices, .T is equivalent to .H
+For complex matrices, .T transposes without conjugating.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transposed QR matrix</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If X = Q &#64; R, then X.T = R.T &#64; Q.T = conj(R).H &#64; conj(Q).H
+If X = R.H &#64; Q.H, then X.T = (R.H &#64; Q.H).T = Q.conj() &#64; R.conj() = conj(Q) &#64; conj(R)</p>
+<p>To get transpose (not conjugate transpose), we conjugate Q and R and flip the mode.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_t</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_t</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>  <span class="c1"># True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">X_t</span><span class="o">.</span><span class="n">_transposed</span> <span class="o">!=</span> <span class="n">X</span><span class="o">.</span><span class="n">_transposed</span>  <span class="c1"># Mode flipped</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd><p>Initialize a QR decomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Q</strong> (<em>ndarray</em>) – Orthogonal matrix (m x r) with orthonormal columns.
+ASSUMED to have orthonormal columns: Q.H &#64; Q = I_r.
+Not verified at initialization for performance.</p></li>
+<li><p><strong>R</strong> (<em>ndarray</em>) – Upper triangular matrix (r x n)</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, represents X = R.H &#64; Q.H instead of X = Q &#64; R, by default False
+For real matrices, this is equivalent to X = R.T &#64; Q.T</p></li>
+<li><p><strong>**extra_data</strong> – Additional data to store with the matrix</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For the standard form (transposed=False): X = Q &#64; R
+For the transposed form (transposed=True): X = R.H &#64; Q.H</p>
+<p>The transposed form is useful when you have computed QR(A.H) and want
+to represent A efficiently.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.cond">
+<span class="sig-name descname"><span class="pre">cond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.cond"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.cond" title="Link to this definition"></a></dt>
+<dd><p>Compute condition number efficiently using R matrix.</p>
+<dl class="simple">
+<dt>For QR = Q &#64; R with orthogonal Q:</dt><dd><p>cond(Q &#64; R) = cond(R)</p>
+</dd>
+</dl>
+<p>The condition number is preserved by orthogonal transformations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Norm type. Default is 2 (spectral norm).
+- 2: Spectral condition number (ratio of max/min singular values)
+- ‘fro’: Frobenius norm condition number
+- 1, -1, inf, -inf: Other matrix norms</p></li>
+<li><p><strong>exact</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, compute exact condition number using numpy.linalg.cond.
+If False (default), use fast diagonal approximation for p=2.
+For other norms, always uses exact computation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Condition number of the matrix</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If R has zeros on diagonal (singular matrix)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><strong>Fast approximation (p=2, exact=False):</strong>
+For upper triangular R, estimates the 2-norm condition number
+from diagonal elements: cond_2(R) ≈ max(<a href="#id13"><span class="problematic" id="id14">|diag(R)|</span></a>) / min(<a href="#id15"><span class="problematic" id="id16">|diag(R)|</span></a>)</p>
+<p>This is a LOWER BOUND for the true condition number. The exact value
+requires SVD of R: cond_2(R) = σ_max(R) / σ_min(R)</p>
+<p>The approximation is exact for diagonal matrices and reasonable for
+well-conditioned matrices, but can significantly underestimate the
+condition number for ill-conditioned non-diagonal triangular matrices.</p>
+<p><strong>Exact computation (exact=True or other norms):</strong>
+Uses numpy.linalg.cond(R, p) which computes the exact condition number.
+This requires SVD for p=2, which is O(r³).</p>
+<p><strong>Computational cost:</strong>
+- p=2, exact=False: O(r) - diagonal extraction only
+- p=2, exact=True: O(r³) - requires SVD of R
+- Other norms: O(r²) to O(r³) depending on norm type</p>
+<p><strong>Caching:</strong>
+Results are cached for repeated queries with the same (norm, exact) pair.</p>
+<p><strong>Singularity:</strong>
+If any diagonal element is zero (within machine precision),
+the approximation returns np.inf to indicate singular matrix.</p>
+<p><strong>Why use approximation?</strong>
+For large ranks, computing exact condition number via SVD is expensive.
+The diagonal approximation provides a quick lower bound that’s sufficient
+for many applications (checking if matrix is well-conditioned).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fast approximation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cond_approx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># O(r)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Exact computation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cond_exact</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># O(r³)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For diagonal matrices, approximation is exact</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mf">1e10</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="mf">1e0</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_diag</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A_diag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X_diag</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>  <span class="c1"># 1e20 (exact for diagonal)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Other norms</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cond_fro</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="s1">&#39;fro&#39;</span><span class="p">)</span>  <span class="c1"># Always exact</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.cond.html#numpy.linalg.cond" title="(in NumPy v2.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.linalg.cond</span></code></a></dt><dd><p>General condition number computation</p>
+</dd>
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QuasiSVD.cond_estimate" title="low_rank_toolbox.matrices.QuasiSVD.cond_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiSVD.cond_estimate</span></code></a></dt><dd><p>Similar method for QuasiSVD</p>
+</dd>
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.is_upper_triangular" title="low_rank_toolbox.matrices.QR.is_upper_triangular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_upper_triangular</span></code></a></dt><dd><p>Check if R is upper triangular</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id8">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conj</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="low_rank_toolbox.matrices.qr.html#low_rank_toolbox.matrices.qr.QR" title="low_rank_toolbox.matrices.qr.QR"><span class="pre">QR</span></a></em><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd><p>Return the complex conjugate of the QR matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Complex conjugate of the QR matrix with same transposed mode</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If X = Q &#64; R, then conj(X) = conj(Q) &#64; conj(R)
+If X = R.H &#64; Q.H, then conj(X) = conj(R).H &#64; conj(Q).H = conj(R.H) &#64; conj(Q.H)</p>
+<p>The transposed flag is preserved (unlike .T which flips it).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_conj</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">conj</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_conj</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">A</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>  <span class="c1"># True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">X_conj</span><span class="o">.</span><span class="n">_transposed</span> <span class="o">==</span> <span class="n">X</span><span class="o">.</span><span class="n">_transposed</span>  <span class="c1"># Mode preserved</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.dot">
+<span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dense_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.dot" title="Link to this definition"></a></dt>
+<dd><p>Matrix and vector multiplication</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a><em>, </em><em>ndarray</em><em>, </em><em>spmatrix</em>) – Matrix or vector to multiply with.</p></li>
+<li><p><strong>side</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Whether to multiply on the left or right, by default ‘right’.</p></li>
+<li><p><strong>dense_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to return a dense matrix or a low-rank matrix, by default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="low_rank_toolbox.matrices.qr.html#low_rank_toolbox.matrices.qr.QR" title="low_rank_toolbox.matrices.qr.QR"><code class="xref py py-class docutils literal notranslate"><span class="pre">QR</span></code></a> | <a class="reference internal" href="low_rank_toolbox.matrices.low_rank_matrix.html#low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix" title="low_rank_toolbox.matrices.low_rank_matrix.LowRankMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowRankMatrix</span></code></a> | <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.from_low_rank">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_low_rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low_rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.from_low_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.from_low_rank" title="Link to this definition"></a></dt>
+<dd><p>Compute the QR decomposition from a low-rank representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>low_rank</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a>) – Low rank matrix to decompose</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, compute transposed form, by default False</p></li>
+<li><p><strong>**extra_data</strong> – Additional data to store</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>QR decomposition object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.from_matrix">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'economic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.from_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.from_matrix" title="Link to this definition"></a></dt>
+<dd><p>Compute the QR decomposition of a matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>ndarray</em>) – Matrix to decompose</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – QR mode (‘economic’ or ‘complete’), by default ‘economic’</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, return the transposed form X = R.H &#64; Q.H, by default False
+Standard form (False): X = Q &#64; R
+Transposed form (True): X = R.H &#64; Q.H = matrix.H</p></li>
+<li><p><strong>**extra_data</strong> – Additional data to store</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>QR decomposition object where full() reconstructs the input matrix</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>  <span class="c1"># X = Q @ R, X.full() == A</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_T</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">transposed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># X_T = R.H @ Q.H, X_T.full() == A.H</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.from_svd">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_svd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.from_svd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.from_svd" title="Link to this definition"></a></dt>
+<dd><p>Convert SVD to QR format.</p>
+<p>Simply uses Q = U and R = S &#64; V.H from the SVD representation.
+This is efficient and preserves orthogonality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svd</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD"><em>SVD</em></a>) – SVD object to convert from (X = U &#64; diag(s) &#64; V.H)</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, compute transposed form, by default False</p></li>
+<li><p><strong>**extra_data</strong> – Additional data to store (overrides svd._extra_data)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>QR decomposition object where full() reconstructs the SVD matrix</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><strong>Algorithm:</strong></p>
+<dl class="simple">
+<dt>For standard mode (transposed=False):</dt><dd><ul class="simple">
+<li><p>Set Q = U (already orthogonal from SVD)</p></li>
+<li><p>Set R = diag(s) &#64; V.H = S &#64; V.H</p></li>
+<li><p>Result: X = Q &#64; R = U &#64; S &#64; V.H (same as SVD)</p></li>
+</ul>
+</dd>
+<dt>For transposed mode (transposed=True):</dt><dd><ul class="simple">
+<li><p>Same Q and R as above</p></li>
+<li><p>Interpretation: X = R.H &#64; Q.H = V &#64; S &#64; U.H = (U &#64; S &#64; V.H).H</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Computational cost:</strong>
+- Matrix multiplication S &#64; V.H: O(r²n) where r = rank
+- No QR decomposition needed (already have orthogonal Q)
+- Total: O(r²n)</p>
+<p><strong>Advantages over to_svd():</strong>
+- Cheaper: O(r²n) vs O(r²(m+n))
+- No loss of orthogonality (U is already orthogonal)
+- Preserves singular value information in R structure
+- No SVD computation needed
+- Preserves singular value structure in R</p>
+<p><strong>When to use:</strong>
+- When you have an SVD and need QR format
+- When you want to exploit triangular structure of R
+- For efficient solve operations (QR is faster than SVD)</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_svd</span> <span class="o">=</span> <span class="n">SVD</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_qr</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_svd</span><span class="p">(</span><span class="n">X_svd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X_qr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (100, 80)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X_qr</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span>   <span class="c1"># Same as X_svd.rank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_svd</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">X_qr</span><span class="o">.</span><span class="n">full</span><span class="p">())</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Verify Q is orthogonal and R is upper triangular</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X_qr</span><span class="o">.</span><span class="n">is_orthogonal</span><span class="p">())</span>  <span class="c1"># True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X_qr</span><span class="o">.</span><span class="n">is_upper_triangular</span><span class="p">())</span>  <span class="c1"># False (R = S @ V.H not triangular!)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Round-trip conversion</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_svd2</span> <span class="o">=</span> <span class="n">X_qr</span><span class="o">.</span><span class="n">to_svd</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_svd</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">X_svd2</span><span class="o">.</span><span class="n">full</span><span class="p">())</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.to_svd" title="low_rank_toolbox.matrices.QR.to_svd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_svd</span></code></a></dt><dd><p>Convert QR to SVD format (requires SVD computation of R)</p>
+</dd>
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SVD</span></code></a></dt><dd><p>Singular Value Decomposition class</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.generate_random">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.generate_random"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.generate_random" title="Link to this definition"></a></dt>
+<dd><p>Generate a random QR decomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – Shape of the matrix to generate (m, n)</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, generate transposed form, by default False</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Random seed for reproducibility, by default None</p></li>
+<li><p><strong>**extra_data</strong> – Additional data to store</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Random QR decomposition object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">generate_random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (100, 80)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">is_orthogonal</span><span class="p">())</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.hadamard">
+<span class="sig-name descname"><span class="pre">hadamard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.hadamard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.hadamard" title="Link to this definition"></a></dt>
+<dd><p>Element-wise (Hadamard) product with another matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR"><em>QR</em></a><em> or </em><em>ndarray</em>) – Other matrix to perform Hadamard product with</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resulting matrix after Hadamard product</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a>, or ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The rank will be multiplied by the rank of the other matrix.
+This operation may be inefficient for large ranks.
+In that case a warning is raised, and one should consider
+converting to dense with .todense() first.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.is_orthogonal">
+<span class="sig-name descname"><span class="pre">is_orthogonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.is_orthogonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.is_orthogonal" title="Link to this definition"></a></dt>
+<dd><p>Check if Q has orthonormal columns within a tolerance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Tolerance for orthogonality check, by default 1e-12</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if Q.H &#64; Q is approximately equal to identity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Verifies that Q.H &#64; Q = I_k (orthonormal columns), where k is the number of columns in Q.
+This is always true when QR is constructed via from_matrix() or qr(),
+but may not hold if Q and R are provided manually.
+Note that Q may have more columns than the reported rank after Hadamard products.</p>
+<p>Computational cost: O(k²m) where k is the number of columns in Q.
+Result is cached for the default tolerance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.is_upper_triangular">
+<span class="sig-name descname"><span class="pre">is_upper_triangular</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.is_upper_triangular"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.is_upper_triangular" title="Link to this definition"></a></dt>
+<dd><p>Check if R is upper triangular within a tolerance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Tolerance for triangularity check, by default 1e-12</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if all elements below the diagonal of R are approximately zero</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Verifies that R[i,j] ≈ 0 for all i &gt; j (strict lower triangular part is zero).
+This is always true when QR is constructed via from_matrix() or qr(),
+but may not hold if Q and R are provided manually.</p>
+<p>For methods like solve() and lstsq(), having an upper triangular R enables
+efficient back substitution. If R is not upper triangular, these methods
+may produce incorrect results.</p>
+<p>Computational cost: O(r²) where r = min(rank, n) is the number of rows in R.
+Result is cached for the default tolerance.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">is_upper_triangular</span><span class="p">()</span>  <span class="c1"># True</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># Not upper triangular</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">QR</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span><span class="o">.</span><span class="n">is_upper_triangular</span><span class="p">()</span>  <span class="c1"># False</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.lstsq">
+<span class="sig-name descname"><span class="pre">lstsq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.lstsq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.lstsq" title="Link to this definition"></a></dt>
+<dd><p>Least squares solution via QR decomposition.</p>
+<p>Computes x that minimizes ||Xx - b||_2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>ndarray</em>) – Right-hand side, shape (m,) or (m, k)</p></li>
+<li><p><strong>rcond</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Relative condition number threshold for rank determination.
+Singular values smaller than rcond * largest_singular_value are treated as zero.
+If None, machine precision is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Least squares solution, shape (n,) or (n, k)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For overdetermined systems (m &gt; n), finds x minimizing ||Ax - b||_2
+For underdetermined systems (m &lt; n), finds minimum norm solution</p>
+<p>Uses QR decomposition:
+- For X = Q &#64; R: x = R^+ &#64; Q.H &#64; b where R^+ is pseudoinverse of R
+- Handles rank deficiency by zeroing small diagonal elements of R</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.norm">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.norm" title="Link to this definition"></a></dt>
+<dd><p>Compute matrix norm with QR-specific optimizations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ord</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Norm type. Default is ‘fro’ (Frobenius).
+- ‘fro’: Frobenius norm (optimized: ||Q &#64; R||_F = ||R||_F for orthogonal Q)
+- 2: Spectral norm (requires full matrix)
+- 1, -1, inf, -inf: Other matrix norms (require full matrix)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrix norm</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<dl class="simple">
+<dt>For orthogonal Q:</dt><dd><p>||Q &#64; R||_F = ||R||_F  (Frobenius norm preserved)
+||Q &#64; R||_2 ≠ ||R||_2  (spectral norm NOT preserved)</p>
+</dd>
+</dl>
+<p>Results are cached for efficiency.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="s1">&#39;fro&#39;</span><span class="p">)</span>  <span class="c1"># Efficient: computed from R only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>      <span class="c1"># Requires full matrix</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.pseudoinverse">
+<span class="sig-name descname"><span class="pre">pseudoinverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.pseudoinverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.pseudoinverse" title="Link to this definition"></a></dt>
+<dd><p>Compute Moore-Penrose pseudoinverse using QR factorization.</p>
+<p>For X = Q &#64; R, computes X^+ = R^+ &#64; Q.H</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rcond</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Cutoff for small singular values in R.
+Singular values smaller than rcond * largest_singular_value are set to zero.
+If None, machine precision is used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pseudoinverse matrix, shape (n, m)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The pseudoinverse satisfies:
+1. X &#64; X^+ &#64; X = X
+2. X^+ &#64; X &#64; X^+ = X^+
+3. (X &#64; X^+).H = X &#64; X^+
+4. (X^+ &#64; X).H = X^+ &#64; X</p>
+<p>For full rank matrices:
+- Overdetermined (m &gt; n): X^+ = (X.H &#64; X)^{-1} &#64; X.H = R^{-1} &#64; Q.H
+- Underdetermined (m &lt; n): X^+ = X.H &#64; (X &#64; X.H)^{-1}</p>
+<p>Computational cost: O(n²m) for computing R^+ and matrix multiplication</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_pinv</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">pseudoinverse</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">X_pinv</span> <span class="o">@</span> <span class="n">A</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>  <span class="c1"># Property 1</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_pinv</span> <span class="o">@</span> <span class="n">A</span> <span class="o">@</span> <span class="n">X_pinv</span><span class="p">,</span> <span class="n">X_pinv</span><span class="p">)</span>  <span class="c1"># Property 2</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.qr">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'economic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transposed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.qr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.qr" title="Link to this definition"></a></dt>
+<dd><p>Compute a QR decomposition (alias for from_matrix).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>ndarray</em>) – Matrix to decompose</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – QR mode (‘economic’ or ‘complete’), by default ‘economic’</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, compute transposed form, by default False</p></li>
+<li><p><strong>**extra_data</strong> – Additional data to store</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>QR decomposition object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'direct'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.solve" title="Link to this definition"></a></dt>
+<dd><p>Solve Xx = b using QR factorization.</p>
+<dl class="simple">
+<dt>For X = Q &#64; R, solve via:</dt><dd><p>Q &#64; R &#64; x = b
+R &#64; x = Q.T &#64; b
+x = R^{-1} &#64; Q.T &#64; b  (back substitution)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>ndarray</em>) – Right-hand side, shape (m,) or (m, k)</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – ‘direct’ (default): Use back substitution (fast, requires full rank)
+‘lstsq’: Use least squares (handles rank deficiency)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solution x, shape (n,) or (n, k)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If matrix dimensions don’t match RHS dimensions</p></li>
+<li><p><strong>np.linalg.LinAlgError</strong> – If matrix is singular (method=’direct’)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>QR solve is faster than SVD solve: O(n²) vs O(n³)
+Best for overdetermined systems (more equations than unknowns)</p>
+<dl class="simple">
+<dt>For standard mode (X = Q &#64; R):</dt><dd><ul class="simple">
+<li><p>Solve R &#64; x = Q.H &#64; b via back substitution</p></li>
+</ul>
+</dd>
+<dt>For transposed mode (X = R.H &#64; Q.H):</dt><dd><ul class="simple">
+<li><p>Solve R.H &#64; Q.H &#64; x = b</p></li>
+<li><p>Equivalent to Q &#64; R &#64; y = b where y = conj(x)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For overdetermined systems (more rows than columns), use lstsq instead:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For square full-rank systems:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A_square</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_square</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A_square</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b_square</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">X_square</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">b_square</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">A_square</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="n">b_square</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.to_svd">
+<span class="sig-name descname"><span class="pre">to_svd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.to_svd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.to_svd" title="Link to this definition"></a></dt>
+<dd><p>Convert QR to SVD format.</p>
+<p>Computes SVD of R: R = U_R &#64; S &#64; V_R.H
+Then: X = Q &#64; R = (Q &#64; U_R) &#64; S &#64; V_R.H</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Equivalent SVD representation with same shape and rank</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD">SVD</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><strong>Algorithm:</strong></p>
+<dl class="simple">
+<dt>For standard mode (X = Q &#64; R):</dt><dd><ol class="arabic simple">
+<li><p>Compute SVD of R: R = U_R &#64; diag(s) &#64; V_R.H</p></li>
+<li><p>Construct: X = Q &#64; R = (Q &#64; U_R) &#64; diag(s) &#64; V_R.H</p></li>
+<li><p>Return SVD(Q &#64; U_R, s, V_R)</p></li>
+</ol>
+</dd>
+<dt>For transposed mode (X = R.H &#64; Q.H):</dt><dd><ol class="arabic simple">
+<li><p>Compute SVD of R: R = U_R &#64; diag(s) &#64; V_R.H</p></li>
+<li><p>X.H = (R.H &#64; Q.H).H = Q &#64; R = Q &#64; U_R &#64; diag(s) &#64; V_R.H</p></li>
+<li><p>Return SVD(Q &#64; U_R, s, V_R)</p></li>
+</ol>
+</dd>
+</dl>
+<p><strong>Computational cost:</strong>
+- SVD of R: O(r²n) where r = rank, n = number of columns
+- Matrix multiplication Q &#64; U_R: O(mr²) where m = number of rows
+- Total: O(r²(m + n))</p>
+<p><strong>Orthogonality:</strong>
+- Input: Q has orthonormal columns, R is upper triangular
+- Output: U = Q &#64; U_R has orthonormal columns (product of orthogonal matrices)
+- Output: V = V_R has orthonormal columns (from SVD)
+- Result is a valid SVD with orthonormal U and V</p>
+<p><strong>Transposed mode:</strong>
+Both standard and transposed modes produce the same SVD representation.
+This is because SVD naturally represents X, not X.H.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_qr</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_svd</span> <span class="o">=</span> <span class="n">X_qr</span><span class="o">.</span><span class="n">to_svd</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X_svd</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (100, 80)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X_svd</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span>   <span class="c1"># Same as X_qr.rank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_qr</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">X_svd</span><span class="o">.</span><span class="n">full</span><span class="p">())</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Transposed mode</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_qr_t</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">transposed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_svd_t</span> <span class="o">=</span> <span class="n">X_qr_t</span><span class="o">.</span><span class="n">to_svd</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_qr_t</span><span class="o">.</span><span class="n">full</span><span class="p">(),</span> <span class="n">X_svd_t</span><span class="o">.</span><span class="n">full</span><span class="p">())</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR.from_svd" title="low_rank_toolbox.matrices.QR.from_svd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_svd</span></code></a></dt><dd><p>Convert SVD to QR format</p>
+</dd>
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SVD</span></code></a></dt><dd><p>Singular Value Decomposition class</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.matrices.QR.truncate">
+<span class="sig-name descname"><span class="pre">truncate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">np.float64(2.220446049250313e-14)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/matrices/qr.html#QR.truncate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.matrices.QR.truncate" title="Link to this definition"></a></dt>
+<dd><p>Truncate QR to lower rank by removing columns with small R diagonal elements.</p>
+<p>The rank is prioritized over the tolerance.
+The relative tolerance is prioritized over absolute tolerance.
+NOTE: By default, the truncation is done with respect to the machine precision (DEFAULT_ATOL).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Target rank (number of columns to keep). If None, use tolerance.</p></li>
+<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Relative tolerance. Remove columns where <a href="#id17"><span class="problematic" id="id18">|R[i,i]|</span></a> &lt; rtol * max(<a href="#id19"><span class="problematic" id="id20">|R[i,i]|</span></a>).
+Default is DEFAULT_RTOL (None).</p></li>
+<li><p><strong>atol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Absolute tolerance. Remove columns where <a href="#id21"><span class="problematic" id="id22">|R[i,i]|</span></a> &lt; atol.
+Default is DEFAULT_ATOL (~2.22e-14).</p></li>
+<li><p><strong>inplace</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, modify in place. Default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Truncated QR decomposition</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QR" title="low_rank_toolbox.matrices.QR">QR</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For QR, truncation keeps the first r columns of Q and first r rows of R.
+The diagonal elements of R, <a href="#id23"><span class="problematic" id="id24">|R[i,i]|</span></a>, serve as importance indicators.</p>
+<p>Unlike SVD where singular values are sorted, R diagonal elements are NOT
+necessarily in decreasing order. However, for numerically stable QR decompositions,
+large diagonal elements indicate more important directions.</p>
+<p><strong>Algorithm:</strong>
+1. If r is specified: keep first r columns/rows
+2. If rtol is specified: keep columns where <a href="#id25"><span class="problematic" id="id26">|R[i,i]|</span></a> &gt; rtol * max(<a href="#id27"><span class="problematic" id="id28">|R[i,i]|</span></a>)
+3. If atol is specified: keep columns where <a href="#id29"><span class="problematic" id="id30">|R[i,i]|</span></a> &gt; atol</p>
+<p><strong>Priority:</strong> r &gt; rtol &gt; atol</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">QR</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_trunc</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Keep only first 10 columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_trunc</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>  <span class="c1"># Remove columns with small R[i,i]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_trunc</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>  <span class="c1"># Absolute threshold</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD.truncate" title="low_rank_toolbox.matrices.SVD.truncate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SVD.truncate</span></code></a></dt><dd><p>Similar method for SVD (uses singular values)</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Q</strong> (<em>ndarray</em>)</p></li>
+<li><p><strong>R</strong> (<em>ndarray</em>)</p></li>
+<li><p><strong>transposed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.matrices.SVD.html" class="btn btn-neutral float-left" title="low_rank_toolbox.matrices.SVD" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.matrices.QuasiSVD.html" class="btn btn-neutral float-right" title="low_rank_toolbox.matrices.QuasiSVD" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

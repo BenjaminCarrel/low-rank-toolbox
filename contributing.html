@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing Guide &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="low_rank_toolbox.randomized.rangefinder" href="api/_autosummary/low_rank_toolbox.randomized.rangefinder.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-contribute">How to Contribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-style-guidelines">Code Style Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-guidelines">Testing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation-guidelines">Documentation Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pull-request-process">Pull Request Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-issues">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#communication">Communication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-of-conduct">Code of Conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#questions">Questions?</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Contributing Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/contributing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing-guide">
+<h1>Contributing Guide<a class="headerlink" href="#contributing-guide" title="Link to this heading"></a></h1>
+<p>Thank you for your interest in contributing to the Low-Rank Toolbox!</p>
+<section id="how-to-contribute">
+<h2>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p><strong>Fork the repository</strong> on GitHub</p></li>
+<li><p><strong>Clone your fork</strong> locally:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/YOUR-USERNAME/low-rank-toolbox.git
+<span class="nb">cd</span><span class="w"> </span>low-rank-toolbox
+</pre></div>
+</div>
+</li>
+<li><p><strong>Create a development environment:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>environment.yml
+conda<span class="w"> </span>activate<span class="w"> </span>low-rank-dev
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</li>
+<li><p><strong>Create a new branch</strong> for your feature or bugfix:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/your-feature-name
+</pre></div>
+</div>
+</li>
+<li><p><strong>Make your changes</strong> and ensure:</p>
+<ul class="simple">
+<li><p>Code follows existing style conventions</p></li>
+<li><p>All tests pass: <code class="docutils literal notranslate"><span class="pre">pytest</span></code></p></li>
+<li><p>New features include tests</p></li>
+<li><p>Documentation is updated if needed</p></li>
+</ul>
+</li>
+<li><p><strong>Run tests locally:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>-v
+</pre></div>
+</div>
+</li>
+<li><p><strong>Build documentation</strong> to verify your changes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>html
+<span class="c1"># Open build/html/index.html in your browser</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Commit your changes</strong> with clear, descriptive messages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add feature: brief description&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Push to your fork:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/your-feature-name
+</pre></div>
+</div>
+</li>
+<li><p><strong>Submit a Pull Request</strong> on GitHub</p></li>
+</ol>
+</section>
+<section id="code-style-guidelines">
+<h2>Code Style Guidelines<a class="headerlink" href="#code-style-guidelines" title="Link to this heading"></a></h2>
+<p><strong>Python Code:</strong></p>
+<ul class="simple">
+<li><p>Follow PEP 8 style guide</p></li>
+<li><p>Use type hints for function parameters and return values</p></li>
+<li><p>Maximum line length: 127 characters</p></li>
+<li><p>Use meaningful variable names</p></li>
+</ul>
+<p><strong>Docstrings:</strong></p>
+<ul class="simple">
+<li><p>Use NumPy-style docstrings</p></li>
+<li><p>Include mathematical notation where appropriate</p></li>
+<li><p>Provide examples for complex functions</p></li>
+<li><p>Reference academic papers when implementing published algorithms</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Brief one-line description.</span>
+
+<span class="sd">    More detailed explanation of what the function does,</span>
+<span class="sd">    including mathematical notation if needed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray</span>
+<span class="sd">        Description of parameter A</span>
+<span class="sd">    k : int</span>
+<span class="sd">        Description of parameter k</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Description of return value</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; A = np.random.randn(10, 5)</span>
+<span class="sd">    &gt;&gt;&gt; result = my_function(A, 3)</span>
+<span class="sd">    &gt;&gt;&gt; result.shape</span>
+<span class="sd">    (10, 3)</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Author et al. (2023). Paper title. Journal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Implementation here</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="testing-guidelines">
+<h2>Testing Guidelines<a class="headerlink" href="#testing-guidelines" title="Link to this heading"></a></h2>
+<p><strong>Writing Tests:</strong></p>
+<ul class="simple">
+<li><p>Place tests in the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory</p></li>
+<li><p>Mirror the source code structure</p></li>
+<li><p>Name test files <code class="docutils literal notranslate"><span class="pre">test_&lt;module&gt;.py</span></code></p></li>
+<li><p>Name test functions <code class="docutils literal notranslate"><span class="pre">test_&lt;functionality&gt;</span></code></p></li>
+</ul>
+<p><strong>Test Coverage:</strong></p>
+<ul class="simple">
+<li><p>Aim for &gt;90% code coverage</p></li>
+<li><p>Test edge cases (empty arrays, single elements, etc.)</p></li>
+<li><p>Test error handling</p></li>
+<li><p>Test both real and complex data types</p></li>
+</ul>
+<p><strong>Example Test:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_my_function_basic</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test basic functionality of my_function.&quot;&quot;&quot;</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">my_function</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_my_function_edge_case</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test edge case with empty array.&quot;&quot;&quot;</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">my_function</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="documentation-guidelines">
+<h2>Documentation Guidelines<a class="headerlink" href="#documentation-guidelines" title="Link to this heading"></a></h2>
+<p><strong>Updating Documentation:</strong></p>
+<p>When adding new features:</p>
+<ol class="arabic simple">
+<li><p>Update relevant docstrings</p></li>
+<li><p>Add examples to <code class="docutils literal notranslate"><span class="pre">docs/source/quickstart.rst</span></code> if appropriate</p></li>
+<li><p>Update API reference if adding new classes/functions</p></li>
+<li><p>Build docs locally to verify formatting</p></li>
+</ol>
+<p><strong>Building Documentation:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>clean
+make<span class="w"> </span>html
+<span class="c1"># View: open build/html/index.html</span>
+</pre></div>
+</div>
+</section>
+<section id="pull-request-process">
+<h2>Pull Request Process<a class="headerlink" href="#pull-request-process" title="Link to this heading"></a></h2>
+<p><strong>Before Submitting:</strong></p>
+<ul class="simple">
+<li><p>✅ All tests pass locally</p></li>
+<li><p>✅ Code follows style guidelines</p></li>
+<li><p>✅ Documentation is updated</p></li>
+<li><p>✅ Commit messages are clear</p></li>
+<li><p>✅ No merge conflicts with main branch</p></li>
+</ul>
+<p><strong>PR Description Should Include:</strong></p>
+<ul class="simple">
+<li><p>What changes were made</p></li>
+<li><p>Why the changes were made</p></li>
+<li><p>How to test the changes</p></li>
+<li><p>Any breaking changes</p></li>
+<li><p>References to related issues</p></li>
+</ul>
+<p><strong>Review Process:</strong></p>
+<ol class="arabic simple">
+<li><p>Automated checks will run (tests, linting, docs build)</p></li>
+<li><p>Maintainers will review your code</p></li>
+<li><p>Address any requested changes</p></li>
+<li><p>Once approved, your PR will be merged!</p></li>
+</ol>
+</section>
+<section id="reporting-issues">
+<h2>Reporting Issues<a class="headerlink" href="#reporting-issues" title="Link to this heading"></a></h2>
+<p><strong>Bug Reports:</strong></p>
+<p>Include:</p>
+<ul class="simple">
+<li><p>Python version</p></li>
+<li><p>Operating system</p></li>
+<li><p>Minimal reproducible example</p></li>
+<li><p>Expected vs. actual behavior</p></li>
+<li><p>Full error traceback</p></li>
+</ul>
+<p><strong>Feature Requests:</strong></p>
+<p>Include:</p>
+<ul class="simple">
+<li><p>Use case description</p></li>
+<li><p>Proposed API (if applicable)</p></li>
+<li><p>References to papers/algorithms (if applicable)</p></li>
+<li><p>Why this would be valuable to the community</p></li>
+</ul>
+</section>
+<section id="communication">
+<h2>Communication<a class="headerlink" href="#communication" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>GitHub Issues:</strong> Bug reports, feature requests</p></li>
+<li><p><strong>Pull Requests:</strong> Code contributions</p></li>
+<li><p><strong>Discussions:</strong> General questions, ideas</p></li>
+</ul>
+</section>
+<section id="code-of-conduct">
+<h2>Code of Conduct<a class="headerlink" href="#code-of-conduct" title="Link to this heading"></a></h2>
+<p>Be respectful and constructive in all interactions. We welcome contributors
+from all backgrounds and experience levels.</p>
+</section>
+<section id="questions">
+<h2>Questions?<a class="headerlink" href="#questions" title="Link to this heading"></a></h2>
+<p>If you’re unsure about anything, feel free to ask! Open an issue or
+start a discussion on GitHub.</p>
+<p>Thank you for contributing! 🎉</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/_autosummary/low_rank_toolbox.randomized.rangefinder.html" class="btn btn-neutral float-left" title="low_rank_toolbox.randomized.rangefinder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

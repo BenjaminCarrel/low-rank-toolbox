@@ -1,0 +1,509 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.cssp &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.cssp.arp" href="low_rank_toolbox.cssp.arp.html" />
+    <link rel="prev" title="low_rank_toolbox.matrices.svd" href="low_rank_toolbox.matrices.svd.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../matrices.html">Matrices Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">low_rank_toolbox.cssp</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithms">Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.ARP"><code class="docutils literal notranslate"><span class="pre">ARP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.DEIM"><code class="docutils literal notranslate"><span class="pre">DEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.Osinsky"><code class="docutils literal notranslate"><span class="pre">Osinsky()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.QDEIM"><code class="docutils literal notranslate"><span class="pre">QDEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.gpode"><code class="docutils literal notranslate"><span class="pre">gpode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.gpodr"><code class="docutils literal notranslate"><span class="pre">gpodr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.oversampling_sQDEIM"><code class="docutils literal notranslate"><span class="pre">oversampling_sQDEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.cssp.sQDEIM"><code class="docutils literal notranslate"><span class="pre">sQDEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.arp.html">low_rank_toolbox.cssp.arp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.deim.html">low_rank_toolbox.cssp.deim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.gpode.html">low_rank_toolbox.cssp.gpode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.gpodr.html">low_rank_toolbox.cssp.gpodr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.osinsky.html">low_rank_toolbox.cssp.osinsky</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.oversampling_sqdeim.html">low_rank_toolbox.cssp.oversampling_sqdeim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.qdeim.html">low_rank_toolbox.cssp.qdeim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.sqdeim.html">low_rank_toolbox.cssp.sqdeim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.utils.html">low_rank_toolbox.cssp.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.randomized.html">low_rank_toolbox.randomized</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.cssp</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.cssp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-low_rank_toolbox.cssp">
+<span id="low-rank-toolbox-cssp"></span><h1>low_rank_toolbox.cssp<a class="headerlink" href="#module-low_rank_toolbox.cssp" title="Link to this heading"></a></h1>
+<p>Column Subset Selection Problem (CSSP) Algorithms.</p>
+<p>This submodule implements various algorithms for selecting representative
+columns from a matrix.</p>
+<section id="algorithms">
+<h2>Algorithms<a class="headerlink" href="#algorithms" title="Link to this heading"></a></h2>
+<p>DEIM : Discrete Empirical Interpolation Method
+QDEIM : QR-based Discrete Empirical Interpolation Method
+sQDEIM : Strong QDEIM
+ARP : Adaptive Randomized Pivoting
+gpode : Greedy POD with Energy constraint
+gpodr : Greedy POD with Residual constraint
+Osinsky : Osinsky’s algorithm
+oversampling_sQDEIM : Oversampling strong QDEIM</p>
+<p>Author: Benjamin Carrel, Paul Scherrer Institute, 2025</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.ARP">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">ARP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/arp.html#ARP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.ARP" title="Link to this definition"></a></dt>
+<dd><p>Implements the Adaptive Randomized Pivoting (ARP) algorithm for Column Subset Selection Problem (CSSP).</p>
+<p>Reference: ADAPTIVE RANDOMIZED PIVOTING FOR COLUMN SUBSET SELECTION, DEIM, AND LOW-RANK APPROXIMATION by Cortinovis and Kressner.</p>
+<p>Note: The algorithm is similar to Osinsky’s algorithm for the CSSP. The randomization step allows for better error bounds (in expectation).
+(See Algorithm 2.1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – An (n x r) matrix with orthonormal columns.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Random seed for reproducibility.</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, return also the matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, return also the inverse matrix inv(U[S, :])</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>J</strong> (<em>ndarray</em>) – Selection of r row indices.</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x r) (optional)</em>) – Matrix U &#64; inv(U[J, :]) where U[J, :] is the (r x r) submatrix.
+Only returned if return_projector=True.</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (r x r) (optional)</em>) – Matrix inv(U[J, :]).
+Only returned if return_inverse=True (requires return_projector=True).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.DEIM">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">DEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/deim.html#DEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.DEIM" title="Link to this definition"></a></dt>
+<dd><p>DEIM - Discrete empirical interpolation method</p>
+<p>Construct a matrix P = [e_p1, e_p2, …, e_pk]
+where the indexes pi are obtained via the DEIM procedure.</p>
+<dl class="simple">
+<dt>Reference</dt><dd><p>Nonlinear Model Reduction via Discrete Empirical Interpolation
+Saifon Chaturantabut and Danny C. Sorensen
+SIAM Journal on Scientific Computing 2010 32:5, 2737-2764</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – Orthonormal matrix of size n x k</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the inverse matrix inv(U[S, :])</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <dl class="simple">
+<dt>Additional arguments:</dt><dd><dl class="simple">
+<dt>solve_kwargs: dict</dt><dd><p>Additional arguments for the solve function</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>p</strong> (<em>list</em>) – List of indexes selected by DEIM</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x k) (optional)</em>) – Projector matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (k x k) (optional)</em>) – Inverse matrix inv(U[S, :])</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.Osinsky">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">Osinsky</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/osinsky.html#Osinsky"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.Osinsky" title="Link to this definition"></a></dt>
+<dd><p>Osinsky’s quasi optimal column subset selection algorithm.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>“Close to optimal column approximations with a single SVD.” by A.I. Osinsky, 2023.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>numpy.ndarray</em></a>) – Orthonormal real matrix of shape (n, r) defining a row space approximation</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the inverse matrix inv(U[S, :])</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <dl class="simple">
+<dt>Additional arguments:</dt><dd><dl class="simple">
+<dt>solve_kwargs<span class="classifier">dict</span></dt><dd><p>Additional arguments for the solve function</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>J</strong> (<em>ndarray</em>) – Selected column indices (r elements)</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x r) (optional)</em>) – Matrix U &#64; inv(U[J, :]) where U[J, :] is the (r x r) submatrix.
+Only returned if return_projector=True.</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (r x r) (optional)</em>) – Matrix inv(U[J, :]).
+Only returned if return_inverse=True (requires return_projector=True).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.QDEIM">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">QDEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/qdeim.html#QDEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.QDEIM" title="Link to this definition"></a></dt>
+<dd><p>QDEIM - QR based DEIM of U (size n x k)</p>
+<dl class="simple">
+<dt>Reference</dt><dd><p>A new selection operator for the discrete empirical interpolation method - improved a priori error bound and extensions.
+Zlatko Drmač and Serkan Gugercin.
+SIAM Journal on Scientific Computing, 38(2), A631-A648.</p>
+</dd>
+</dl>
+<p>Original Matlab code from Zlatko Drmač</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – Orthonormal matrix of size n x k</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix inv(U[S, :])</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <dl class="simple">
+<dt>Additional arguments:</dt><dd><dl class="simple">
+<dt>qr_kwargs: dict</dt><dd><p>Additional arguments for the QR factorization</p>
+</dd>
+<dt>solve_kwargs: dict</dt><dd><p>Additional arguments for the solve function</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>p</strong> (<em>list</em>) – Selection of m row indices with guaranteed upper bound: norm(inv(U[S,:])) &lt;= sqrt(n-k+1) * O(2^m).</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x k) (optional)</em>) – Matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (k x k) (optional)</em>) – Matrix inv(U[S, :])</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.gpode">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">gpode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oversampling_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/gpode.html#gpode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.gpode" title="Link to this definition"></a></dt>
+<dd><p>Gappy POD+E - Greedy algorithm for the selection of m rows of U
+Minimize the norm of the pseudoinverse of U[S, :]
+Total cost is O(k^2 + m^2) + QR of U.T.conj() of cost O(nk^2)</p>
+<dl class="simple">
+<dt>Reference</dt><dd><p>Stability of discrete empirical interpolation and gappy proper orthogonal decomposition with randomized and deterministic sampling points
+Benjamin Peherstorfer, Zlatko Drmač, and Serkan Gugercin
+SIAM Journal on Scientific Computing, 42(5), A2837-A2864.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – Orthonormal matrix of size n x k</p></li>
+<li><p><strong>oversampling_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Oversampling size p such that m = k + p</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; pinv(U[p, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the inverse of U[p, :]</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <dl class="simple">
+<dt>Additional arguments:</dt><dd><dl class="simple">
+<dt>qr_kwargs: dict</dt><dd><p>Additional arguments for the QR factorization</p>
+</dd>
+<dt>lstsq_kwargs: dict</dt><dd><p>Additional arguments for the lstsq function</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>p</strong> (<em>list</em>) – Selection of m row indices</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x k) (optional)</em>) – Matrix U &#64; pinv(U[p, :])</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (k x k) (optional)</em>) – Inverse of U[p, :]</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.gpodr">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">gpodr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oversampling_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/gpodr.html#gpodr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.gpodr" title="Link to this definition"></a></dt>
+<dd><p>Gappy POD+R - QDEIM and randomized oversampling.</p>
+<p>When tol is given, then p is ignored and the algorithm will select the number of rows to satisfy the condition:
+sigma_{min}(U[p, :])^{-1} &lt;= tol</p>
+<dl class="simple">
+<dt>Reference</dt><dd><p>Stability of discrete empirical interpolation and gappy proper orthogonal decomposition with randomized and deterministic sampling points
+Benjamin Peherstorfer, Zlatko Drmač, and Serkan Gugercin
+SIAM Journal on Scientific Computing, 42(5), A2837-A2864.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – Orthonormal matrix of size n x k</p></li>
+<li><p><strong>oversampling_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Oversampling size</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Tolerance for the quantity sigma_{min}(U[p, :])^{-1}</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; pinv(U[p, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the inverse of U[p, :]</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <dl class="simple">
+<dt>Additional arguments:</dt><dd><dl class="simple">
+<dt>qr_kwargs: dict</dt><dd><p>Additional arguments for the QR factorization</p>
+</dd>
+<dt>lstsq_kwargs: dict</dt><dd><p>Additional arguments for the lstsq function</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>max_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>p</strong> (<em>list</em>) – Selection of m row indices</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x k) (optional)</em>) – Matrix U &#64; pinv(U[p, :])</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (k x k) (optional)</em>) – Inverse of U[p, :]</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.oversampling_sQDEIM">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">oversampling_sQDEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oversampling_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/oversampling_sqdeim.html#oversampling_sQDEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.oversampling_sQDEIM" title="Link to this definition"></a></dt>
+<dd><p>Oversampling sQDEIM - Oversampled version of sQDEIM</p>
+<p>Reference:
+ACCURACY AND STABILITY OF CUR DECOMPOSITIONS WITH OVERSAMPLING
+(Taejun Park and Yuji Nakatsukasa)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – Orthonormal matrix of size n x k</p></li>
+<li><p><strong>oversampling_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Oversampling size p &lt; k such that m = k + p</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Tolerance for the strong rank-revealing QR factorization
+If None, use the rank-revealing QR factorization with eta=2</p></li>
+<li><p><strong>return_projection</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; pseudoinv(U[S, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the inverse of U[S, :]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>p</strong> (<em>list</em>) – Selection of m = k + oversampling_size row indices.</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x m) (optional)</em>) – Matrix U &#64; pseudoinv(U[p, :]) where U[p, :] is the (m x k) submatrix.
+Only returned if return_projection=True.</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (k x m) (optional)</em>) – Matrix U.T &#64; P_U, representing the pseudoinverse relationship.
+Only returned if return_inverse=True (requires return_projection=True).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.sQDEIM">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.</span></span><span class="sig-name descname"><span class="pre">sQDEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/sqdeim.html#sQDEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.sQDEIM" title="Link to this definition"></a></dt>
+<dd><p>sQDEIM - Strong RRQR based DEIM of U (size n x k)</p>
+<p>Key advantage: the selection of the indexes is guaranteed to satisfy the condition:
+sigma_{min}(U[p, :])^{-1} &lt;= sqrt(1 + eta * r (n-k))</p>
+<p>By default, eta = 2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – Orthonormal matrix of size n x k</p></li>
+<li><p><strong>eta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Bounding factor for R_11^{-1} R_12, must be &gt;= 1</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Specifies the truncation criterion. Must be ‘rank’ or ‘tol’.</p></li>
+<li><p><strong>param</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – <dl class="simple">
+<dt>The parameter for the chosen mode.</dt><dd><ul>
+<li><p>If mode is ‘rank’, <cite>param</cite> is the desired rank <cite>k</cite>.</p></li>
+<li><p>If mode is ‘tol’, <cite>param</cite> is the error tolerance.</p></li>
+</ul>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix inv(U[S, :])</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>p</strong> (<em>list</em>) – Selection of m row indices with guaranteed upper bound: norm(inv(U[S,:])) &lt;= sqrt(n-k+1) * O(2^m).</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x k) (optional)</em>) – Matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (k x k) (optional)</em>) – Matrix inv(U[S, :])</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Modules</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.arp.html#module-low_rank_toolbox.cssp.arp" title="low_rank_toolbox.cssp.arp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arp</span></code></a></p></td>
+<td><p>Adaptive Randomized Pivoting (ARP) algorithm.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.deim.html#module-low_rank_toolbox.cssp.deim" title="low_rank_toolbox.cssp.deim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deim</span></code></a></p></td>
+<td><p>Discrete Empirical Interpolation Method (DEIM).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.gpode.html#low_rank_toolbox.cssp.gpode" title="low_rank_toolbox.cssp.gpode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpode</span></code></a>(U, oversampling_size[, ...])</p></td>
+<td><p>Gappy POD+E - Greedy algorithm for the selection of m rows of U Minimize the norm of the pseudoinverse of U[S, :] Total cost is O(k^2 + m^2) + QR of U.T.conj() of cost O(nk^2)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.gpodr.html#low_rank_toolbox.cssp.gpodr" title="low_rank_toolbox.cssp.gpodr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpodr</span></code></a>(U[, oversampling_size, tol, max_iter, ...])</p></td>
+<td><p>Gappy POD+R - QDEIM and randomized oversampling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.osinsky.html#module-low_rank_toolbox.cssp.osinsky" title="low_rank_toolbox.cssp.osinsky"><code class="xref py py-obj docutils literal notranslate"><span class="pre">osinsky</span></code></a></p></td>
+<td><p>Osinsky's quasi-optimal column subset selection algorithm.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.oversampling_sqdeim.html#module-low_rank_toolbox.cssp.oversampling_sqdeim" title="low_rank_toolbox.cssp.oversampling_sqdeim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">oversampling_sqdeim</span></code></a></p></td>
+<td><p>Oversampling Strong QDEIM algorithm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.qdeim.html#module-low_rank_toolbox.cssp.qdeim" title="low_rank_toolbox.cssp.qdeim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">qdeim</span></code></a></p></td>
+<td><p>QR-based Discrete Empirical Interpolation Method (QDEIM).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.sqdeim.html#module-low_rank_toolbox.cssp.sqdeim" title="low_rank_toolbox.cssp.sqdeim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqdeim</span></code></a></p></td>
+<td><p>Strong QDEIM - Strong Rank-Revealing QR based DEIM.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.cssp.utils.html#module-low_rank_toolbox.cssp.utils" title="low_rank_toolbox.cssp.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils</span></code></a></p></td>
+<td><p>Utility Functions for Column Subset Selection.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.matrices.svd.html" class="btn btn-neutral float-left" title="low_rank_toolbox.matrices.svd" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.cssp.arp.html" class="btn btn-neutral float-right" title="low_rank_toolbox.cssp.arp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

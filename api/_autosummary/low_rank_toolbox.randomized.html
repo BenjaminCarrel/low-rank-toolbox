@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.randomized &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.randomized.generalized_nystrom" href="low_rank_toolbox.randomized.generalized_nystrom.html" />
+    <link rel="prev" title="low_rank_toolbox.krylov.utils.lanczos" href="low_rank_toolbox.krylov.utils.lanczos.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../matrices.html">Matrices Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.cssp.html">low_rank_toolbox.cssp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">low_rank_toolbox.randomized</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.randomized.adaptive_randomized_svd"><code class="docutils literal notranslate"><span class="pre">adaptive_randomized_svd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.randomized.adaptive_rangefinder"><code class="docutils literal notranslate"><span class="pre">adaptive_rangefinder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.randomized.generalized_nystrom"><code class="docutils literal notranslate"><span class="pre">generalized_nystrom()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.randomized.randomized_svd"><code class="docutils literal notranslate"><span class="pre">randomized_svd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#low_rank_toolbox.randomized.rangefinder"><code class="docutils literal notranslate"><span class="pre">rangefinder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.generalized_nystrom.html">low_rank_toolbox.randomized.generalized_nystrom</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.randomized_svd.html">low_rank_toolbox.randomized.randomized_svd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.rangefinder.html">low_rank_toolbox.randomized.rangefinder</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.randomized</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.randomized.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-low_rank_toolbox.randomized">
+<span id="low-rank-toolbox-randomized"></span><h1>low_rank_toolbox.randomized<a class="headerlink" href="#module-low_rank_toolbox.randomized" title="Link to this heading"></a></h1>
+<p>Randomized algorithms for low-rank matrix approximation.</p>
+<p>This submodule implements state-of-the-art randomized algorithms for computing
+low-rank approximations of large matrices, based on the seminal work by
+Halko, Martinsson, and Tropp (2010).</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<p>rangefinder : Approximate the range of a dense matrix with a target rank
+adaptive_rangefinder : Approximate the range of a dense matrix with a target tolerance
+randomized_svd : Implementation of the randomized SVD algorithm with a prescribed rank
+adaptive_randomized_svd : Adaptive randomized SVD with tolerance-based rank selection
+generalized_nystrom : Generalized Nyström method for low-rank approximation</p>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Halko, N., Martinsson, P. G., &amp; Tropp, J. A. (2010).
+Finding structure with randomness: Probabilistic algorithms for
+constructing approximate matrix decompositions.
+SIAM Review, 53(2), 217-288.</p>
+</aside>
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Nakatsukasa, Y. (2019).
+Fast and stable randomized low-rank matrix approximation.
+arXiv preprint arXiv:1902.02138.</p>
+</aside>
+</aside>
+<p>Author: Benjamin Carrel, University of Geneva</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.randomized.adaptive_randomized_svd">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.randomized.</span></span><span class="sig-name descname"><span class="pre">adaptive_randomized_svd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failure_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/randomized/randomized_svd.html#adaptive_randomized_svd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.randomized.adaptive_randomized_svd" title="Link to this definition"></a></dt>
+<dd><p>Adaptive randomized SVD algorithm.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>“Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions”,
+Halko, Martinsson and Tropp 2010.</p>
+</dd>
+</dl>
+<p>The adaptive randomized SVD computes an approximate SVD of a matrix X with the following steps:
+1. Estimate the range with Q = adaptive_rangefinder(X, tol, failure_prob, seed)
+2. Form the smaller matrix C = Q^H X
+3. Compute the SVD of C: C = U_C S V^H
+4. Form the approximate SVD of X: X_approx = Q U_C S V^H</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD"><em>SVD</em></a><em> | </em><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a><em> | </em><em>ndarray</em><em> | </em><em>LinearOperator</em>) – Matrix or operator to be decomposed</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Target approximation error (default: 1e-6)</p></li>
+<li><p><strong>failure_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Failure probability for the approximation error, must be in (0, 1) (default: 1e-6)</p></li>
+<li><p><strong>max_rank</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum rank for the approximation (default: None, no limit)</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Random seed for reproducibility (default: 1234)</p></li>
+<li><p><strong>**extra_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional arguments passed to SVD constructor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Near-optimal approximation of X with ||X - X_approx||_F &lt;= tol with probability &gt;= 1 - failure_prob</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD">SVD</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.randomized.adaptive_rangefinder">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.randomized.</span></span><span class="sig-name descname"><span class="pre">adaptive_rangefinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failure_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/randomized/rangefinder.html#adaptive_rangefinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.randomized.adaptive_rangefinder" title="Link to this definition"></a></dt>
+<dd><p>The adaptive (randomized) rangefinder method.
+The tolerance is the error made by the approximation space ||A - QQ^H A||_F &lt;= tol
+The failure probability is the probability that the error is larger than tol</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>“Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions”,
+Halko, Martinsson and Tropp 2010.</p>
+</dd>
+</dl>
+<p>NOTE: For efficiency, the method performs computations in blocks of size r (defined by the failure probability). Blocking allows to use BLAS3 operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>LinearOperator</em>) – The matrix to sketch.</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The tolerance for the approximation (default: 1e-6).</p></li>
+<li><p><strong>failure_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The failure probability, must be in (0, 1) (default: 1e-6).</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The seed for the random number generator (default: 1234).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Q</strong> – The sketched matrix with orthonormal columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.randomized.generalized_nystrom">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.randomized.</span></span><span class="sig-name descname"><span class="pre">generalized_nystrom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oversampling_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">15)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/randomized/generalized_nystrom.html#generalized_nystrom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.randomized.generalized_nystrom" title="Link to this definition"></a></dt>
+<dd><p>Generalized Nyström method</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>“Fast and stable randomized low-rank matrix approximation”
+Nakatsukasa, 2019</p>
+</dd>
+<dt>Approximation with formula</dt><dd><p>X ~= X J (K^T X J)^{dagger} K^T X</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>LinearOperator</em>) – Matrix to approximate (real-valued only, complex matrices not supported)</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Rank of approximation, must be positive</p></li>
+<li><p><strong>oversampling_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>, </em><em>optional</em>) – Oversampling parameters (p1, p2) for the two sketch matrices (default: (10, 15))</p></li>
+<li><p><strong>epsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – When given, perform stable GN with epsilon-truncation for SVD (default: None)</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Random seed for reproducibility (default: 1234)</p></li>
+<li><p><strong>**extra_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional arguments passed to QuasiSVD constructor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Near optimal best rank r approximation of X in QuasiSVD format</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QuasiSVD" title="low_rank_toolbox.matrices.QuasiSVD">QuasiSVD</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method returns a QuasiSVD (not SVD) because the middle matrix S
+is typically inverted, making it non-diagonal. Convert to SVD if needed:</p>
+<blockquote>
+<div><p>result = generalized_nystrom(X, r).to_svd()</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.randomized.randomized_svd">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.randomized.</span></span><span class="sig-name descname"><span class="pre">randomized_svd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/randomized/randomized_svd.html#randomized_svd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.randomized.randomized_svd" title="Link to this definition"></a></dt>
+<dd><p>Randomized SVD algorithm.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>“Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions”,
+Halko, Martinsson and Tropp 2010.</p>
+</dd>
+</dl>
+<p>The randomized SVD computes an approximate SVD of a matrix X with the following steps:
+1. Estimate the range with Q = rangefinder(X, r, p, q, seed)
+2. Form the smaller matrix C = Q^H X
+3. Compute the SVD of C: C = U_C S V^H
+4. Form the approximate SVD of X: X_approx = Q U_C S V^H</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD"><em>SVD</em></a><em> | </em><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a><em> | </em><em>ndarray</em><em> | </em><em>LinearOperator</em>) – Matrix or operator to be decomposed</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Rank of the decomposition, must be positive</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Oversampling parameter (default: 10)</p></li>
+<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of power iterations (default: 0)</p></li>
+<li><p><strong>truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, truncate the SVD to rank r (default: True)</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Random seed for reproducibility (default: 1234)</p></li>
+<li><p><strong>**extra_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional arguments passed to SVD constructor. If ‘Omega’ is provided, use it as the sketching matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Near-optimal best rank r approximation of X</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD">SVD</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.randomized.rangefinder">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.randomized.</span></span><span class="sig-name descname"><span class="pre">rangefinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/randomized/rangefinder.html#rangefinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.randomized.rangefinder" title="Link to this definition"></a></dt>
+<dd><p>The (randomized) rangefinder method, also called HMT method.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>“Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions”,
+Halko, Martinsson and Tropp 2010.</p>
+</dd>
+<dt>The mathematical formulation is:</dt><dd><p>Q, _ = qr((A A^H)^q A Omega, mode=’economic’)</p>
+</dd>
+</dl>
+<p>where Omega is a Gaussian random matrix of shape (n, r + p).</p>
+<p>When A is a low-rank matrix, the rangefinder provides a good approximation
+of the range of A with high probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>LinearOperator</em>) – The matrix to sketch.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The target rank.</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of over-sampling (default: 5).</p></li>
+<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of power iterations (default: 0).</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The seed for the random number generator (default: 1234).</p></li>
+<li><p><strong>**extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional arguments. If ‘Omega’ is provided, use it as the sketching matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Q</strong> – Estimation of the range of A.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Modules</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.randomized.generalized_nystrom.html#low_rank_toolbox.randomized.generalized_nystrom" title="low_rank_toolbox.randomized.generalized_nystrom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generalized_nystrom</span></code></a>(X, r[, ...])</p></td>
+<td><p>Generalized Nyström method</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="low_rank_toolbox.randomized.randomized_svd.html#low_rank_toolbox.randomized.randomized_svd" title="low_rank_toolbox.randomized.randomized_svd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">randomized_svd</span></code></a>(X, r[, p, q, truncate, seed])</p></td>
+<td><p>Randomized SVD algorithm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.randomized.rangefinder.html#low_rank_toolbox.randomized.rangefinder" title="low_rank_toolbox.randomized.rangefinder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rangefinder</span></code></a>(A, r[, p, q, seed])</p></td>
+<td><p>The (randomized) rangefinder method, also called HMT method.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.krylov.utils.lanczos.html" class="btn btn-neutral float-left" title="low_rank_toolbox.krylov.utils.lanczos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.randomized.generalized_nystrom.html" class="btn btn-neutral float-right" title="low_rank_toolbox.randomized.generalized_nystrom" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

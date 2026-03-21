@@ -1,0 +1,1008 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.krylov.spaces &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.krylov.spaces.extended_krylov_space" href="low_rank_toolbox.krylov.spaces.extended_krylov_space.html" />
+    <link rel="prev" title="low_rank_toolbox.krylov.solvers.sylvester_solvers" href="low_rank_toolbox.krylov.solvers.sylvester_solvers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../matrices.html">Matrices Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.cssp.html">low_rank_toolbox.cssp</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.data.html">low_rank_toolbox.krylov.data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.solvers.html">low_rank_toolbox.krylov.solvers</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">low_rank_toolbox.krylov.spaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.utils.html">low_rank_toolbox.krylov.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.randomized.html">low_rank_toolbox.randomized</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.krylov.spaces</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.krylov.spaces.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-low_rank_toolbox.krylov.spaces">
+<span id="low-rank-toolbox-krylov-spaces"></span><h1>low_rank_toolbox.krylov.spaces<a class="headerlink" href="#module-low_rank_toolbox.krylov.spaces" title="Link to this heading"></a></h1>
+<p>Krylov Subspace Constructions.</p>
+<p>This submodule provides classes for constructing and working with
+various types of Krylov subspaces, which are fundamental for iterative
+matrix computations.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<p>KrylovSpace : Standard Krylov subspace K_m(A, b)
+InvertedKrylovSpace : Inverted Krylov subspace K_m(A^{-1}, b)
+ExtendedKrylovSpace : Extended Krylov subspace EK_m(A, b)
+RationalKrylovSpace : Rational Krylov subspace with arbitrary poles</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.spaces.</span></span><span class="sig-name descname"><span class="pre">ExtendedKrylovSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/extended_krylov_space.html#ExtendedKrylovSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="low_rank_toolbox.krylov.spaces.space_structure.html#low_rank_toolbox.krylov.spaces.space_structure.SpaceStructure" title="low_rank_toolbox.krylov.spaces.space_structure.SpaceStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceStructure</span></code></a></p>
+<p>Extended Krylov space.</p>
+<p>Constructs the extended Krylov space by combining a standard Krylov space
+and an inverted Krylov space:</p>
+<blockquote>
+<div><p>EK_m(A, X) = span{X, AX, A^2X, …, A^(m-1)X, A^(-1)X, A^(-2)X, …, A^(-m)X}</p>
+</div></blockquote>
+<p>This space is particularly useful for problems requiring information from both
+the range of A and its inverse.</p>
+<p><strong>Algorithm Selection:</strong> When is_symmetric=True, both component Krylov spaces
+(standard and inverted) use the Lanczos algorithm, providing approximately 2x
+speedup over the non-symmetric case. The combined basis maintains orthogonality
+across both components.</p>
+<section id="how-to-use">
+<h2>How to use<a class="headerlink" href="#how-to-use" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Create an instance: EK = ExtendedKrylovSpace(A, X, invA=None)</p></li>
+<li><p>Augment the basis as needed: EK.augment_basis()</p></li>
+<li><p>Access the basis via EK.basis or EK.Q</p></li>
+</ol>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.A">
+<span class="sig-name descname"><span class="pre">A</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.A" title="Link to this definition"></a></dt>
+<dd><p>Sparse matrix of shape (n, n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>spmatrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.X" title="Link to this definition"></a></dt>
+<dd><p>Initial vector or matrix of shape (n, r)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.invA">
+<span class="sig-name descname"><span class="pre">invA</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.invA" title="Link to this definition"></a></dt>
+<dd><p>Function that computes A^(-1) * v for a given vector/matrix v</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.krylov_space">
+<span class="sig-name descname"><span class="pre">krylov_space</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.krylov_space" title="Link to this definition"></a></dt>
+<dd><p>The standard Krylov space component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#low_rank_toolbox.krylov.spaces.KrylovSpace" title="low_rank_toolbox.krylov.spaces.KrylovSpace">KrylovSpace</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.inverted_krylov_space">
+<span class="sig-name descname"><span class="pre">inverted_krylov_space</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.inverted_krylov_space" title="Link to this definition"></a></dt>
+<dd><p>The inverted Krylov space component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace" title="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace">InvertedKrylovSpace</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.Q" title="Link to this definition"></a></dt>
+<dd><p>Combined orthonormal basis of the extended Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.Q1">
+<span class="sig-name descname"><span class="pre">Q1</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.Q1" title="Link to this definition"></a></dt>
+<dd><p>Basis of the standard Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.Q2">
+<span class="sig-name descname"><span class="pre">Q2</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.Q2" title="Link to this definition"></a></dt>
+<dd><p>Basis of the inverted Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.basis" title="Link to this definition"></a></dt>
+<dd><p>Pointer to Q</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.krylov</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExtendedKrylovSpace</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a sparse matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extended Krylov includes both A^k*X and A^(-k)*X</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">EK</span> <span class="o">=</span> <span class="n">ExtendedKrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">EK</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>  <span class="c1"># Adds both A*X and A^(-1)*X</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">EK</span><span class="o">.</span><span class="n">size</span>  <span class="c1"># Total size is sum of both components</span>
+<span class="go">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Access individual components</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">EK</span><span class="o">.</span><span class="n">Q1</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># Standard Krylov part</span>
+<span class="go">(2, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">EK</span><span class="o">.</span><span class="n">Q2</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># Inverted Krylov part</span>
+<span class="go">(2, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Combined basis is orthonormal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">EK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">EK</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">EK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.H1">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">H1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.H1" title="Link to this definition"></a></dt>
+<dd><p>Upper Hessenberg matrix from Arnoldi for the Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The Hessenberg matrix (non-symmetric case only).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.H2">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">H2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.H2" title="Link to this definition"></a></dt>
+<dd><p>Upper Hessenberg matrix from Arnoldi for the inverted Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The Hessenberg matrix (non-symmetric case only).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Q</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>Combined orthonormal basis of the extended Krylov space.</p>
+<p>Concatenates Q1 and Q2, then orthonormalizes the result. The result is
+cached and only recomputed when the space size changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Matrix of shape (n, size) containing the orthonormal basis.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Q1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd><p>Basis of the standard Krylov space component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Matrix of shape (n, m*r) containing the Krylov basis vectors.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id2">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Q2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd><p>Basis of the inverted Krylov space component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Matrix of shape (n, m*r) containing the inverted Krylov basis vectors.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/extended_krylov_space.html#ExtendedKrylovSpace.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>) – The matrix A of the linear system.</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – The basis of the Krylov space.</p></li>
+<li><p><strong>invA</strong> (<em>callable</em>) – The function that computes the action of A^(-1) on a vector, or a matrix.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.augment_basis">
+<span class="sig-name descname"><span class="pre">augment_basis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/extended_krylov_space.html#ExtendedKrylovSpace.augment_basis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.augment_basis" title="Link to this definition"></a></dt>
+<dd><p>Augment the basis of the extended Krylov space.</p>
+<p>Augments both the standard Krylov space and the inverted Krylov space
+by adding the next block of basis vectors to each component.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd><p>The orthonormal basis of the extended Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Matrix of shape (n, size) (same as Q).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.size">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.ExtendedKrylovSpace.size" title="Link to this definition"></a></dt>
+<dd><p>Total size of the extended Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Sum of the sizes of the Krylov and inverted Krylov components.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>)</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>)</p></li>
+<li><p><strong>invA</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.spaces.</span></span><span class="sig-name descname"><span class="pre">InvertedKrylovSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/inverted_krylov_space.html#InvertedKrylovSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="low_rank_toolbox.krylov.spaces.krylov_space.html#low_rank_toolbox.krylov.spaces.krylov_space.KrylovSpace" title="low_rank_toolbox.krylov.spaces.krylov_space.KrylovSpace"><code class="xref py py-class docutils literal notranslate"><span class="pre">KrylovSpace</span></code></a></p>
+<p>Inverted Krylov space.</p>
+<dl class="simple">
+<dt>Constructs the inverted Krylov space:</dt><dd><p>IK_m(A, X) = span{A^(-1)X, A^(-2)X, …, A^(-m)X}</p>
+</dd>
+</dl>
+<p>This class wraps the KrylovSpace class by providing a custom matvec function
+that computes A^(-1) * v instead of A * v.</p>
+<section id="id4">
+<h2>How to use<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Initialize the inverted Krylov space with matrix A and vector/matrix X.</p></li>
+<li><p>Augment the basis as needed with the <cite>augment_basis</cite> method.</p></li>
+<li><p>Access the basis via the <cite>basis</cite> or <cite>Q</cite> attribute.</p></li>
+</ol>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.A">
+<span class="sig-name descname"><span class="pre">A</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.A" title="Link to this definition"></a></dt>
+<dd><p>Sparse matrix of shape (n, n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>spmatrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.X" title="Link to this definition"></a></dt>
+<dd><p>Initial vector or matrix of shape (n, r)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.invA">
+<span class="sig-name descname"><span class="pre">invA</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.invA" title="Link to this definition"></a></dt>
+<dd><p>Function that computes A^(-1) * v for a given vector/matrix v</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.Q" title="Link to this definition"></a></dt>
+<dd><p>Orthonormal basis of the inverted Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.basis" title="Link to this definition"></a></dt>
+<dd><p>Pointer to Q</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.krylov</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvertedKrylovSpace</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a sparse matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Build inverted Krylov space</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">IK</span> <span class="o">=</span> <span class="n">InvertedKrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Start with A^(-1)*X</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">IK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(3, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Augment with A^(-2)*X</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">IK</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">IK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(3, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Basis is orthonormal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">IK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">IK</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/inverted_krylov_space.html#InvertedKrylovSpace.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.InvertedKrylovSpace.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>) – The matrix A of the linear system.</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – The basis of the Krylov space.</p></li>
+<li><p><strong>invA</strong> (<em>callable</em>) – The function that computes the action of A^(-1) on a vector, or a matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.spmatrix.html#scipy.sparse.spmatrix" title="(in SciPy v1.17.0)"><em>spmatrix</em></a>)</p></li>
+<li><p><strong>X</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>invA</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.spaces.</span></span><span class="sig-name descname"><span class="pre">KrylovSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/krylov_space.html#KrylovSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="low_rank_toolbox.krylov.spaces.space_structure.html#low_rank_toolbox.krylov.spaces.space_structure.SpaceStructure" title="low_rank_toolbox.krylov.spaces.space_structure.SpaceStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceStructure</span></code></a></p>
+<p>Class for (block) Krylov spaces.
+The definition of a Krylov space of size $m$ is the following:</p>
+<blockquote>
+<div><p>K_m(A,x) = span{x, A x, A^2 x, …, A^(m-1) x}</p>
+</div></blockquote>
+<p>where $A$ is a sparse matrix, and $x$ is a vector or a matrix.</p>
+<p><strong>Algorithm Selection:</strong>
+- If A is symmetric (is_symmetric=True): Uses Lanczos algorithm with 3-term recurrence</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Stores tridiagonal coefficients (alpha, beta) in O(m) space</p></li>
+<li><p>Orthogonalization cost: O(n*r) per iteration</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>If A is non-symmetric (is_symmetric=False): Uses Arnoldi algorithm with full orthogonalization
+- Stores upper Hessenberg matrix H in O(m²) space
+- Orthogonalization cost: O(n*m*r) per iteration</p></li>
+</ul>
+<p><strong>Performance:</strong> For symmetric problems, Lanczos is faster and uses significantly
+less memory than Arnoldi.</p>
+<section id="id5">
+<h2>How to use<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Initialize the Krylov space with the matrix $A$ and the vector $x$.</p></li>
+<li><p>Augment the basis of the Krylov space as needed with the method <cite>augment_basis</cite>.</p></li>
+<li><p>The basis is stored in the attribute ‘basis’, or ‘Q’ for short.</p></li>
+</ol>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.A">
+<span class="sig-name descname"><span class="pre">A</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.A" title="Link to this definition"></a></dt>
+<dd><p>Matrix of shape (n,n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>spmatrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.X" title="Link to this definition"></a></dt>
+<dd><p>Vector of shape (n,1) or (n,r)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.m">
+<span class="sig-name descname"><span class="pre">m</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.m" title="Link to this definition"></a></dt>
+<dd><p>Size of the Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.is_symmetric">
+<span class="sig-name descname"><span class="pre">is_symmetric</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.is_symmetric" title="Link to this definition"></a></dt>
+<dd><p>True if A is symmetric (uses Lanczos), False otherwise (uses Arnoldi)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.Q" title="Link to this definition"></a></dt>
+<dd><p>Matrix of shape (n,m) or (n,m*r) containing the basis of the Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.basis" title="Link to this definition"></a></dt>
+<dd><p>Pointer to Q</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace._alpha">
+<span class="sig-name descname"><span class="pre">_alpha</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace._alpha" title="Link to this definition"></a></dt>
+<dd><p>Lanczos diagonal coefficients</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray (symmetric only)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace._beta">
+<span class="sig-name descname"><span class="pre">_beta</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace._beta" title="Link to this definition"></a></dt>
+<dd><p>Lanczos off-diagonal coefficients</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray (symmetric only)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.H">
+<span class="sig-name descname"><span class="pre">H</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.H" title="Link to this definition"></a></dt>
+<dd><p>Upper Hessenberg matrix from Arnoldi</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray (non-symmetric only)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.krylov</span><span class="w"> </span><span class="kn">import</span> <span class="n">KrylovSpace</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Non-symmetric case (uses Arnoldi)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="n">KrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>  <span class="c1"># Add next basis vector</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(3, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Symmetric case (uses Lanczos - more efficient)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A_sym</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K_sym</span> <span class="o">=</span> <span class="n">KrylovSpace</span><span class="p">(</span><span class="n">A_sym</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K_sym</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K_sym</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(3, 2)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/krylov_space.html#KrylovSpace.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize a Krylov Space where X is a vector or a matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>) – Sparse matrix of shape (n,n)</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – Vector or matrix of shape (n,) or (n,r)</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Extra arguments</p></li>
+<li><p><strong>arguments</strong> (<em>Extra</em>)</p></li>
+<li><p><strong>---------------</strong></p></li>
+<li><p><strong>is_symmetric</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – True if A is symmetric (uses Lanczos), False otherwise (uses Arnoldi).
+Lanczos is much cheaper for symmetric problems.</p></li>
+<li><p><strong>matvec</strong> (<em>callable</em>) – Function for the matrix-vector product</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.augment_basis">
+<span class="sig-name descname"><span class="pre">augment_basis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/krylov_space.html#KrylovSpace.augment_basis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.augment_basis" title="Link to this definition"></a></dt>
+<dd><p>Augment the basis of the Krylov space.</p>
+<p>Adds the next block of r basis vectors to the Krylov space using:
+- Lanczos algorithm if A is symmetric
+- Arnoldi algorithm if A is non-symmetric</p>
+<p>The new basis vectors are computed as A * Q[:, (m-1)*r:m*r] and then
+orthogonalized against the existing basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If the next basis would exceed the dimension of the matrix, a warning
+is issued and the method returns without modifying the basis.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id6">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">basis</span></span><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd><p>The orthonormal basis of the Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Matrix of shape (n, m*r) containing the basis vectors.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.KrylovSpace.size">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.KrylovSpace.size" title="Link to this definition"></a></dt>
+<dd><p>The size of the Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of basis vectors (m * r).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>)</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.spaces.</span></span><span class="sig-name descname"><span class="pre">RationalKrylovSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/rational_krylov_space.html#RationalKrylovSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="low_rank_toolbox.krylov.spaces.space_structure.html#low_rank_toolbox.krylov.spaces.space_structure.SpaceStructure" title="low_rank_toolbox.krylov.spaces.space_structure.SpaceStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceStructure</span></code></a></p>
+<p>Rational Krylov space.</p>
+<dl class="simple">
+<dt>Constructs the rational Krylov space:</dt><dd><p>RK_m(A, X) = span{X, (A - p_1*I)^{-1}X, …, prod_{i=1}^{m-1}(A - p_i*I)^{-1}X}</p>
+</dd>
+</dl>
+<p>where p_1, …, p_{m-1} are specified poles (shifts). This space generalizes the
+standard Krylov space by using rational functions of A instead of polynomials.</p>
+<section id="id7">
+<h2>How to use<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Initialize with matrix A, vector/matrix X, and list of poles.</p></li>
+<li><p>Augment the basis as needed with <cite>augment_basis</cite>.</p></li>
+<li><p>Access the basis via <cite>basis</cite> or <cite>Q</cite>.</p></li>
+</ol>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.A">
+<span class="sig-name descname"><span class="pre">A</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.A" title="Link to this definition"></a></dt>
+<dd><p>Sparse matrix of shape (n, n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>spmatrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.X" title="Link to this definition"></a></dt>
+<dd><p>Initial vector or matrix of shape (n, r)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.poles">
+<span class="sig-name descname"><span class="pre">poles</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.poles" title="Link to this definition"></a></dt>
+<dd><p>Array of poles (shifts) for the rational Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.max_iter">
+<span class="sig-name descname"><span class="pre">max_iter</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.max_iter" title="Link to this definition"></a></dt>
+<dd><p>Maximum number of iterations (length of poles list)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.m">
+<span class="sig-name descname"><span class="pre">m</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.m" title="Link to this definition"></a></dt>
+<dd><p>Current size of the rational Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.Q" title="Link to this definition"></a></dt>
+<dd><p>Orthonormal basis of shape (n, m*r)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.H">
+<span class="sig-name descname"><span class="pre">H</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.H" title="Link to this definition"></a></dt>
+<dd><p>Upper triangular matrix from QR factorization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.basis" title="Link to this definition"></a></dt>
+<dd><p>Pointer to Q</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.krylov</span><span class="w"> </span><span class="kn">import</span> <span class="n">RationalKrylovSpace</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a sparse matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Choose poles to emphasize specific spectral regions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># (e.g., near eigenvalues of interest)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poles</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RK</span> <span class="o">=</span> <span class="n">RationalKrylovSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">poles</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Each augmentation uses the next pole</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RK</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>  <span class="c1"># Uses pole 1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(3, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RK</span><span class="o">.</span><span class="n">augment_basis</span><span class="p">()</span>  <span class="c1"># Uses pole 2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(3, 3)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Verify orthogonality</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">RK</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">RK</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/rational_krylov_space.html#RationalKrylovSpace.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize a rational Krylov space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>) – Sparse matrix of shape (n, n)</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – Vector or matrix of shape (n, r)</p></li>
+<li><p><strong>poles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Poles (shifts) for the rational Krylov space</p></li>
+<li><p><strong>inverse_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, solves (A - p*I) * v_new = v_old.
+If False, solves (A - p*I) * v_new = A * v_old.
+Default is False. The False case is useful for approximating matrix
+functions, while True is for solving linear systems.</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Extra arguments</p></li>
+<li><p><strong>arguments</strong> (<em>Extra</em>)</p></li>
+<li><p><strong>---------------</strong></p></li>
+<li><p><strong>symmetric</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – True if A is symmetric, False otherwise (not used for rational Krylov)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.augment_basis">
+<span class="sig-name descname"><span class="pre">augment_basis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/spaces/rational_krylov_space.html#RationalKrylovSpace.augment_basis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.augment_basis" title="Link to this definition"></a></dt>
+<dd><p>Augment the basis of the rational Krylov space.</p>
+<dl class="simple">
+<dt>Adds the next block of r basis vectors by solving:</dt><dd><p>(A - p_{m-1}*I) * v_new = v_old</p>
+</dd>
+</dl>
+<p>where p_{m-1} is the next pole in the sequence. The new vectors are then
+orthogonalized against the existing basis using QR factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the space would exceed the problem dimension or if there are not
+    enough poles specified.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id8">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd><p>The orthonormal basis of the rational Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Matrix of shape (n, m*r) containing the basis vectors.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.spaces.RationalKrylovSpace.size">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#low_rank_toolbox.krylov.spaces.RationalKrylovSpace.size" title="Link to this definition"></a></dt>
+<dd><p>The size of the rational Krylov space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of basis vectors (m * r).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.spmatrix.html#scipy.sparse.spmatrix" title="(in SciPy v1.17.0)"><em>spmatrix</em></a>)</p></li>
+<li><p><strong>X</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>poles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>inverse_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Modules</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.krylov.spaces.extended_krylov_space.html#module-low_rank_toolbox.krylov.spaces.extended_krylov_space" title="low_rank_toolbox.krylov.spaces.extended_krylov_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_krylov_space</span></code></a></p></td>
+<td><p>Extended Krylov subspace construction.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="low_rank_toolbox.krylov.spaces.inverted_krylov_space.html#module-low_rank_toolbox.krylov.spaces.inverted_krylov_space" title="low_rank_toolbox.krylov.spaces.inverted_krylov_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverted_krylov_space</span></code></a></p></td>
+<td><p>Inverted Krylov subspace construction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.krylov.spaces.krylov_space.html#module-low_rank_toolbox.krylov.spaces.krylov_space" title="low_rank_toolbox.krylov.spaces.krylov_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">krylov_space</span></code></a></p></td>
+<td><p>Standard Krylov subspace construction and operations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="low_rank_toolbox.krylov.spaces.rational_krylov_space.html#module-low_rank_toolbox.krylov.spaces.rational_krylov_space" title="low_rank_toolbox.krylov.spaces.rational_krylov_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rational_krylov_space</span></code></a></p></td>
+<td><p>Rational Krylov subspace construction with arbitrary poles.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="low_rank_toolbox.krylov.spaces.space_structure.html#module-low_rank_toolbox.krylov.spaces.space_structure" title="low_rank_toolbox.krylov.spaces.space_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">space_structure</span></code></a></p></td>
+<td><p>Base class for space structures.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.krylov.solvers.sylvester_solvers.html" class="btn btn-neutral float-left" title="low_rank_toolbox.krylov.solvers.sylvester_solvers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.krylov.spaces.extended_krylov_space.html" class="btn btn-neutral float-right" title="low_rank_toolbox.krylov.spaces.extended_krylov_space" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

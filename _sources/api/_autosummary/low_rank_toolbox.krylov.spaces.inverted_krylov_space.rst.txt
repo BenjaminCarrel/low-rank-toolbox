@@ -1,0 +1,12 @@
+low\_rank\_toolbox.krylov.spaces.inverted\_krylov\_space
+========================================================
+
+.. automodule:: low_rank_toolbox.krylov.spaces.inverted_krylov_space
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      InvertedKrylovSpace
+   

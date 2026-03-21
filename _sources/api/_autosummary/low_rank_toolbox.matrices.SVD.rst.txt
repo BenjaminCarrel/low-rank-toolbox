@@ -1,0 +1,119 @@
+﻿low\_rank\_toolbox.matrices.SVD
+===============================
+
+.. currentmodule:: low_rank_toolbox.matrices
+
+.. autoclass:: SVD
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SVD.__init__
+      ~SVD.adjoint
+      ~SVD.allclose
+      ~SVD.approximation_error
+      ~SVD.compress
+      ~SVD.compress_
+      ~SVD.compression_ratio
+      ~SVD.cond_estimate
+      ~SVD.conj
+      ~SVD.copy
+      ~SVD.create_data_alias
+      ~SVD.create_matrix_alias
+      ~SVD.diag
+      ~SVD.dot
+      ~SVD.dot_sparse
+      ~SVD.expm
+      ~SVD.expm_multiply
+      ~SVD.flatten
+      ~SVD.from_dense
+      ~SVD.from_full
+      ~SVD.from_low_rank
+      ~SVD.from_matrix
+      ~SVD.from_qr
+      ~SVD.from_quasiSVD
+      ~SVD.full
+      ~SVD.full_svd
+      ~SVD.gather
+      ~SVD.generate_random
+      ~SVD.get_block
+      ~SVD.hadamard
+      ~SVD.is_orthogonal
+      ~SVD.is_singular
+      ~SVD.is_symmetric
+      ~SVD.is_well_conditioned
+      ~SVD.load
+      ~SVD.lstsq
+      ~SVD.matmat
+      ~SVD.matvec
+      ~SVD.memory_usage
+      ~SVD.multi_add
+      ~SVD.multi_dot
+      ~SVD.norm
+      ~SVD.norm_squared
+      ~SVD.numerical_health_check
+      ~SVD.plot_singular_value_decay
+      ~SVD.power
+      ~SVD.project_onto_column_space
+      ~SVD.project_onto_interpolated_tangent_space
+      ~SVD.project_onto_row_space
+      ~SVD.project_onto_tangent_space
+      ~SVD.pseudoinverse
+      ~SVD.rank_one_update
+      ~SVD.reduced_svd
+      ~SVD.reorthogonalize
+      ~SVD.rmatmat
+      ~SVD.rmatvec
+      ~SVD.save
+      ~SVD.scale_
+      ~SVD.sing_vals
+      ~SVD.singular_values
+      ~SVD.solve
+      ~SVD.sqrtm
+      ~SVD.to_dense
+      ~SVD.to_full
+      ~SVD.to_qr
+      ~SVD.to_sparse
+      ~SVD.to_svd
+      ~SVD.todense
+      ~SVD.trace
+      ~SVD.transpose
+      ~SVD.truncate
+      ~SVD.truncate_perpendicular
+      ~SVD.truncated_svd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SVD.H
+      ~SVD.K
+      ~SVD.L
+      ~SVD.S
+      ~SVD.T
+      ~SVD.U
+      ~SVD.Uh
+      ~SVD.Ut
+      ~SVD.V
+      ~SVD.Vh
+      ~SVD.Vt
+      ~SVD.deepshape
+      ~SVD.is_memory_efficient
+      ~SVD.length
+      ~SVD.ndim
+      ~SVD.numerical_rank
+      ~SVD.rank
+      ~SVD.s
+      ~SVD.size
+      ~SVD.svd_type
+   
+   

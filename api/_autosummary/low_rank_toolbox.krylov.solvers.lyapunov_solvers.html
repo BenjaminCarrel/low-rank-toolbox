@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.krylov.solvers.lyapunov_solvers &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.krylov.solvers.sylvester_solvers" href="low_rank_toolbox.krylov.solvers.sylvester_solvers.html" />
+    <link rel="prev" title="low_rank_toolbox.krylov.solvers" href="low_rank_toolbox.krylov.solvers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../matrices.html">Matrices Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.cssp.html">low_rank_toolbox.cssp</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.data.html">low_rank_toolbox.krylov.data</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="low_rank_toolbox.krylov.solvers.html">low_rank_toolbox.krylov.solvers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.spaces.html">low_rank_toolbox.krylov.spaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.krylov.utils.html">low_rank_toolbox.krylov.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.randomized.html">low_rank_toolbox.randomized</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a></li>
+          <li class="breadcrumb-item"><a href="low_rank_toolbox.krylov.solvers.html">low_rank_toolbox.krylov.solvers</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.krylov.solvers.lyapunov_solvers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.krylov.solvers.lyapunov_solvers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-low_rank_toolbox.krylov.solvers.lyapunov_solvers">
+<span id="low-rank-toolbox-krylov-solvers-lyapunov-solvers"></span><h1>low_rank_toolbox.krylov.solvers.lyapunov_solvers<a class="headerlink" href="#module-low_rank_toolbox.krylov.solvers.lyapunov_solvers" title="Link to this heading"></a></h1>
+<p>Krylov-based solvers for the Lyapunov equation.</p>
+<p>Author: Benjamin Carrel, University of Geneva, 2022-2023</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_lyapunov" title="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_lyapunov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_lyapunov</span></code></a>(A, C[, tol, max_iter, ...])</p></td>
+<td><p>Efficient low-rank compatible solver for the Lyapunov equation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_small_lyapunov" title="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_small_lyapunov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_small_lyapunov</span></code></a>(A, C)</p></td>
+<td><p>Solve the Lyapunov equation AX + XA = C for small matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_non_symmetric_lyapunov" title="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_non_symmetric_lyapunov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_sparse_low_rank_non_symmetric_lyapunov</span></code></a>(A, C)</p></td>
+<td><p>Low-rank solver for the general Lyapunov equation:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_symmetric_lyapunov" title="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_symmetric_lyapunov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_sparse_low_rank_symmetric_lyapunov</span></code></a>(A, C)</p></td>
+<td><p>Low-rank solver for the symmetric Lyapunov equation:</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_lyapunov">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.solvers.lyapunov_solvers.</span></span><span class="sig-name descname"><span class="pre">solve_lyapunov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_symmetric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">krylov_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/solvers/lyapunov_solvers.html#solve_lyapunov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_lyapunov" title="Link to this definition"></a></dt>
+<dd><p>Efficient low-rank compatible solver for the Lyapunov equation.</p>
+<p>Find X such that AX + XA^H = C.</p>
+<p>This function is a wrapper that selects the appropriate solver based on the types of A and C.</p>
+<p>For lower computational cost, if A and C are symmetric, set is_symmetric=True.
+This enables the use of the Lanczos algorithm (3-term recurrence) instead of
+Arnoldi (full orthogonalization), approximately halving the computational cost
+and memory usage per iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>ndarray</em><em> | </em><em>spmatrix</em>) – The matrix A of shape (n, n)</p></li>
+<li><p><strong>C</strong> (<em>ndarray</em><em> | </em><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a>) – The matrix C of shape (n, n)</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Convergence tolerance for Krylov solver, by default 1e-12</p></li>
+<li><p><strong>max_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum iterations for Krylov solver, by default None</p></li>
+<li><p><strong>is_symmetric</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, use symmetric solver (only for sparse A and low-rank C).
+Exploits symmetry using Lanczos algorithm for ~2x speedup.
+If None, symmetry is auto-detected (with efficiency warning).</p></li>
+<li><p><strong>krylov_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Krylov space configuration (see solve_sparse_low_rank_symmetric_lyapunov
+or solve_sparse_low_rank_non_symmetric_lyapunov for details)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The solution X, either dense or low-rank and symmetric if and only if C is symmetric.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray | <a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix">LowRankMatrix</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox</span><span class="w"> </span><span class="kn">import</span> <span class="n">LowRankMatrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.krylov</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_lyapunov</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Small dense case</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A_small</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C_small</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_small</span> <span class="o">=</span> <span class="n">solve_lyapunov</span><span class="p">(</span><span class="n">A_small</span><span class="p">,</span> <span class="n">C_small</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Verify: AX + XA = C</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">A_small</span> <span class="o">@</span> <span class="n">X_small</span> <span class="o">+</span> <span class="n">X_small</span> <span class="o">@</span> <span class="n">A_small</span><span class="p">,</span> <span class="n">C_small</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Large sparse case with low-rank RHS</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">diags</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">diags</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csr&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">solve_lyapunov</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Solution is low-rank and symmetric</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">&#39;SVD&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">rank</span> <span class="o">&lt;=</span> <span class="n">n</span>  <span class="c1"># Much lower rank than n</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_small_lyapunov">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.solvers.lyapunov_solvers.</span></span><span class="sig-name descname"><span class="pre">solve_small_lyapunov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/solvers/lyapunov_solvers.html#solve_small_lyapunov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_small_lyapunov" title="Link to this definition"></a></dt>
+<dd><p>Solve the Lyapunov equation AX + XA = C for small matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>A</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.spmatrix.html#scipy.sparse.spmatrix" title="(in SciPy v1.17.0)"><em>spmatrix</em></a>)</p></li>
+<li><p><strong>C</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_non_symmetric_lyapunov">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.solvers.lyapunov_solvers.</span></span><span class="sig-name descname"><span class="pre">solve_sparse_low_rank_non_symmetric_lyapunov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">krylov_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/solvers/lyapunov_solvers.html#solve_sparse_low_rank_non_symmetric_lyapunov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_non_symmetric_lyapunov" title="Link to this definition"></a></dt>
+<dd><p>Low-rank solver for the general Lyapunov equation:</p>
+<p>Find X such that A X + X A^H = C.</p>
+<p>Uses two Krylov spaces (left for A, right for A^H). The projected problem is solved
+as a Sylvester equation: Ak Y + Y Bk^H = Ck.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>) – Sparse matrix of shape (n, n)</p></li>
+<li><p><strong>C</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a>) – Low-rank right-hand side of shape (n, n)</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Convergence tolerance, by default 1e-12</p></li>
+<li><p><strong>max_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum iterations, by default n / rank(C)</p></li>
+<li><p><strong>krylov_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Krylov space configuration with keys:
+- ‘extended’ (bool): Use extended Krylov space (default True)
+- ‘invA’ (callable): Custom inverse function for A
+- ‘invAH’ (callable): Custom inverse function for A^H
+- ‘poles_A’ (array_like): Poles for rational Krylov space for A
+- ‘poles_AH’ (array_like): Poles for rational Krylov space for A^H</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Low-rank solution X (not necessarily symmetric)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QuasiSVD" title="low_rank_toolbox.matrices.QuasiSVD">QuasiSVD</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_symmetric_lyapunov">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.krylov.solvers.lyapunov_solvers.</span></span><span class="sig-name descname"><span class="pre">solve_sparse_low_rank_symmetric_lyapunov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">krylov_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/krylov/solvers/lyapunov_solvers.html#solve_sparse_low_rank_symmetric_lyapunov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.krylov.solvers.lyapunov_solvers.solve_sparse_low_rank_symmetric_lyapunov" title="Link to this definition"></a></dt>
+<dd><p>Low-rank solver for the symmetric Lyapunov equation:</p>
+<p>Find X such that A X + X A = C.</p>
+<p>NOTE: Matrices A and C must be symmetric, which is exploited to halve the computational cost.
+Uses a single Krylov space since the solution X is also symmetric.</p>
+<p><strong>Performance:</strong> Uses the Lanczos algorithm (3-term recurrence) instead of Arnoldi
+(full orthogonalization), reducing computational cost by approximately 2x and storage
+by O(m²) → O(m) for the recurrence coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>spmatrix</em>) – Symmetric sparse matrix of shape (n, n)</p></li>
+<li><p><strong>C</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a>) – Symmetric low-rank matrix of shape (n, n)</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Convergence tolerance, by default 1e-12</p></li>
+<li><p><strong>max_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum iterations, by default n / rank(C)</p></li>
+<li><p><strong>krylov_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – <p>Krylov space configuration with keys:
+- ‘extended’ (bool): Use extended Krylov space (default True)</p>
+<blockquote>
+<div><p>Extended Krylov uses both A and A^(-1), providing faster convergence.
+Uses Lanczos algorithm for symmetric A (efficient 3-term recurrence).</p>
+</div></blockquote>
+<ul>
+<li><p>’invA’ (callable): Custom inverse function for A</p></li>
+<li><p>’poles’ (array_like): Poles for rational Krylov space
+WARNING: Rational Krylov currently uses Arnoldi even for symmetric A
+(Lanczos not yet implemented for rational case).</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Symmetric low-rank solution X</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.QuasiSVD" title="low_rank_toolbox.matrices.QuasiSVD">QuasiSVD</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">diags</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox</span><span class="w"> </span><span class="kn">import</span> <span class="n">LowRankMatrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">low_rank_toolbox.krylov</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_sparse_low_rank_symmetric_lyapunov</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a symmetric sparse matrix (100x100 tridiagonal)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">diags</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csr&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a symmetric low-rank right-hand side</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">LowRankMatrix</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>  <span class="c1"># Rank-1 symmetric matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Solve AX + XA = C</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">solve_sparse_low_rank_symmetric_lyapunov</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Verify the solution</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">residual</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">X</span> <span class="o">+</span> <span class="n">X</span> <span class="o">@</span> <span class="n">A</span> <span class="o">-</span> <span class="n">C</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">residual</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">1e-8</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># X is low-rank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">rank</span> <span class="o">&lt;=</span> <span class="n">n</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.krylov.solvers.html" class="btn btn-neutral float-left" title="low_rank_toolbox.krylov.solvers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.krylov.solvers.sylvester_solvers.html" class="btn btn-neutral float-right" title="low_rank_toolbox.krylov.solvers.sylvester_solvers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

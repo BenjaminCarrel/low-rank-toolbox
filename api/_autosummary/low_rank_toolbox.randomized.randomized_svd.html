@@ -1,0 +1,170 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.randomized.randomized_svd &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.randomized.rangefinder" href="low_rank_toolbox.randomized.rangefinder.html" />
+    <link rel="prev" title="low_rank_toolbox.randomized.generalized_nystrom" href="low_rank_toolbox.randomized.generalized_nystrom.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../matrices.html">Matrices Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.cssp.html">low_rank_toolbox.cssp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="low_rank_toolbox.randomized.html">low_rank_toolbox.randomized</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.html#low_rank_toolbox.randomized.adaptive_randomized_svd"><code class="docutils literal notranslate"><span class="pre">adaptive_randomized_svd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.html#low_rank_toolbox.randomized.adaptive_rangefinder"><code class="docutils literal notranslate"><span class="pre">adaptive_rangefinder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.html#low_rank_toolbox.randomized.generalized_nystrom"><code class="docutils literal notranslate"><span class="pre">generalized_nystrom()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.html#low_rank_toolbox.randomized.randomized_svd"><code class="docutils literal notranslate"><span class="pre">randomized_svd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.html#low_rank_toolbox.randomized.rangefinder"><code class="docutils literal notranslate"><span class="pre">rangefinder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.generalized_nystrom.html">low_rank_toolbox.randomized.generalized_nystrom</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">low_rank_toolbox.randomized.randomized_svd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.randomized.rangefinder.html">low_rank_toolbox.randomized.rangefinder</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="low_rank_toolbox.randomized.html">low_rank_toolbox.randomized</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.randomized.randomized_svd</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.randomized.randomized_svd.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="low-rank-toolbox-randomized-randomized-svd">
+<h1>low_rank_toolbox.randomized.randomized_svd<a class="headerlink" href="#low-rank-toolbox-randomized-randomized-svd" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.randomized.randomized_svd">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.randomized.</span></span><span class="sig-name descname"><span class="pre">randomized_svd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/randomized/randomized_svd.html#randomized_svd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.randomized.randomized_svd" title="Link to this definition"></a></dt>
+<dd><p>Randomized SVD algorithm.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>“Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions”,
+Halko, Martinsson and Tropp 2010.</p>
+</dd>
+</dl>
+<p>The randomized SVD computes an approximate SVD of a matrix X with the following steps:
+1. Estimate the range with Q = rangefinder(X, r, p, q, seed)
+2. Form the smaller matrix C = Q^H X
+3. Compute the SVD of C: C = U_C S V^H
+4. Form the approximate SVD of X: X_approx = Q U_C S V^H</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD"><em>SVD</em></a><em> | </em><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.LowRankMatrix" title="low_rank_toolbox.matrices.LowRankMatrix"><em>LowRankMatrix</em></a><em> | </em><em>ndarray</em><em> | </em><em>LinearOperator</em>) – Matrix or operator to be decomposed</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Rank of the decomposition, must be positive</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Oversampling parameter (default: 10)</p></li>
+<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of power iterations (default: 0)</p></li>
+<li><p><strong>truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, truncate the SVD to rank r (default: True)</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Random seed for reproducibility (default: 1234)</p></li>
+<li><p><strong>**extra_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional arguments passed to SVD constructor. If ‘Omega’ is provided, use it as the sketching matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Near-optimal best rank r approximation of X</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../matrices.html#low_rank_toolbox.matrices.SVD" title="low_rank_toolbox.matrices.SVD">SVD</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.randomized.generalized_nystrom.html" class="btn btn-neutral float-left" title="low_rank_toolbox.randomized.generalized_nystrom" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.randomized.rangefinder.html" class="btn btn-neutral float-right" title="low_rank_toolbox.randomized.rangefinder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

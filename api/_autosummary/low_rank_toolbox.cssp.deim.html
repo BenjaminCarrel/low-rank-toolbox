@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>low_rank_toolbox.cssp.deim &mdash; Low-Rank Toolbox 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="low_rank_toolbox.cssp.gpode" href="low_rank_toolbox.cssp.gpode.html" />
+    <link rel="prev" title="low_rank_toolbox.cssp.arp" href="low_rank_toolbox.cssp.arp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Low-Rank Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../matrices.html">Matrices Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.matrices.html">low_rank_toolbox.matrices</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="low_rank_toolbox.cssp.html">low_rank_toolbox.cssp</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#algorithms">Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.ARP"><code class="docutils literal notranslate"><span class="pre">ARP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.DEIM"><code class="docutils literal notranslate"><span class="pre">DEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.Osinsky"><code class="docutils literal notranslate"><span class="pre">Osinsky()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.QDEIM"><code class="docutils literal notranslate"><span class="pre">QDEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.gpode"><code class="docutils literal notranslate"><span class="pre">gpode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.gpodr"><code class="docutils literal notranslate"><span class="pre">gpodr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.oversampling_sQDEIM"><code class="docutils literal notranslate"><span class="pre">oversampling_sQDEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.html#low_rank_toolbox.cssp.sQDEIM"><code class="docutils literal notranslate"><span class="pre">sQDEIM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.arp.html">low_rank_toolbox.cssp.arp</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">low_rank_toolbox.cssp.deim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.gpode.html">low_rank_toolbox.cssp.gpode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.gpodr.html">low_rank_toolbox.cssp.gpodr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.osinsky.html">low_rank_toolbox.cssp.osinsky</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.oversampling_sqdeim.html">low_rank_toolbox.cssp.oversampling_sqdeim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.qdeim.html">low_rank_toolbox.cssp.qdeim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.sqdeim.html">low_rank_toolbox.cssp.sqdeim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="low_rank_toolbox.cssp.utils.html">low_rank_toolbox.cssp.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.krylov.html">low_rank_toolbox.krylov</a></li>
+<li class="toctree-l3"><a class="reference internal" href="low_rank_toolbox.randomized.html">low_rank_toolbox.randomized</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Low-Rank Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="low_rank_toolbox.cssp.html">low_rank_toolbox.cssp</a></li>
+      <li class="breadcrumb-item active">low_rank_toolbox.cssp.deim</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/low_rank_toolbox.cssp.deim.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-low_rank_toolbox.cssp.deim">
+<span id="low-rank-toolbox-cssp-deim"></span><h1>low_rank_toolbox.cssp.deim<a class="headerlink" href="#module-low_rank_toolbox.cssp.deim" title="Link to this heading"></a></h1>
+<p>Discrete Empirical Interpolation Method (DEIM).</p>
+<p>Author: Benjamin Carrel, University of Geneva, 2024</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#low_rank_toolbox.cssp.deim.DEIM" title="low_rank_toolbox.cssp.deim.DEIM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEIM</span></code></a>(U[, return_projector, return_inverse])</p></td>
+<td><p>DEIM - Discrete empirical interpolation method</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="low_rank_toolbox.cssp.deim.DEIM">
+<span class="sig-prename descclassname"><span class="pre">low_rank_toolbox.cssp.deim.</span></span><span class="sig-name descname"><span class="pre">DEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/low_rank_toolbox/cssp/deim.html#DEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#low_rank_toolbox.cssp.deim.DEIM" title="Link to this definition"></a></dt>
+<dd><p>DEIM - Discrete empirical interpolation method</p>
+<p>Construct a matrix P = [e_p1, e_p2, …, e_pk]
+where the indexes pi are obtained via the DEIM procedure.</p>
+<dl class="simple">
+<dt>Reference</dt><dd><p>Nonlinear Model Reduction via Discrete Empirical Interpolation
+Saifon Chaturantabut and Danny C. Sorensen
+SIAM Journal on Scientific Computing 2010 32:5, 2737-2764</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>U</strong> (<em>ndarray</em>) – Orthonormal matrix of size n x k</p></li>
+<li><p><strong>return_projector</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>return_inverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return also the inverse matrix inv(U[S, :])</p></li>
+<li><p><strong>extra_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <dl class="simple">
+<dt>Additional arguments:</dt><dd><dl class="simple">
+<dt>solve_kwargs: dict</dt><dd><p>Additional arguments for the solve function</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>p</strong> (<em>list</em>) – List of indexes selected by DEIM</p></li>
+<li><p><strong>P_U</strong> (<em>ndarray (n x k) (optional)</em>) – Projector matrix U &#64; inv(U[S, :])</p></li>
+<li><p><strong>inv_U</strong> (<em>ndarray (k x k) (optional)</em>) – Inverse matrix inv(U[S, :])</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="low_rank_toolbox.cssp.arp.html" class="btn btn-neutral float-left" title="low_rank_toolbox.cssp.arp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low_rank_toolbox.cssp.gpode.html" class="btn btn-neutral float-right" title="low_rank_toolbox.cssp.gpode" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Benjamin Carrel and Rik Vorhaar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

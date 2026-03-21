@@ -1,0 +1,6 @@
+low\_rank\_toolbox.randomized.randomized\_svd
+=============================================
+
+.. currentmodule:: low_rank_toolbox.randomized
+
+.. autofunction:: randomized_svd
